@@ -91,6 +91,7 @@ build_rpms:
     - tags
     - develop
     - /^release-.*$/
+    - merge_requests
   before_script:
     - apt-get update -y
     - apt-get install -y rsync rpm mime-support curl
