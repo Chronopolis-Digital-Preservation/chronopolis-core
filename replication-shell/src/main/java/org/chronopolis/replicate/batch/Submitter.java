@@ -215,7 +215,7 @@ public class Submitter {
 
         return optFuture.map(future ->
                 future.thenApplyAsync((Void param) -> replication.getStatus())
-        ).orElse(failNotAllocated(replication));
+        ).orElseGet(() -> failNotAllocated(replication));
     }
 
     /**
@@ -236,7 +236,7 @@ public class Submitter {
 
         return multiOpt.map(multi ->
                 aceFactory.register(replication, multi.bag, bagOp, multi.token, tokenOp)
-        ).orElse(failNotAllocated(replication));
+        ).orElseGet(() -> failNotAllocated(replication));
     }
 
     /**
