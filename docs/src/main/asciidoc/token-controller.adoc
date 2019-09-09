@@ -1,0 +1,275 @@
+=== Token Operations
+
+ACE Tokens are an important part of the lifecycle of Files in the Chronopolis
+Ingest process. Currently only single operations are facilitated, with batch
+operations being a future goal.
+
+==== Get AceToken
+`*GET* /api/tokens/#:token_id#`
+
+Retrieve a single AceToken identified by its id
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "bagId": Long,
+  "round": Long,
+  "proof": String,
+  "imsHost": String,
+  "filename": String,
+  "algorithm": String,
+  "imsService": String,
+  "createDate": ISO-8601 DateTime at UTC-0
+}
+----
+==== List AceTokens
+
+Retrieve a pageable list of AceTokens held by the Ingest Server
+
+.Query Parameters
+|===
+| Parameter | Type | Description
+
+|page
+|Int
+|The page number to query
+
+|orderBy
+|String
+|The field to order on
+
+|dir
+|String
+|The order to retrieve results, `ASC` or `DESC`
+
+| bagId
+| Long
+| The `bagId` to query on
+
+| algorithm
+| String
+| The `algorithm` to filter on
+
+| filename
+| String
+| The `filename` to search for
+|===
+
+===== Response Body
+[source,json]
+----
+{
+  "content": [
+    {
+      "id": Long,
+      "bagId": Long,
+      "round": Long,
+      "proof": String,
+      "imsHost": String,
+      "filename": String,
+      "algorithm": String,
+      "imsService": String,
+      "createDate": ISO-8601 DateTime at UTC-0
+    }, ...
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": Boolean,
+      "unsorted": Boolean,
+      "empty": Boolean
+    },
+    "pageSize": Integer,
+    "pageNumber": Integer
+    "offset": Integer
+    "unpaged": Boolean,
+    "paged": Boolean
+  },
+  "last": Boolean,
+  "totalPages": Integer,
+  "totalElements": Integer,
+  "first": Boolean,
+  "sort": {
+    "sorted": Boolean,
+    "unsorted": Boolean,
+    "empty": Boolean
+  },
+  "numberOfElements": Integer,
+  "size": Integer,
+  "number": Integer,
+  "empty": Boolean
+}
+----
+
+==== Get AceToken For Bag
+`*GET* /api/bags/#:bag_id#/files/#:file_id#/token`
+
+Get a single AceToken associated with a File in a Bag
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "bagId": Long,
+  "round": Long,
+  "proof": String,
+  "imsHost": String,
+  "filename": String,
+  "algorithm": String,
+  "imsService": String,
+  "createDate": ISO-8601 DateTime at UTC-0
+}
+----
+
+==== List AceTokens For Bag
+`*GET* /api/bags/#:bag_id#/tokens`
+
+Retrieve a pageable list of AceTokens which are associated with Files in a Bag
+
+.Query Parameters
+|===
+| Parameter | Type | Description
+
+|page
+|Int
+|The page number to query
+
+|orderBy
+|String
+|The field to order on
+
+|dir
+|String
+|The order to retrieve results, `ASC` or `DESC`
+
+| bagId
+| Long
+| The `bagId` to query on
+
+| algorithm
+| String
+| The `algorithm` to filter on
+
+| filename
+| String
+| The `filename` to search for
+|===
+
+===== Response Body
+[source,json]
+----
+{
+  "content": [
+    {
+      "id": Long,
+      "bagId": Long,
+      "round": Long,
+      "proof": String,
+      "imsHost": String,
+      "filename": String,
+      "algorithm": String,
+      "imsService": String,
+      "createDate": ISO-8601 DateTime at UTC-0
+    }, ...
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": Boolean,
+      "unsorted": Boolean,
+      "empty": Boolean
+    },
+    "pageSize": Integer,
+    "pageNumber": Integer
+    "offset": Integer
+    "unpaged": Boolean,
+    "paged": Boolean
+  },
+  "last": Boolean,
+  "totalPages": Integer,
+  "totalElements": Integer,
+  "first": Boolean,
+  "sort": {
+    "sorted": Boolean,
+    "unsorted": Boolean,
+    "empty": Boolean
+  },
+  "numberOfElements": Integer,
+  "size": Integer,
+  "number": Integer,
+  "empty": Boolean
+}
+----
+
+==== Create AceToken For Bag
+`*POST* /api/bags/#:bag_id#/tokens`
+
+Create an AceToken for a Bag
+
+===== Request Body
+[source,json]
+----
+{
+  "bagId": Long,
+  "round": Long,
+  "createdAte": DateTime,
+  "proof": String,
+  "imsHost": String,
+  "filename": String,
+  "algorithm": String,
+  "imsService": String
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "bagId": Long,
+  "round": Long,
+  "proof": String,
+  "imsHost": String,
+  "filename": String,
+  "algorithm": String,
+  "imsService": String,
+  "createDate": ISO-8601 DateTime at UTC-0
+}
+----
+
+==== Create AceToken For File
+`*POST* /api/bags/#:bag_id#/files/#:file_id#/token`
+
+Create an AceToken for a File in a Bag
+
+===== Request Body
+[source,json]
+----
+{
+  "bagId": Long,
+  "round": Long,
+  "createdAte": DateTime,
+  "proof": String,
+  "imsHost": String,
+  "filename": String,
+  "algorithm": String,
+  "imsService": String
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "bagId": Long,
+  "round": Long,
+  "proof": String,
+  "imsHost": String,
+  "filename": String,
+  "algorithm": String,
+  "imsService": String,
+  "createDate": ISO-8601 DateTime at UTC-0
+}
+----

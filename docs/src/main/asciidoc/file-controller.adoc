@@ -1,0 +1,410 @@
+=== File Operations
+
+It is required that each Bag in Chronopolis has the Files that track both its
+payload and its metadata registered. This includes information about the files
+themselves and additional Fixity information.
+
+NOTE: This section uses the <<fixity-algorithm>> enum
+
+==== Get File
+`*GET* /api/files/#:file_id#`
+
+Get a single file identified by its #file_id#
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "filename": String,
+  "size": Long,
+  "fixities": [
+    {
+      "value": String,
+      "algorithm": FixityAlgorithm,
+      "createdAt": ISO-8601 DateTime at UTC-0
+    }
+  ],
+  "bag": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0
+}
+----
+
+==== List Files
+`*GET* /api/files`
+
+Get a pageable list of all Files
+
+.Query Parameters
+|====
+|Parameter | Type | Description
+
+|page
+|Int
+|The page number to query
+
+|orderBy
+|String
+|The field to order on
+
+|dir
+|String
+|The order to retrieve results, `ASC` or `DESC`
+
+|fixity
+|String
+|The fixity (hash) to search for
+
+|algorithm
+|String
+|The fixity algorithm to query on
+
+|bag
+|Long
+|The id of the Bag
+
+|sizeLess
+|Long
+|Query only on files smaller than the given size
+
+|sizeGreater
+|Long
+|Query only on files larger than the given size
+
+|createdBefore
+|ZonedDateTime
+|Query for files created before a given DateTime
+
+|createdAfter
+|ZonedDateTime
+|Query for files created after a given DateTime
+
+|updatedBefore
+|ZonedDateTime
+|Query for files created before a given DateTime
+
+|updatedAfter
+|ZonedDateTime
+|Query for files created after a given DateTime
+|====
+
+===== Response Body
+[source,json]
+----
+{
+  "content": [
+    {
+      "id": Long,
+      "filename": String,
+      "size": Long,
+      "fixities": [
+        {
+          "value": String,
+          "algorithm": FixityAlgorithm,
+          "createdAt": ISO-8601 DateTime at UTC-0
+        }
+      ],
+      "bag": Long,
+      "createdAt": ISO-8601 DateTime at UTC-0,
+      "updatedAt": ISO-8601 DateTime at UTC-0
+    }, ...
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": Boolean,
+      "unsorted": Boolean,
+      "empty": Boolean
+    },
+    "pageSize": Integer,
+    "pageNumber": Integer
+    "offset": Integer
+    "unpaged": Boolean,
+    "paged": Boolean
+  },
+  "last": Boolean,
+  "totalPages": Integer,
+  "totalElements": Integer,
+  "first": Boolean,
+  "sort": {
+    "sorted": Boolean,
+    "unsorted": Boolean,
+    "empty": Boolean
+  },
+  "numberOfElements": Integer,
+  "size": Integer,
+  "number": Integer
+  "empty": Boolean
+}
+----
+
+////
+there might be a better way of doing operations inside of a bag other than
+using the file identifier
+////
+
+==== Get File In Bag
+`*GET* /api/bags/#:bag_id#/files/#:file_id#`
+
+Retrieve a single file that belongs to a Bag
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "filename": String,
+  "size": Long,
+  "fixities": [
+    {
+      "value": String,
+      "algorithm": FixityAlgorithm,
+      "createdAt": ISO-8601 DateTime at UTC-0
+    }
+  ],
+  "bag": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0
+}
+----
+
+==== List Files In Bag
+`*GET* /api/bags/#:bag_id#/files`
+
+Retrieve a pageable list of all files within a Bag
+
+.Query Parameters
+|====
+|Parameter | Type | Description
+
+|page
+|Int
+|The page number to query
+
+|orderBy
+|String
+|The field to order on
+
+|dir
+|String
+|The order to retrieve results, `ASC` or `DESC`
+
+|fixity
+|String
+|The fixity (hash) to search for
+
+|algorithm
+|String
+|The fixity algorithm to query on
+
+|bag
+|Long
+|The id of the Bag
+
+|sizeLess
+|Long
+|Query only on files smaller than the given size
+
+|sizeGreater
+|Long
+|Query only on files larger than the given size
+
+|createdBefore
+|ZonedDateTime
+|Query for files created before a given DateTime
+
+|createdAfter
+|ZonedDateTime
+|Query for files created after a given DateTime
+
+|updatedBefore
+|ZonedDateTime
+|Query for files created before a given DateTime
+
+|updatedAfter
+|ZonedDateTime
+|Query for files created after a given DateTime
+|====
+
+===== Response Body
+[source,json]
+----
+{
+  "content": [
+    {
+      "id": Long,
+      "filename": String,
+      "size": Long,
+      "fixities": [
+        {
+          "value": String,
+          "algorithm": FixityAlgorithm,
+          "createdAt": ISO-8601 DateTime at UTC-0
+        }
+      ],
+      "bag": Long,
+      "createdAt": ISO-8601 DateTime at UTC-0,
+      "updatedAt": ISO-8601 DateTime at UTC-0
+    }, ...
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": Boolean,
+      "unsorted": Boolean,
+      "empty": Boolean
+    },
+    "pageSize": Integer,
+    "pageNumber": Integer
+    "offset": Integer
+    "unpaged": Boolean,
+    "paged": Boolean
+  },
+  "last": Boolean,
+  "totalPages": Integer,
+  "totalElements": Integer,
+  "first": Boolean,
+  "sort": {
+    "sorted": Boolean,
+    "unsorted": Boolean,
+    "empty": Boolean
+  },
+  "numberOfElements": Integer,
+  "size": Integer,
+  "number": Integer
+  "empty": Boolean
+}
+----
+
+==== Create File
+`*POST* /api/bags/#:bag_id#/file`
+
+Create a single File for a Bag
+
+===== Request Body
+[source,json]
+----
+{
+  "filename": String
+  "size": Long,
+  "fixity": String,
+  "fixityAlgorithm": FixityAlgorithm,
+  "bag": Long | Null
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "filename": String,
+  "size": Long,
+  "fixities": [
+    {
+      "value": String,
+      "algorithm": FixityAlgorithm,
+      "createdAt": ISO-8601 DateTime at UTC-0
+    }
+  ],
+  "bag": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0
+}
+----
+
+==== Create Files
+`*POST* /api/bags/#:bag_id#/files`
+
+===== Request Body
+[source,csv]
+----
+FILENAME,SIZE,FIXITY_VALUE,FIXITY_ALGORITHM
+String,Long,String,String
+...
+----
+
+==== Download File List
+`*GET* /api/bags/#:bag_id#/download`
+
+Download a listing of Filenames associated with a Bag. As this is meant to be consumed as a
+non-paged resource, it returns `text/plain` instead of `application/json`. This allows for less
+processing by consumers as there is no `json` which needs to be parsed and the listing can be
+downloaded with a single call rather than retrieving each page for a `Bag`. It is expected that each
+line contains a filename terminated by a newline.
+
+===== Response Body
+[source,json]
+----
+String
+String
+...
+----
+
+
+////
+maybe move fixity to seaprate doc?
+////
+
+==== Get Fixity For File
+`*GET* /api/bags/#:bag_id#/files/#:file_id#/fixity/#:algorithm#`
+
+Retrieve a single Fixity value associated with a File, identified by the 
+#algorithm# used to calculate the Fixity
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long
+  "value": String,
+  "algorithm": FixityAlgorithm,
+  "file": File,
+  "createdAt": ISO-8601 DateTime at UTC-0
+}
+----
+
+==== List Fixities For File
+`*GET* /api/bags/#:bag_id#/files/#:file_id#/fixity`
+
+Retrieve a list of all Fixity values associated with a File. Not paginated.
+
+===== Response Body
+[source,json]
+----
+[
+  {
+    "id": Long
+    "value": String,
+    "algorithm": FixityAlgorithm,
+    "file": File,
+    "createdAt": ISO-8601 DateTime at UTC-0
+  }, ...
+]
+----
+
+==== Create Fixity For File
+`*PUT* /api/bags/#:bag_id#/files/#:file_id#/fixity`
+
+Create a Fixity record associated with a File
+
+
+===== Request Body
+[source,json]
+----
+{
+  "algorithm": FixityAlgorithm,
+  "value": String
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long
+  "value": String,
+  "algorithm": FixityAlgorithm,
+  "file": File,
+  "createdAt": ISO-8601 DateTime at UTC-0
+}
+----

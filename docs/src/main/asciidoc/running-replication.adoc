@@ -1,0 +1,90 @@
+=== Testing Replication
+The replication service has dependencies on other services as well as processes which it uses to
+transfer data between systems. Similar to the Ingest Service, it also requires a directory on disk
+which it can use to transfer data.
+
+Services::
+* Ingest Server - for retrieving work (replications) to process
+* ACE Audit Manager - for validating transfers
+
+Programs::
+* rsync - for the transfer of content
+
+Storage::
+* temp directory - for tracking transfers in progress
+* preservation directory - storing transferred content
+
+==== Configuration
+The replication service also uses an `application.yml` which it reads for its basic configuration.
+
+===== Ingest Connection
+In order to connect to the Ingest Server, the replication service needs to known where the server is
+located as well as credentials for connecting.
+
+[source,yaml]
+----
+ingest.api:
+  endpoint: http://localhost:8000/
+  username: my-replication-user
+  password: super-secret-password
+----
+
+===== ACE AM Connection
+The ACE AM configuration is almost identical to the Ingest configuration with the exception that
+because there are two components (ims and audit manager), the `endpoint` was replaced with `am`.
+
+[source,yaml]
+----
+ace:
+  am: http://localhost:8080/ace-am/
+  username: ace-am-user
+  password: another-secret-password
+----
+
+===== Storage Configuration
+The storage configuration for the replication service has three components: an `id`, a `path`, and
+a path for `ace` which can be used in the event the ACE AM has a different mount point that the
+service replicating data. In addition, multiple paths can be given for replicating content. A single
+Bag will only replicate into one directory, and will not be split. This is partially due to how ACE
+AM handles how it scans for files.
+
+NOTE: The id is only used in the event we need to query the Ingest Server about the storage.
+For replication this is not something which occurs, so it can be omitted from the configuration but
+is being shown for completeness.
+
+[source,yaml]
+----
+storage.preservation:
+  posix:
+    - id: 1
+      path: /fs/nfs-1/chronopolis/
+      ace: /fs/chronopolis-nfs/
+    - id: 2
+      path: /fs/nfs-2/chronopolis/
+----
+
+===== Rsync configuration
+When transferring content, rsync has two profiles which can be used: `CHUNKED` and `SINGLE`. The
+flags which are passed in can also be changed through the configuration. These are all under the
+`chron.rsync` properties.
+
+[source,yaml]
+----
+chron:
+  rsync:
+    profile: "CHUNKED"
+    arguments:
+      - "-aL"
+      - "--stats"
+      - "--no-human-readable"
+----
+
+==== Running
+Running the project can be done in a few ways and should be done in the same directory as your
+`application.yml`.
+
+The easiest way to run the server is to start it using the Spring Boot maven plugin:
+`mvnw spring-boot:run`.
+
+The `replication` module can also be compiled using `mvnw package` and then run with java:
+`java -jar target/replication-${version}.jar`

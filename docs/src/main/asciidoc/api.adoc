@@ -1,0 +1,145 @@
+= Chronopolis Ingest API
+:description: Overview of the Chronopolis Ingest API
+:page-description: {description}
+:page-layout: docs
+:toc: left
+:icons: font
+:idprefix:
+:idseparator: -
+:sectanchors:
+:source-highlighter: highlighter-js
+:mdash: &#8212;
+:table-caption!:
+:page-url: https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/domain/Page.html
+:pageimpl-url: https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/domain/PageImpl.html
+:pagewrapper-url: https://gitlab.com/chronopolis/chronopolis-core/blob/master/rest-models/src/main/kotlin/org/chronopolis/rest/models/page/SpringPage.kt
+
+////
+I think there was something I wanted to put here about what we can do in the
+future but at the moment I can't remember
+////
+
+== Using the API
+
+Chronopolis provides an HTTP API for accessing its Ingest Server, which contains
+a registry of information for what data Chronopolis contains and where that data
+is held. In order to access the API, normal authorization and authentication
+protocols should be used as described below.
+
+=== Authentication
+
+The authentication method used is just `Basic Auth`, which requires you to have
+a user and password for connecting. This is done in the form of a base64
+encoded string passed in the `Authorization` header.
+
+=== User Roles
+Depending on the actions you will be taking,
+you might need certain roles granted (e.g. only `ROLE_ADMIN` can create resources).
+If elevated roles are necessary, you will need to speak to the administrator of the
+Ingest Server in order to get proper roles set for your service.
+
+Currently there are three roles:
+
+.Available Roles
+|===
+|Role|HTTP Constraints|Description
+
+|ROLE_SERVICE
+|GET
+|Read only user for querying the API
+
+|ROLE_USER
+|GET, PUT
+|General user which can update resources, but not create
+
+|ROLE_ADMIN
+|GET, PUT, POST
+|Administrative user which can update and create resources
+|===
+
+=== Responses
+
+The API will return `HTTP 200: Ok` or `HTTP 201: Created` on successful
+operations. The content-type will normally be `application/json` with a few
+exceptions.
+
+==== Error Responses
+
+* `HTTP 400: Bad Request` - Check the payload which was sent to the server
+* `HTTP 401: Unauthorized` - Check the user information
+* `HTTP 403: Forbidden` - Check the user roles or the resource trying to be modified
+* `HTTP 404: Not Found` - The requested resource does not exist
+* `HTTP 409: Conflict` - The request resource already exists
+* `HTTP 500: Internal Server Error` - The server failed during it's processing;
+please report the incident
+
+=== Pagination
+
+Pagination in the API was originally provided by Spring through its {page-url}[Page] and
+{pageimpl-url}[PageImpl] classes. Though these can change over time, they provide a set of data
+which looks roughly like:
+
+[source,json]
+----
+{
+  "content" : [{}, {}, ...],
+  "pageable" : {
+    "sort" : {
+      "sorted" : true,
+      "unsorted" : false,
+      "empty" : false
+    },
+    "pageSize" : 25,
+    "pageNumber" : 2,
+    "offset" : 50,
+    "unpaged" : false,
+    "paged" : true
+  },
+  "last" : true,
+  "totalPages" : 3,
+  "totalElements" : 59,
+  "first" : false,
+  "sort" : {
+    "sorted" : true,
+    "unsorted" : false,
+    "empty" : false
+  },
+  "numberOfElements" : 9,
+  "size" : 25,
+  "number" : 2,
+  "empty" : false
+}
+----
+
+Our clients use a {pagewrapper-url}[SpringPage] class which allows them to deserialize the Paging
+json without requiring the Spring Data Commons dependency.
+
+== HTTP API
+
+include::enums.adoc[]
+
+'''
+
+////
+Add url parameters for endpoints which use them?
+////
+
+include::bag-controller.adoc[]
+
+include::file-controller.adoc[]
+
+include::token-controller.adoc[]
+
+include::bag-storage-controller.adoc[]
+
+include::replication-controller.adoc[]
+
+include::repair-controller.adoc[]
+
+include::depositor-controller.adoc[]
+
+include::storage-controller.adoc[]
+
+include::version-controller.adoc[]
+
+

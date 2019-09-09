@@ -1,0 +1,473 @@
+=== Repair Operations
+
+In the event that data becomes corrupt at a Chronopolis Node, there are a set
+of actions which are taken in order to Repair the data. There are two ideas in
+these operations: the Repair itself, and the fulfillment of the repair. The Repair
+is requested by a Node and the fulfillment is handled by a separate Node.
+
+There are three enum types associated with Repairs: FulfillmentType, AuditStatus,
+and RepairStatus
+
+The FulfillmentType can be chosen based on what a fulfilling Node is comfortable exposing:
+
+Implemented and Available::
+* NODE_TO_NODE - Requires ssh keys to be exchanged between nodes so that an rsync can be run on the
+content. Currently stages data by creating symbolic links to each file requested for repair.
+
+Not Implemented, Specification Available::
+* INGEST - Pushes data up to the Ingest Server's staging rather than transfer from the Node's
+preservation storage.
+* ACE - Proxies data through the Node's ACE Audit Manager.
+
+NOTE: This section uses the <<fulfillment-type>>, <<audit-status>>, and <<repair-status>> enums
+
+==== Get Repair
+`*GET* /api/repairs/#:repair_id#`
+
+Retrieve a single Repair by its id
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "cleaned": Boolean,
+  "replaced": Boolean,
+  "validated": Boolean,
+  "audit": AuditStatus,
+  "status": RepairStatus,
+  "to": String,
+  "requester": String,
+  "depositor": String,
+  "collection": String,
+  "files": [
+    String, ...
+  ],
+  "from": String | Null,
+  "type": FulfillmentType | Null,
+  "credentials": AceStrategy | RsyncStrategy | Null
+}
+----
+
+==== List Repairs
+
+`*GET* /api/repairs/`
+
+Retrieve a pageable list of Repairs
+
+
+.Query Parameters
+|====
+|Parameter | Type | Description
+
+|page
+|Int
+|The page number to query
+
+|orderBy
+|String
+|The field to order on
+
+|dir
+|String
+|The order to retrieve results, `ASC` or `DESC`
+
+|node
+|String
+|The `Node::username` who is requesting a Repair
+
+|fulfillingNode
+|String
+|The `Node::username` who is acting as a fulfilling Node
+
+|status
+|RepairStatus
+|The RepairStatus to query on
+
+
+|auditStatus
+|AuditStatus
+|The AuditStatus to query on
+
+|====
+
+===== Response Body
+[source,json]
+----
+{
+  "content": [
+    {
+      "id": Long,
+      "createdAt": ISO-8601 DateTime at UTC-0,
+      "updatedAt": ISO-8601 DateTime at UTC-0,
+      "cleaned": Boolean,
+      "replaced": Boolean,
+      "validated": Boolean,
+      "audit": AuditStatus,
+      "status": RepairStatus,
+      "to": String,
+      "requester": String,
+      "depositor": String,
+      "collection": String,
+      "files": [
+        String, ...
+      ],
+      "from": String | Null,
+      "type": FulfillmentType | Null,
+      "credentials": AceStrategy | RsyncStrategy | Null
+    }, ...
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": Boolean,
+      "unsorted": Boolean,
+      "empty": Boolean
+    },
+    "pageSize": Integer,
+    "pageNumber": Integer
+    "offset": Integer
+    "unpaged": Boolean,
+    "paged": Boolean
+  },
+  "last": Boolean,
+  "totalPages": Integer,
+  "totalElements": Integer,
+  "first": Boolean,
+  "sort": {
+    "sorted": Boolean,
+    "unsorted": Boolean,
+    "empty": Boolean
+  },
+  "numberOfElements": Integer,
+  "size": Integer,
+  "number": Integer
+  "empty": Boolean
+}
+----
+
+==== Create Repair Request
+`*POST* /api/repairs`
+
+Create a Repair for a given data set
+
+===== Request Body
+[source,json]
+----
+{
+  "to": String,
+  "depostior": String,
+  "collection": String,
+  "files": [ String, ... ]
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "cleaned": Boolean,
+  "replaced": Boolean,
+  "validated": Boolean,
+  "audit": AuditStatus,
+  "status": RepairStatus,
+  "to": String,
+  "requester": String,
+  "depositor": String,
+  "collection": String,
+  "files": [
+    String, ...
+  ]
+}
+----
+
+==== Fulfill a Repair
+`*POST* /api/repairs/#:repair_id#/fulfill`
+
+Offer to fulfill a Repair
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "cleaned": Boolean,
+  "replaced": Boolean,
+  "validated": Boolean,
+  "audit": AuditStatus,
+  "status": RepairStatus,
+  "to": String,
+  "requester": String,
+  "depositor": String,
+  "collection": String,
+  "files": [
+    String, ...
+  ],
+  "from": String,
+  "type": FulfillmentType | Null,
+  "credentials": AceStrategy | RsyncStrategy | Null
+}
+----
+
+==== Mark Repair as Ready
+`*POST* /api/repairs/#:repair_id#/ready`
+
+Update to mark that transfer of a Repair fulfillment can now be initiated
+
+There are multiple ways that the transfer can happen, and as such this method
+can handle different request bodies
+
+===== Request Body
+.Rsync Fulfillment
+[source,json]
+----
+{
+  "type": "NODE_TO_NODE",
+  "link": String
+}
+----
+
+.ACE Fulfillment
+[source,json]
+----
+{
+  "type": "ACE",
+  "apiKey": String,
+  "url": String
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "cleaned": Boolean,
+  "replaced": Boolean,
+  "validated": Boolean,
+  "audit": AuditStatus,
+  "status": RepairStatus,
+  "to": String,
+  "requester": String,
+  "depositor": String,
+  "collection": String,
+  "files": [
+    String, ...
+  ],
+  "from": String,
+  "type": FulfillmentType,
+  "credentials": AceStrategy | RsyncStrategy
+}
+----
+
+==== Mark Repair as Validated
+`*PUT* /api/repairs/#:repair_id#/validated`
+
+Set `Repair::validated` to true indicating that the transferred content was
+able to be validated according to the Repairing Node's ACE Audit Manager.
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "cleaned": Boolean,
+  "replaced": Boolean,
+  "validated": Boolean,
+  "audit": AuditStatus,
+  "status": RepairStatus,
+  "to": String,
+  "requester": String,
+  "depositor": String,
+  "collection": String,
+  "files": [
+    String, ...
+  ],
+  "from": String,
+  "type": FulfillmentType,
+  "credentials": AceStrategy | RsyncStrategy
+}
+----
+
+==== Mark Repair as Replaced in Preservation Storage
+`*PUT* /api/repairs/#:repair_id#/replaced`
+
+Set `Repair::replaced` to true indicating that the transferred content has
+replaced the corrupt content in the Repairing Node's preservation storage.
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "cleaned": Boolean,
+  "replaced": Boolean,
+  "validated": Boolean,
+  "audit": AuditStatus,
+  "status": RepairStatus,
+  "to": String,
+  "requester": String,
+  "depositor": String,
+  "collection": String,
+  "files": [
+    String, ...
+  ],
+  "from": String,
+  "type": FulfillmentType,
+  "credentials": AceStrategy | RsyncStrategy
+}
+----
+
+==== Update Repair Audit Status
+`*PUT* /api/repairs/#:repair_id#/audit`
+
+Set `Repair::audit` to the given value depending on the state of the audit for
+the Repairing Node's ACE Audit Manager.
+
+===== Request Body
+[source,json]
+----
+{
+  "status": AuditStatus
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "cleaned": Boolean,
+  "replaced": Boolean,
+  "validated": Boolean,
+  "audit": AuditStatus,
+  "status": RepairStatus,
+  "to": String,
+  "requester": String,
+  "depositor": String,
+  "collection": String,
+  "files": [
+    String, ...
+  ],
+  "from": String,
+  "type": FulfillmentType,
+  "credentials": AceStrategy | RsyncStrategy
+}
+----
+
+==== Update Repair Cleaning Status
+`*PUT* /api/repairs/#:repair_id#/cleaned`
+
+Set `Repair::cleaned` to true indicating that the transferred content has
+been removed from the Repairing Node's temporary storage.
+
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "cleaned": Boolean,
+  "replaced": Boolean,
+  "validated": Boolean,
+  "audit": AuditStatus,
+  "status": RepairStatus,
+  "to": String,
+  "requester": String,
+  "depositor": String,
+  "collection": String,
+  "files": [
+    String, ...
+  ],
+  "from": String,
+  "type": FulfillmentType,
+  "credentials": AceStrategy | RsyncStrategy
+}
+----
+
+==== Mark Repair as Complete
+`*PUT* /api/repairs/#:repair_id#/complete`
+
+Set `Repair::status` to `RepairStatus::REPAIRED` indicating that a Repair has
+finished successfully.
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "cleaned": Boolean,
+  "replaced": Boolean,
+  "validated": Boolean,
+  "audit": AuditStatus,
+  "status": RepairStatus,
+  "to": String,
+  "requester": String,
+  "depositor": String,
+  "collection": String,
+  "files": [
+    String, ...
+  ],
+  "from": String,
+  "type": FulfillmentType,
+  "credentials": AceStrategy | RsyncStrategy
+}
+----
+
+==== Update Repair Status
+`*PUT* /api/repairs/#:repair_id#/status`
+
+A general update endpoint to indicate a status change in the Repair. Can be
+used to reflect `RepairStatus::FAILURE`.
+
+===== Request Body
+[source,json]
+----
+{
+  "status": RepairStatus
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "cleaned": Boolean,
+  "replaced": Boolean,
+  "validated": Boolean,
+  "audit": AuditStatus,
+  "status": RepairStatus,
+  "to": String,
+  "requester": String,
+  "depositor": String,
+  "collection": String,
+  "files": [
+    String, ...
+  ],
+  "from": String,
+  "type": FulfillmentType,
+  "credentials": AceStrategy | RsyncStrategy
+}
+----
+

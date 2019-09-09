@@ -1,0 +1,139 @@
+:bag-status-url: https://gitlab.com/chronopolis/chronopolis-core/blob/master/rest-models/src/main/kotlin/org/chronopolis/rest/models/enums/BagStatus.kt
+:replication-status-url: https://gitlab.com/chronopolis/chronopolis-core/blob/master/rest-models/src/main/kotlin/org/chronopolis/rest/models/enums/ReplicationStatus.kt
+:repair-status-url: https://gitlab.com/chronopolis/chronopolis-core/blob/master/rest-models/src/main/kotlin/org/chronopolis/rest/models/enums/RepairStatus.kt
+:audit-status-url: https://gitlab.com/chronopolis/chronopolis-core/blob/master/rest-models/src/main/kotlin/org/chronopolis/rest/models/enums/AuditStatus.kt
+:fulfillment-type-url: https://gitlab.com/chronopolis/chronopolis-core/blob/master/rest-models/src/main/kotlin/org/chronopolis/rest/models/enums/FulfillmentType.kt
+:fixity-algorithm-url: https://gitlab.com/chronopolis/chronopolis-core/blob/master/rest-models/src/main/kotlin/org/chronopolis/rest/models/enums/FixityAlgorithm.kt
+:bag-staging-url: https://gitlab.com/chronopolis/chronopolis-core/blob/master/ingest-rest/src/main/java/org/chronopolis/ingest/repository/dao/StagingDao.java
+:data-type-url: https://gitlab.com/chronopolis/chronopolis-core/blob/master/rest-models/src/main/kotlin/org/chronopolis/rest/models/enums/DataType.kt
+:storage-type-url: https://gitlab.com/chronopolis/chronopolis-core/blob/master/rest-models/src/main/kotlin/org/chronopolis/rest/models/enums/StorageType.kt
+:storage-unit-url: https://gitlab.com/chronopolis/chronopolis-core/blob/master/rest-models/src/main/kotlin/org/chronopolis/rest/models/enums/StorageUnit.kt
+
+=== States and Enums
+
+There are various states which are tracked through enum types for the models in the API. In addition
+in order to control some of the vocabulary other enum types are used for Fixity Algorithm support.
+
+Any enum  which is used on an API model will be defined in package `org.chronopolis.rest.models.enums`,
+however some which are used as discriminator types (e.g. Bag Staging Type) may be found elsewhere.
+
+==== Bag Status
+{bag-status-url}[BagStatus.kt] | Describes the state which a Bag is in.
+
+.BagStatus Enum Values
+|===
+| DEPOSITED | The Bag was registered with Ingest
+| INITIALIZED | The Bag has had all Files and Fixity registered
+| TOKENIZED | The Bag has had all ACE Tokens registered and written a Token Store to Ingest's
+storage
+| REPLICATING | Replications have been made for a set of Chronopolis Nodes
+| PRESERVED | All Replications succeeded successfully
+| DEPRECATED | The Bag is no longer actively tracked by ACE at each Chronopolis node
+| DELETED | The Bag has been removed from disk at each Chronopolis Node
+| ERROR | An error occurred while processing the Bag
+|===
+
+==== Replication Status
+{replication-status-url}[ReplicationStatus.kt] | Describes the state a Replication is in
+
+.ReplicationStatus Enum Values
+|===
+| PENDING | A Replication has been requested but not yet acted on
+| STARTED | A Replication has been added to the queue to be worked on
+| TRANSFERRED | Both the ACE Token Store and Bag have been transferred into a Chronopolis Node's
+preservation storage
+| ACE_REGISTERED | The Bag associated with the Replication has been registered in a Node's ACE AM
+| ACE_TOKEN_LOADED | The Token Storage has been imported into a Node's ACE AM for the Bag
+| ACE_AUDITING | The initial audit was triggered for the Bag in a Node's ACE AM
+| SUCCESS | The initial audit passed indicating that no files were corrupt on transfer
+| FAILURE | General failure of the replication
+| FAILURE_TOKEN_STORE | The hash of the token store was incorrect after transfer
+| FAILURE_TAG_MANIFEST | The hash of the Bag's tagmanifest was incorrect after transfer
+| FAILURE_ACE_AUDIT | The audit had an error which was unable to be resolved
+|===
+
+==== Repair Status
+{repair-status-url}[RepairStatus.kt] | Describes the state a Repair is in
+
+.RepairStatus Enum Values
+|===
+| REQUESTED | A Repair was requested
+| STAGING | A Repair was picked up for fulfillment and is being staged
+at the Fulfilling Node
+| READY | A Repair is ready to be transferred from the Fulfilling Node
+| TRANSFERRED | A Repair was successfully transferred from the Fulfilling Node
+| REPAIRED | A Repair operation completed successfully
+| FAILED | A Repair operation was not able to be completed
+|===
+
+==== Audit Status
+{audit-status-url}[AuditStatus.kt] | The state of an ACE AM audit for a Repair
+
+.AuditStatus Enum Values
+|===
+| PRE | An audit is not yet ready to be triggered
+| AUDITING | An audit is active
+| SUCCESS | An audit succeeded
+| FAIL | An audit failed
+|===
+
+==== Fulfillment Type
+{fulfillment-type-url}[FulfillmentType.kt] | The different types of transfer workflows for fulfilling
+a Repair
+
+.FulfillmentType Enum Values
+|===
+
+| ACE | Fulfill a Repair through a remote ACE Audit Manager
+| NODE_TO_NODE | Fulfill a repair through another Chronopolis Node
+|===
+
+==== Fixity Algorithm
+{fixity-algorithm-url}[FixityAlgorithm.kt] | The supported hashing algorithms
+
+.FixityAlgorithm Enum Values
+|===
+
+| SHA_256 | Identifier for the SHA-256 algorithm
+| UNSUPPORTED | Indication that the algorithm found is not supported
+|===
+
+==== Data Type
+{data-type-url}[DateType.kt] | The Data which a StorageRegion is holding
+
+.DataType Enum Values
+|===
+| BAG | The StorageRegion is used for staging Bags
+| TOKEN | The StorageRegion is used for staging ACE Token Stores
+|===
+
+==== Storage Type
+{storage-type-url}[StorageType.kt] | Value for describing where a StorageRegion is located
+
+.StorageType Enum Values
+|===
+| LOCAL | The StorageRegion is on a server local to the Chronopolis Node
+|===
+
+==== Storage Unit
+{storage-unit-url}[StorageUnit.kt] | Basic byte units for simplifying form input
+
+.StorageUnit Enum Values
+|===
+| B | Byte
+| KiB | Kibibyte
+| MiB | Mibibye
+| GiB | Gibibyte
+| TiB | Tebibyte
+| PiB | Pebibyte
+| OOB | Out of bounds
+|===
+
+==== Bag Staging Type
+{bag-staging-url}[StagingDao.java] | Discriminator Strings for StagingStorage API paths
+
+.Staging Enum Discriminators
+|===
+| BAG | The Staging used is for a Bag
+| TOKEN_STORE | The Staging used is for an ACE Token Store
+|===

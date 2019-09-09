@@ -1,0 +1,14 @@
+=== Version Operations
+
+==== Get Version
+`*GET* /api/version`
+
+Retrieve the current version of the API
+
+===== Response Body
+[source,json]
+----
+{
+  "version" : String
+}
+----
