@@ -1,4 +1,5 @@
 /integration/
+/docs/target/
 /common/target/
 /ingest-rest/target/
 /ingest-rest/integration/

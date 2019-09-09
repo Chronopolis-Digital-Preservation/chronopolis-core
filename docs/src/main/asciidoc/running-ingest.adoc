@@ -1,0 +1,169 @@
+=== Testing Ingest
+In order to run the Ingest Server locally you will the following dependencies to be met:
+
+Required::
+* PostgresQL 9+
+* Directory for writing ACE Token Stores
+
+Recommended::
+* Directory for staging Bags
+
+Optional::
+* Separate ACE IMS for testing
+
+==== Database Init
+To initialize the database two files need to be sourced: the schema and the indexes. These
+are both located in the `rest-entities` module under `src/main/resources/db/schema/` and are
+`{schema}` and `{indexes}`. There is some small amount of test data available under `{data}` which
+will create a default set of users, nodes, authorities, storage_regions, and a depositor.
+
+After the database tables and indexes have been sourced you will need to use Flyway in order to
+create the schema migration table and set the baseline version:
+. Determine the current version of Flyway from the `pom.xml`
+
+. Download the current Flyway CLI tool from https://flywaydb.org/
+. Configure the `flyway.conf` with your database settings
+.. flyway.url, flyway.user, flyway.password are all standard
+.. flyway.baselineVersion will be equal to the current running version of the application
+
+Example setup:
+----
+$ psql -h 172.17.0.2 -U postgres -d ingest_blank
+Password for user postgres:
+psql (9.2.24, server 11.3 (Debian 11.3-1.pgdg90+1))
+WARNING: psql version 9.2, server version 11.0.
+         Some psql features might not work.
+Type "help" for help.
+ingest_blank=# \i src/main/resources/db/schema/V0_0_00__schema.sql
+...
+ingest_blank=# \i src/main/resources/db/schema/V0_0_01__indices.sql
+...
+ingest_blank=# \q
+$ cd flyway/flyway-5.2.4
+$ ./flyway baseline
+Flyway Community Edition 5.2.4 by Boxfuse
+Database: jdbc:postgresql://172.17.0.2/ingest_blank (PostgreSQL 11.3)
+WARNING: Flyway upgrade recommended: PostgreSQL 11.3 is newer than this version of Flyway and support has not been tested.
+Creating Schema History table: "public"."flyway_schema_history"
+Successfully baselined schema with version: 3.1
+----
+
+===== Init Through Maven
+
+Stub
+
+==== Database Configuration
+In your `application.yml`, the following fields correspond to your database configuration. The
+`database_ip`, `database_username`, and `database_password` all need to be filled according to what
+was set up above.
+
+[source,yaml]
+----
+spring.datasource:
+  url: jdbc:postgresql://{database_ip}/ingest
+  username: {database_username}
+  password: {database_password}
+  initialize: false
+----
+
+==== Storage Configuration
+The Ingest Server also relies on storage for Bags and ACE Token Stores which are configured in its
+`application.yml` and should point to directories on local disk. In this example there are two
+directories made, `/tmp/chronopolis-ingest/tokens/` and `/tmp/chronopolis-ingest/bags`.
+
+.Configuration For ACE Token Stores (required)
+
+[source,yaml]
+----
+chron.stage.tokens.posix.path: /tmp/chronopolis-ingest/tokens
+----
+
+.Configuration For Local Ingest Task (recommended for dev)
+[source,yaml]
+----
+ingest.scan:
+  cron: 0 0/1 * * * *
+  enabled: true
+  username: admin
+  staging.id: 1
+  staging.path: /tmp/chronopolis-ingest/bags
+----
+
+.Configuration For Local Tokenization Task (recommended for dev)
+[source,yaml]
+----
+ingest.tokenizer:
+  cron: 0 0/1 * * * *
+  enabled: true
+  username: admin
+  staging.id: 1
+  staging.path: /tmp/chronopolis-ingest/bags
+----
+
+==== Cron Timers
+There are various timers which trigger tasks to be run in the Ingest Server. These use a format
+based on `cron`, but is not a one to one mapping. An overview of the format can be found on the
+http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html[Quartz
+Scheduler] documentation.
+
+Local Ingest (`ingest.scan`):: Ingestion steps for Bags in a local Bag staging area. Registers Files + Fixity, and
+creates a `StagingStorage` entity. To enabled set `ingest.scan.enabled` to `true`, and to set the
+timer set the `ingest.scan.cron` property.
+
+Local Tokenization `ingest.tokenizer`:: Create ACE Tokens for Bags in a local Bag staging area. To enable set
+`ingest.tokenizer.enabled` to `true`, and to set the timer set the `ingest.tokenizer.cron` property.
+
+Token Write Task `ingest.cron.tokens`:: Writes an ACE Token Store for Bags in a local token staging area. Requires a Bag
+to have a status of `INITIALIZED` and to have all Files registered. When complete sets the Bag
+status to `TOKENIZED`. To set the timer set the `ingest.cron.tokens` property.
+
+Replication Task `ingest.cron.request`:: Creates Replications for Bags which have a status of `TOKENIZED` (all ACE Tokens
+created and the Token Store written to disk). To set the timer set the `ingest.cron.request`
+property.
+
+==== Spring Properties
+There is a set of common application properties which we make use of and is provided by the Spring
+Boot project. These can be found under Appendix A of their
+https://spring.io/projects/spring-boot#learn[Reference documentation].
+
+==== Running
+Running the project can be done in a few ways and should be done in the same directory as your
+`application.yml`.
+
+The easiest way to run the server is to start it using the Spring Boot maven plugin:
+`mvnw spring-boot:run`.
+
+The `ingest-rest` module can also be compiled using `mvnw package` and then run with java:
+`java -jar target/ingest-rest-${version}.jar`
+
+==== In App Configuration
+As a last step, there are several objects which need to be created in the database in order for the
+Ingest Server to be able to have data registered with it, create replications, and function
+otherwise. A default user and password of `admin` should be available
+
+If the `{data}` sql was loaded, then you have a head start as it includes a default set of Users,
+Nodes, Authorities, Storage Regions, Replication Configuration, and Depositors.
+These will likely need to be updated depending on your setup:
+
+Users::
+The Users define access control to the application. They are created through `Admin > User Config
+ > Add User`. When creating a user for replication, `Is a node` should be checked so that they are
+ processed as a Chronopolis Node. A user only needs `ROLE_USER` when replicating content, and if
+ they will also be pushing data into the Ingest Server, `ROLE_ADMIN` is needed.
+
+Depositors::
+A Depositor is a resource which is associated with any data coming into Chronopolis. They also
+determine what Chronopolis Nodes incoming content will be distributed to. A Depositor is created
+through `Admin > Depositors > Add Depositor`, and must have a unique namespace when being registered.
+
+Storage Region::
+The Storage Region is a storage system where either Bags or ACE Token Stores are staged for
+replication into Chronopolis. Two Storage Regions will need to be be created through `Admin >
+Storage Region Create`, one for ``BAG``s and one for ``TOKEN``s. The form for creating a Storage
+Region also includes information for the Replication Configuration, which requires the `Replication
+Server` to be the fqdn of the server, and the `Replication Path` to be the path on disk to the
+storage. For the examples above, the Token Storage Region would have a path of
+`/tmp/chronopolis-ingest/tokens` and the Bag Storage Region would have a path of
+`/tmp/chronopolis-ingest/bags`. The `Replication Username` is optional and will default to
+`chronopolis` if it is left null. Replication itself requires rsync over ssh, so you will need to
+ensure that you can use your ssh keys to connect to your `Replication Server`.

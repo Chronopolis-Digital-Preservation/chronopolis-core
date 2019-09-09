@@ -1,0 +1,495 @@
+= Database Development
+:description: Database Basicz
+:page-description: {description}
+:page-layout: docs
+:toc: left
+:icons: font
+:idprefix:
+:idseparator: -
+:sectanchors:
+:source-highlighter: highlighter-js
+:mdash: &#8212;
+:table-caption!:
+
+The main database for the Ingest Service is a PostgresQL database which stores information about the
+state of collections in Chronopolis.
+
+== Tables
+
+=== Node/Users
+
+====  Node
+A location in Chronopolis which data can be distributed to. The `username` acts as an identifier or
+namespace for the location.
+
+[plantuml,node_table]
+....
+class node {
+  id: bigint
+  enabled: boolean
+  username: varchar
+  password: varchar
+}
+
+node - repair
+node - replication
+node - storage_region
+node - bag_distribution
+node - depositor_distribution
+....
+
+====  Users
+NOTE: This table was created by spring security but we might want to bring it under our own control
+in order to have users operate in a manner closer to what we want.
+
+The users who can log into and use the Ingest Server.
+
+[plantuml,users_table]
+....
+class users {
+    username: varchar 256
+    password: varchar 256
+    enabled: boolean
+}
+....
+
+====  Authorities
+NOTE: This table was created by spring security but we might want to bring it under our own control
+in order to have users operate in a manner closer to what we want.
+
+Roles for each User, giving them permissions for actions they can take.
+
+[plantuml,authorities_table]
+....
+class authorities {
+    username: varchar 256
+    authority: varchar 256
+}
+....
+
+====  Storage Region
+Storage available from a Node which can be used to hold staging data for Replications. More often
+than not a local server but can be expanded on in the future if storage is pushed to different
+places.
+
+[plantuml,storage_region_table]
+....
+class storage_region {
+    id: bigint
+    node_id: bigint
+    data_type: varchar 255
+    storage_type: varchar 255
+    capacity: bigint
+    note: text
+    created_at: timestamp
+    updated_at: timestamp
+    fk_node_id: references node(id)
+}
+
+storage_region - replication_config
+storage_region - staging_storage
+....
+
+===== Data Type
+
+[horizontal]
+BAG:: The StorageRegion is used for staging Bags
+TOKEN:: The StorageRegion is used for staging ACE Token Stores
+
+===== Storage Type
+
+[horizontal]
+LOCAL:: The StorageRegion is on a server local to the Node
+
+====  replication_config
+Configuration information for a StorageRegion used when creating Replications. The `username` and
+`path` fields can be null and have default settings used from the Ingest Server.
+
+[plantuml,replication_config_table]
+....
+class replication_config {
+    id: bigint
+    region_id: bigint
+    server: varchar 255
+    username: varchar 255
+    path: varchar 255
+    fk_region_id: references storage_region(id)
+}
+....
+
+=== Depositors
+
+====  depositor
+A institution which can give data to Chronopolis.
+
+[plantuml,depositor_table]
+....
+class depositor {
+    id: bigint
+    namespace: varchar 255
+    source_organization: text
+    organization_address: text
+    created_at: timestamp
+    updated_at: timestamp
+}
+
+depositor - bag
+depositor - depositor_contact
+depositor - depositor_distribution
+....
+
+====  depositor_contact
+Information for contacting a Depositor. A Depositor can have multiple contacts, and a Contact should
+be uniquely identified by their (depositor_id, contact_email) combination.
+
+[plantuml,depositor_contact_table]
+....
+class depositor_contact {
+  id: bigint
+  depositor_id: bigint
+  contact_name: text
+  contact_phone: varchar 42
+  contact_email: varchar 255
+  fk_depositor_id: references depositor(id)
+}
+....
+
+====  depositor_distribution
+Relation which determines which Node in Chronopolis a Depositor will have their content distributed
+to.
+
+[plantuml,depositor_distribution_table]
+....
+class depositor_distribution {
+    id: bigint
+    node_id: bigint
+    depositor_id: bigint
+    fk_node_id: references node(id)
+    fk_depositor_id: references depositor(id)
+}
+....
+
+=== Bag/Collection
+
+====  Bag
+IMPORTANT: This table will be renamed at some point in the near future to allow for multiple layouts
+for storing data.
+
+The primary unit which Chronopolis preserves. Stores multiple Files as well as having a single ACE
+Token Store created when Replicating.
+
+[plantuml,bag_table]
+....
+class bag {
+    id: bigint
+    depositor_id: bigint
+    size: bigint
+    total_files: bigint
+    name: varchar 255
+    creator: varchar 255
+    status: varchar 255
+    created_at: timestamp
+    updated_at: timestamp
+    fk_depositor_id: references depositor(id)
+}
+
+bag - bag_distribution
+bag - file
+bag - ace_token
+bag - repair
+bag - replication
+bag - staging_storage
+....
+
+===== Bag Status
+
+NOTE: Some states may no longer be necessary, such as the INITIALIZED and TOKENIZED states which
+could be handled through querying other tables
+
+[horizontal]
+DEPOSITED:: Initial state indicating a record has been created
+INITIALIZED:: All Files and Fixity for a Bag have been registered
+TOKENIZED:: All ACE Tokens for a Bag have been created
+REPLICATING:: Replication requests for each `depositor_distribution` have been created
+PRESERVED:: All Nodes have successfully replicated and audited the Bag
+DEPRECATED:: The Bag is no longer being tracked by each ACE AM
+DELETED:: The Bag has been removed from storage at each Node
+ERROR:: There was an error while processing the Bag
+
+====  File
+Tracking of payload and metadata files which belong to a Bag.
+
+The `dtype` column is used as a discriminator to differentiate between the type of file. ACE Token
+Stores are stored with `dtype = 'TOKEN_STORE'` and files belonging to a Bag have `dtype = 'BAG'`.
+
+[plantuml,file_table]
+....
+class file {
+    id: bigint
+    bag_id: bigint
+    size: bigint
+    filename: text
+    dtype: varchar 25
+    created_at: timestamp
+    updated_at: timestamp
+    fk_bag_id: references bag(1d)
+}
+
+file - fixity
+file - ace_token
+file - staging_storage
+....
+
+====  Fixity
+The digest belonging to a File so that Fixity checks can be performed during Replication.
+
+[plantuml,fixity_table]
+....
+class fixity {
+    id: bigint
+    file_id: bigint
+    algorithm: varchar 255
+    value: varchar 255
+    created_at: timestamp
+    fk_file_id: references file(id)
+}
+....
+
+====  Ace Token
+The ACE Token for a File which helps to add provenance of when Chronopolis first saw and validated a
+File.
+
+This is mostly a copy of the `ace_token` table from the ACE AM database to keep things consistent.
+
+[plantuml,ace_token_table]
+....
+class ace_token {
+    id: bigint
+    bag_id: bigint
+    file_id: bigint
+    round: bigint
+    proof: text
+    ims_host: varchar 255
+    ims_service: varchar 255
+    algorithm: varchar 255
+    create_date: timestamp
+    fk_bag_id: references bag(id)
+    fk_file_id: references file(id)
+}
+....
+
+====  Bag Distribution
+The Node which a Bag resides in along with information about its status.
+
+[plantuml,bag_distribution_table]
+....
+class bag_distribution {
+    id: bigint
+    bag_id: bigint
+    node_id: bigint
+    status: varchar 255
+    fk_bag_id: references bag(id)
+    fk_node_id: references node(id)
+}
+....
+
+===== Bag Distribution Status
+
+[horizontal]
+REPLICATE:: Replication is ongoing
+DISTRIBUTED:: The terminal state, the Bag is stored at a Node
+
+====  staging_storage
+Staging information for a Bag during Replication. Both Bag and ACE Token staging are used to
+transfer data.
+
+[plantuml,staging_storage_table]
+....
+class staging_storage {
+    id: bigint
+    bag_id: bigint
+    file_id: bigint
+    region_id: bigint
+    size: bigint
+    total_files: bigint
+    active: boolean
+    path: varchar 255
+    created_at: timestamp
+    updated_at: timestamp
+    fk_bag_id: references bag(id)
+    fk_file_id: references file(id)
+    fk_region_id: references storage_region(id)
+}
+....
+
+=== Operations
+
+====  Replication
+An operation for the initial distribution of a Bag to a Node.
+
+[plantuml,replication_table]
+....
+class replication {
+    id: bigint
+    bag_id: bigint
+    node_id: bigint
+    status: varchar 255
+    bag_link: varchar 255
+    token_link: varchar 255
+    protocol: varchar 255
+    received_tag_fixity: varchar 255
+    received_token_fixity: varchar 255
+    created_at: timestamp
+    updated_at: timestamp
+    fk_bag_id: references bag(id)
+    fk_node_id: references node(id)
+}
+....
+
+===== Replication Status
+
+[horizontal]
+PENDING:: The Replication is waiting to be picked up
+STARTED:: The Replication has been added to the replication services queue
+TRANSFERRED:: The Replication has transferred the Bag and the ACE Token Store
+SUCCESS:: The Replication finished successfully
+ACE_REGISTERED:: The Replication registered a Bag with the local ACE AM
+ACE_TOKEN_LOADED:: The Replication has uploaded the ACE Token Store
+ACE_AUDITING:: The Replication started an ACE Audit
+FAILURE:: A general failure occured
+FAILURE_ACE_AUDIT:: The ACE Audit failed
+FAILURE_TOKEN_STORE:: The ACE Token Store failed its fixity check
+FAILURE_TAG_MANIFEST:: The tagmanifest failed its fixity check
+
+====  repair
+An operation for Repairing a Bag at a Node
+
+[plantuml,repair_table]
+....
+class repair {
+    id: bigint
+    bag_id: bigint
+    to_node: bigint
+    from_node: bigint
+    strategy_id: bigint
+    fulfillment_id: bigint
+    type: varchar 255
+    audit: varchar 255
+    status: varchar 255
+    requester: varchar 255
+    cleaned: boolean
+    replaced: boolean
+    validated: boolean
+    created_at: timestamp
+    updated_at: timestamp
+    fk_bag_id: references bag(id)
+    fk_to_node: references node(id)
+    fk_from_node: references node(id)
+    fk_strategy: references strategy(id)
+}
+
+repair - repair_file
+....
+
+===== Audit Status
+
+[horizontal]
+PENDING:: The Audit portion of the Repair has not yet started
+ACTIVE:: An Audit has been started for the Repair
+SUCCESS:: The Audit was successful
+FAILURE:: The Audit was unsuccessful
+
+===== Repair Status
+
+[horizontal]
+REQUESTED:: A Repair was requested by a Node
+STAGING:: A Repair has been picked up for fulfillment and is being staged
+READY:: A Repair is ready to be transferred to the reparing Node
+TRANSFERRED:: The Repair has completed its transfer to the repairing Node
+REPAIRED:: The transferred data was successfully audited and moved into place
+FAILURE:: The Repair failed, either at transfer or validating the transferred data
+
+====  Repair File
+
+NOTE: This table was created before the File table, and as such should be migrated in order to
+depend on it rather than define similar columns on its own.
+
+The Files which are corrupt in a Repair.
+
+[plantuml,repair_file_table]
+....
+class repair_file {
+    id: bigint
+    repair_id: bigint
+    path: text
+    fk_repair_id: references repair(id)
+}
+....
+
+====  Strategy
+
+The type of Repair operation to perform; holds some information for this. The `type` field is used
+to differentiate between different transfer mechanisms: `ACE` (proxy through the ACE Audit Manager),
+`NODE_TO_NODE` (rsync from Node~a~ to Node~b~), and `INGEST` (upload to the ingest server's staging).
+
+[plantuml,strategy_table]
+....
+class strategy {
+    id: bigint
+    url: varchar 255
+    link: varchar 255
+    type: varchar 255
+    api_key: varchar 255
+}
+
+strategy - repair
+....
+
+====  restoration
+Not used
+
+=== Other
+
+====  flyway_schema_history
+Meta table used by Flyway in order to handle database migrations. Not maintained by us.
+
+== Notes
+
+=== Normalization
+
+One of the ongoing goals has been to continue to normalize tables in the database. Currently a push
+should be made to migrate the enum types for status values into tables, and join when querying
+entities. These tables can essentially be predefined as we do not need sequences to generate the
+primary keys, and we can store information alongside the enum to store any information we need.
+
+.Example: BagStatus Table
+|===
+|Column|Type|Description
+
+|id
+|Int
+|The id of the status
+
+|status
+|String
+|The String value of the status
+|===
+
+----
+public enum BagStatus {
+    DEPOSITED(1), PRESERVED(2), ERROR(3);
+
+    private final long id;
+
+    public BagStatus(long id) {
+        this.id = id;
+    }
+    ...
+}
+----
+
+=== Debugging
+
+
+
+

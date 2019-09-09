@@ -1,0 +1,166 @@
+=== Bag Operations
+
+The Bag operations are endpoints which have actions on Bags, which are the main
+way of packaging data in Chronopolis. This means that each Bag correlates to a
+single unit of preservation.
+
+NOTE: This section uses the enum <<bag-status>>
+
+==== Get Bag
+`*GET* /api/bags/#:id#`
+
+Retrieve a single Bag that Chronopolis tracks, identified by its #id#. Includes
+staging information if present.
+
+===== Response
+[source,json]
+----
+HTTP 200; Content-Type: application/json
+{
+  "id" : Long,
+  "size" : Long,
+  "totalFiles" : Long,
+  "name" : String,
+  "creator" : String,
+  "depositor" : String,
+  "status" : BagStatus,
+  "replicatingNodes" : [ String ],
+  "bagStorage" : {
+    "active" : Boolean,
+    "size" : Long,
+    "region" : Long,
+    "totalFiles" : Long,
+    "path" : String,
+    "fixities" : [  ]
+  },
+  "tokenStorage" : {
+    "active" : Boolean,
+    "size" : Long,
+    "region" : Long,
+    "totalFiles" : Long,
+    "path" : String,
+    "fixities" : [ ]
+  },
+  "createdAt" : ISO-8601 DateTime at UTC-0,
+  "updatedAt" : ISO-8601 DateTime at UTC-0
+}
+----
+
+==== List Bags
+`*GET* /api/bags`
+
+Return a pageable list of all Bags tracked by Chronopolis
+
+.Query Parameters
+|===
+|Parameter|Type|Description
+
+|page
+|Int
+|The page number to query
+
+|orderBy
+|String
+|The field to order on
+
+|dir
+|String
+|The order to retrieve results, `ASC` or `DESC`
+
+|name
+|String
+|The exact `name` of the bag to search for
+
+|creator
+|String
+|The `creator` of the bag to search for
+
+|depositor
+|String
+|The `depositor` of the bag to search for
+
+|status
+|BagStatus
+|A `BagStatus` state to search on
+|===
+
+===== Response
+[source,json]
+----
+HTTP 200; Content-Type: application/json
+{
+  "content" : [ {
+    "id" : Long,
+    "size" : Long,
+    "totalFiles" : Long,
+    "name" : String,
+    "creator" : String,
+    "depositor" : String,
+    "status" : BagStatus,
+    "replicatingNodes" : [ String ],
+    "createdAt" : ISO-8601 DateTime at UTC-0,
+    "updatedAt" : ISO-8601 DateTime at UTC-0
+  },... ],
+  "pageable" : {
+    "sort" : {
+      "sorted" : Boolean,
+      "unsorted" : Boolean,
+      "empty" : Boolean
+    },
+    "pageSize" : Integer,
+    "pageNumber" : Integer
+    "offset" : Integer
+    "unpaged" : Boolean,
+    "paged" : Boolean
+  },
+  "last" : Boolean,
+  "totalPages" : Integer,
+  "totalElements" : Integer,
+  "first" : Boolean,
+  "sort" : {
+    "sorted" : Boolean,
+    "unsorted" : Boolean,
+    "empty" : Boolean
+  },
+  "numberOfElements" : Integer,
+  "size" : Integer,
+  "number" : Integer
+  "empty" : Boolean
+}
+----
+
+==== Create Bag
+
+`*POST* /api/bags`
+
+Create a Bag which Chronopolis should keep track of
+
+===== Request Body
+[source,json]
+----
+Content-Type: application/json
+{
+  "name": String,
+  "size": Long,
+  "totalFiles": Long,
+  "depositor": String
+}
+----
+
+===== Response Body
+[source,json]
+----
+HTTP 201; Content-Type: application/json
+{
+  "id": Long,
+  "size": Long,
+  "totalFiles": Long,
+  "name": String,
+  "creator": String,
+  "depositor": String,
+  "status": BagStatus,
+  "replicatingNodes": [],
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0
+}
+----

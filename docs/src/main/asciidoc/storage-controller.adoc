@@ -1,0 +1,155 @@
+=== StorageRegion Operations
+
+StorageRegions identify spaces in Chronopolis where data can be staged for
+transfers and how data can be transferred
+
+NOTE: This section uses the <<data-type>>, <<storage-type>>, and <<storage-unit>> enums
+
+==== Get a StorageRegion
+`*GET* /api/storage/#:region_id#`
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "node": String,
+  "note": String,
+  "capacity": Long,
+  "dataType": DataType,
+  "storageType": StorageType,
+  "replicationConfig": {
+    "region": Long,
+    "path": String,
+    "server": String,
+    "username": String
+  }
+}
+----
+
+==== List StorageRegions
+`*GET* /api/storage`
+
+
+.Query Parameters
+|====
+|Parameter | Type | Description
+
+|page
+|Int
+|The page number to query
+
+|orderBy
+|String
+|The field to order on
+
+|dir
+|String
+|The order to retrieve results, `ASC` or `DESC`
+
+|type
+|StorageType
+|The StorageType to query for
+
+|name
+|String
+|Query for StorageRegions belonging to a Node based on the username
+
+|capacityLess
+|Long
+|Query for StorageRegions with a capacity less than the given parameter
+
+|capacityGreater
+|Long
+|Query for StorageRegions with a capacity greater than the given parameter
+|====
+
+===== Response Body
+[source,json]
+----
+{
+  "content": [
+    {
+      "id": Long,
+      "node": String,
+      "note": String,
+      "capacity": Long,
+      "dataType": DataType,
+      "storageType": StorageType,
+      "replicationConfig": {
+        "region": Long,
+        "path": String,
+        "server": String,
+        "username": String
+      }
+    }, ...
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": Boolean,
+      "unsorted": Boolean,
+      "empty": Boolean
+    },
+    "pageSize": Integer,
+    "pageNumber": Integer
+    "offset": Integer
+    "paged": Boolean,
+    "unpaged": Boolean
+  },
+  "last": Boolean,
+  "totalPages": Integer,
+  "totalElements": Integer,
+  "first": Boolean,
+  "sort": {
+    "sorted": Boolean,
+    "unsorted": Boolean,
+    "empty": Boolean
+  },
+  "numberOfElements": Integer,
+  "size": Integer,
+  "number": Integer
+  "empty": Boolean
+}
+----
+
+==== Create a StorageRegion
+`*POST* /api/storage`
+
+Create a new StorageRegion. When issuing this call, the unit (`StorageUnit`) annotating
+the `StorageRegion::capacity` can be given. Possible values are B, KiB, MiB,
+GiB, TiB, and PiB.
+
+===== Request Body
+[source,json]
+----
+{
+  "note": String | Null,
+  "node": String,
+  "capacity": Long,
+  "dataType": DataType,
+  "storageUnit": StorageUnit,
+  "storageType": StorageType,
+  "replicationPath": String,
+  "replicationServer": String,
+  "replicationUser": String
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "node": String,
+  "note": String,
+  "capacity": Long,
+  "dataType": DataType,
+  "storageType": StorageType,
+  "replicationConfig": {
+    "region": Long,
+    "path": String,
+    "server": String,
+    "username": String
+  }
+}
+----

@@ -21,6 +21,7 @@
 
     <!-- Core Modules -->
     <modules>
+        <module>docs</module>
         <module>common</module>
         <module>rest-entities</module>
         <module>rest-models</module>

@@ -1,0 +1,284 @@
+=== Depositor Operations
+
+Depositors are the entities which are pushing data to Chronopolis which is to be
+preserved. We provide a few operations for viewing and updating them as needed.
+
+==== Get Depositor
+`*GET* /api/depositors/#:namespace#`
+
+Retrieve a single Depositor identified by their `Depositor::namespace`
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "namespace": String,
+  "sourceOrganization": String,
+  "organizationAddress": String,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "replicatingNodes": [
+    String,
+    ...
+  ],
+  "contacts": [
+    {
+      "contactName": String,
+      "contactEmail": String,
+      "contactPhone": String,
+    },...
+  ]
+}
+----
+
+==== List Depositor
+`*GET* /api/depositors/`
+
+Retrieve a pageable list of Depositors
+
+.Query Parameters
+|====
+|Parameter | Type | Description
+
+|page
+|Int
+|The page number to query
+
+|orderBy
+|String
+|The field to order on
+
+|dir
+|String
+|The order to retrieve results, `ASC` or `DESC`
+
+|namespace
+|String
+|The `Depositor::namespace` the query for
+|====
+
+===== Response Body
+[source,json]
+----
+{
+  "content": [
+    {
+      "id": Long,
+      "namespace": String,
+      "sourceOrganization": String,
+      "organizationAddress": String,
+      "createdAt": ISO-8601 DateTime at UTC-0,
+      "updatedAt": ISO-8601 DateTime at UTC-0,
+      "replicatingNodes": [
+        String,
+        ...
+      ],
+      "contacts": [
+        {
+          "contactName": String,
+          "contactEmail": String,
+          "contactPhone": String,
+        },...
+    }, ...
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": Boolean,
+      "unsorted": Boolean,
+      "empty": Boolean
+    },
+    "pageSize": Integer,
+    "pageNumber": Integer
+    "offset": Integer
+    "unpaged": Boolean,
+    "paged": Boolean
+  },
+  "last": Boolean,
+  "totalPages": Integer,
+  "totalElements": Integer,
+  "first": Boolean,
+  "sort": {
+    "sorted": Boolean,
+    "unsorted": Boolean,
+    "empty": Boolean
+  },
+  "numberOfElements": Integer,
+  "size": Integer,
+  "number": Integer
+  "empty": Boolean
+}
+----
+
+==== Create Depositor
+`*POST* /api/depositors/`
+
+Create a Depositor
+
+===== Request Body
+[source,json]
+----
+{
+  "namespace": String,
+  "sourceOrganization": String | Null,
+  "organizationAddress": String | Null,
+  "contacts": [ DepositorContactCreate, ... ],
+  "replicatingNodes": [ String, ...]
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "namespace": String,
+  "sourceOrganization": String,
+  "organizationAddress": String,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "replicatingNodes": [
+    String,
+    ...
+  ],
+  "contacts": [
+    {
+      "contactName": String,
+      "contactEmail": String,
+      "contactPhone": String,
+    },...
+  ]
+}
+----
+
+==== Create Depositor Contact
+`*POST* /api/depositors/#:namespace#/contacts`
+
+Create contact information for a Depositor
+
+===== Request Body
+[source,json]
+----
+{
+  "contactName": String,
+  "contactEmail": String,
+  "contactPhone":
+  {
+     "number": String,
+     "countryCode": String
+  },
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "contactName": String,
+  "contactEmail": String,
+  "contactPhone": String,
+}
+----
+
+==== Delete Depositor Contact
+`*DELETE* /api/depositors/#:namespace#/contacts`
+
+Remove contact information for a Depositor
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "namespace": String,
+  "sourceOrganization": String,
+  "organizationAddress": String,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "replicatingNodes": [
+    String,
+    ...
+  ],
+  "contacts": [
+    {
+      "contactName": String,
+      "contactEmail": String,
+      "contactPhone": String,
+    },...
+  ]
+}
+----
+
+==== Create Depositor Distribution to Node
+`*POST* /api/depositors/#:namespace#/nodes/#:username#`
+
+Create a Distribution record that indicates a Depositor's content should be
+transferred to a Chronopolis Node identified by `Node::username`
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "namespace": String,
+  "sourceOrganization": String,
+  "organizationAddress": String,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "replicatingNodes": [
+    String,
+    ...
+  ],
+  "contacts": [
+    {
+      "contactName": String,
+      "contactEmail": String,
+      "contactPhone": String,
+    },...
+  ]
+}
+----
+
+==== Delete Depositor Distribution to Node
+`*DELETE* /api/depositors/#:namespace#/nodes/#:username#`
+
+Remove a Distribution record for a Depositor identified by `Node::username`
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "namespace": String,
+  "sourceOrganization": String,
+  "organizationAddress": String,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "replicatingNodes": [
+    String,
+    ...
+  ],
+  "contacts": [
+    {
+      "contactName": String,
+      "contactEmail": String,
+      "contactPhone": String,
+    },...
+  ]
+}
+----
+
+==== Get Ingested Bag for Depositor
+`*GET* /api/depositors/#:namespace#/bags/#:bag-name#`
+
+Retrieve a single Bag a Depositor sent identified by `Bag::name`
+
+===== Response Body
+see BagOperations::getBag
+
+==== List Ingested Bags for Depositor
+`*GET* /api/depositors/#:namespace#/bags`
+
+Retrieve a pageable list of Bags sent by a Depositor
+
+see <<list-bags>> for Query Parameters and Response Body

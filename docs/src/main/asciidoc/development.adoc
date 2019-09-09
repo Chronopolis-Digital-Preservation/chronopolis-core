@@ -1,0 +1,303 @@
+= Chronopolis Development
+:description: Developing for Chronopolis
+:page-description: {description}
+:page-layout: docs
+:toc: left
+:icons: font
+:idprefix:
+:idseparator: -
+:sectanchors:
+:source-highlighter: highlighter-js
+:mdash: &#8212;
+:table-caption!:
+:schema: src/main/resources/db/schema/V0_0_00__schema.sql
+:indexes: src/main/resources/db/schema/V0_0_01__indices.sql
+:data: src/main/resources/db/schema/V0_0_02__data.sql
+:default-supervisor-link: https://gitlab.com/chronopolis/chronopolis-core/blob/master/tokenizer/src/main/java/org/chronopolis/tokenize/supervisor/DefaultSupervisor.java
+:mq-supervisor-link: https://gitlab.com/chronopolis/chronopolis-core/blob/master/tokenizer-mq/src/main/java/org/chronopolis/tokenize/mq/artemis/ArtemisSupervisor.java
+:artemis-docs: https://activemq.apache.org/components/artemis/
+
+== Layout
+
+Classes are split into separate modules
+
+[horizontal]
+Common::  Base module, contains some storage mechanisms specific to replication
+and classes for interacting with ACE
+Rest Common:: Old module which used to house the api models and db entities, 
+now contains classes which help Intake
+Rest Models:: API models and interfaces defining what the Ingest api 
+should look like
+Tokenizer:: Classes for creating ACE Tokens
+Tokenizer MQ:: Classes for creating ACE Tokens that uses Apache ActiveMQ to
+handle the workflow
+Rest Entities:: Database entities for the Ingest Server
+Ingest Rest:: The Chronopolis Ingest Server. Serves an HTTP API as well as a
+web ui for processing incoming content. Has timed tasks which run to help push
+certain events along.
+Replication Shell:: The Chronopolis Replication Service
+
+== Maven
+
+https://maven.apache.org/index.html[Maven] is build automation tool for java which provides building
+and dependency management of projects as well as a wide variety of plugins which extend its
+functionality. It uses the project object model (POM) which is an xml file that contains information
+and configuration for projects.
+
+In order for consistency between environments, the https://github.com/takari/maven-wrapper[Maven
+Wrapper] project has been adopted which provides a `mvnw` or `mvnw.bat` script for execution of
+Maven commands.
+
+=== Lifecycle
+
+https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html[Maven Lifecycle]
+
+=== Basic Commands
+
+Generating Docs:: If you need to generate this documentation, run `mvnw generate-resources`
+Compiling:: If you just want to test the compilation, run `mvnw compile`
+Run Tests:: If you want to run all tests, run `mvnw test`
+Run Specific Tests:: 
+* If you want to run a specific test class, run `mvnw -Dtest=ChronopolisTest test`
+* If you want to run a specific test, run `mvnw -Dtest=ChronopolisTest#testName test`
+* Tests can also be matched with globs: `mvnw -Dtest=ChronopolisTest#testReplicate* test`
+Packaging:: For creating the fat jars, run `mvnw package`
+* A fat jar contains all dependencies, and can be run using only the `java -jar` command
+* Specific modules can be built using the `-pl` (project) and -am (also make) flags:
+`mvnw package -pl module -am`
+Installing:: If you want to install an artifact into your local maven repository, run `mvnw install`
+Running From the CLI:: There is a plugin included with ingest and replication 
+which allows either to be run from the command line. To do so run `mvnw spring-boot:run` 
+in the module you wish to test
+
+== Libraries
+
+=== Spring
+
+The https://spring.io[Spring Framework] project provides just about everything under the sun for
+Java to make use of. Within this project we use the Spring Boot project which provides an easy way
+to get both command line tools up (Replication) and web services running (Ingest). This ends up
+being the base which we build upon as configuration and dependency injection are provided as part of
+the framework.
+
+The main Spring dependencies we pull in are:
+
+* Spring Boot: Stand alone Spring starter dependency
+* Spring Security: For authentication and authorization of the Ingest Server
+* Spring Data JPA: Java Persistence API (JPA) support (see also: hibernate, querydsl)
+
+=== Hibernate
+
+https://hibernate.org[Hibernate] is used an ORM for JPA Entities as well as for validating data sent
+through form data. As the JPA API is only an API, Hibernate provides the implementation which is
+used for persisting data to our database. This is commonly done through an `EntityManager` which
+is passed either a query or a JPA Entity for persistence.
+
+=== QueryDSL
+
+https://www.querydsl.com/[QueryDSL] provides type safe queries for JPA and SQL in Java. It can also
+generate code from reading the schema of a Database, though that is not currently used.
+
+=== Flyway
+
+https://flywaydb.org[Flyway] is a database migration tool which we use to migrate tables in the
+Ingest Server's PostgresQL database.
+
+=== Thymeleaf
+
+https://www.thymeleaf.org/[Thymeleaf] provides HTML templating and is used to create the front end
+for the Ingest Server.
+
+=== Logback + SLF4j
+
+Logging is done through the https://logback.qos.ch/documentation.html[Logback] project which
+implements the https://www.slf4j.org/[SLF4j API]. Configuration is done through `logback-spring.xml`
+which allows us to piggy back off of a provided Spring configuration.
+
+=== Jackson
+
+https://github.com/FasterXML/jackson[Jackson] provides json serialization for Java objects.
+
+== Environment Setup
+
+=== Development and Building
+
+There are a few tools for java/kotlin development which are recommended if you are starting
+development:
+
+* IntelliJ IDEA (IDE) - https://www.jetbrains.com/idea/
+* Maven - https://maven.apache.org/
+* JDK 1.8+ - https://openjdk.java.net/
+** We currently target 1.8 for compilation; 1.11+ is currently being looked at
+
+If you prefer to develop using vim or emacs, you might find the eclim plugin to be nice. Likewise
+there are alternative IDEs available from Eclipse, NetBeans, and Microsoft.
+
+include::running-ingest.adoc[]
+
+include::running-replication.adoc[]
+
+== Core Components
+
+=== Storage Operation
+
+A Storage Operation is any event which transfers data into a preservation file system. Currently 
+there is only an `rsync` operation in addition to a `nop` which serves as a no-op. This was done
+with the idea in mind that we might want to try to transfer data with grid ftp, https, or some 
+other protocol in the future.
+
+Currently we need to transfer both single files (ACE Token Stores) and directories (Bags), so there
+are two different types of Storage Operations: SingleFileOperations and DirectoryOperations.
+
+NOTE: It might be good to revisit this and rename it so it is more clear that these are Transfer 
+Ops. We might also want to handle deprecation/deletion of data in an automated fashion with this
+concept.
+
+=== Storage Buckets
+
+Storage Buckets were introduced in v2.1.0 and are an attempt at abstracting the storage layer
+in the event we need to support more than just posix filesystems. They are not quite a 
+distributed hash table, but instead use a weight in order to determine what Bucket a Storage 
+Operation should belong to. It also uses the weight while searching in order to expedite the 
+processing.
+
+These are currently only used by Replication, even though the initial idea was that each service in
+Chronopolis would make use of them.
+
+
+== Ingest Adding Functionality
+
+When adding functionality to the Ingest API, we need to go through a few steps
+
+API Models and Interfaces:: Under the `rest-models` module, API models and retrofit interfaces 
+should be defined. Depending on the needs of the api, classes for mutating a model or constraints 
+for a model can also be created.
+
+Entity Persistence::
+`rest-entities`: Any work involving modification of the database will need to update or create the
+the classes following standard JPA conventions. The database schema itself will also need updates
+located under `{schema}` and indexes under `{indexes}`. This is done so that Flyway can load the
+most recent changes during testing.
++
+`ingest-rest`: Any database migrations will also need to be created, which reside under
+`src/main/resources/db/migration` for sql migrations and `src/main/java/db/migration` for java
+migrations.
+
+Entity Serialization:: In the event there is extraneous information from the database we do not
+wish to display, we should serialize the database entity to its rest-model representation. The
+serializers live under `rest-entities` and are typically a straight-forward mapping. Separate views
+can also be made if there is the need to have more compact views when retrieving paginated lists
+from the api.
+
+API Implementation:: The implementation of the api is done in the `ingest-rest` module, and should
+match the retrofit interface defined. It is likely best to use the retrofit interface for testing
+in order to ensure this is the case, although that is not currently done.
+
+API Testing:: More to come.
+
+== Replication Workflow Functionality
+
+The replication services makes use of the concurrency tools offered in the standard library, 
+notably `CompletableFutures` and `ThreadPoolExecutors`. The `CompletableFutures` offer 
+functionality for creating execution pipelines from which we can recover from failures, and the
+`ThreadPoolExecutor` is what you expect. We currently use two thread pools, one for long IO 
+operations (rsyncs, hashing small files) and one for shorter operations (http calls).
+
+The determination for what constitutes a long or short operation is a bit arbitrary as we have
+rsyncs which can block for very long periods of time. The main goal of the two thread pools is to
+allow simple queries through HTTP to continue to run so that Replications which have finished
+transferring can continue to be processed.
+
+In addition, to help make some of the code a bit more readable some factories were introduced to
+clean up some of the creation of the `CompletableFuture` tasks which are run. These are the
+`TransferFactory` and the `AceFactory`.
+
+[horizontal]
+TransferFactory:: Creates rsyncs for a replication and will also spawn a `BagHasher` if needed.
+AceFactory:: Handles spawning of all the ACE tasks: registering, importing tokens, auditing
+
+== Tokenizer
+
+The Tokenization process creates ACE Tokens for collections in Chronopolis. This happens before a
+collection is replicated and requires all ACE Tokens for each File in a collection. The process for
+tokenizing collections has gone through a few implementations based on where we expected to process
+collections in Chronopolis: either on a filesystem local to the Ingest server or on a remote server.
+
+The general workflow is as follows:
+
+. Read the manifest for a collection
+.. Currently a BagIt manifest and tagmanifest
+. Verify that the given hash in a manifest matches the calculated manifest for a file
+. Request an ACE Token for a file and its hash from the ACE IMS
+.. In the ACE project this was done as a batch process which sent requests when either a size limit
+(1000 requests) or a time limit (5 seconds) was hit.
+.. Each token request receives an identifier of the form `(depositor,collection)::filename` as
+duplicate filenames can exist between collections. e.g. `(ucsd-lib,bb0_test)::bagit.txt`
+. Receive the ACE Token for a file and its hash from the ACE IMS
+.. The response is a list of TokenResponses, which contains an identifier for the file sent
+. Register each ACE Token to the Ingest Server
+
+=== Initial Implementation
+
+NOTE: This is used by the Ingest Server
+
+The first rewrite of the Tokenization process resulted in the `tokenizer` module and
+a {default-supervisor-link}[Supervisor] which allows a file to have a state and progress through its
+workflow as though it is a state machine. One of the goals for this implementation was for
+collections to be processed concurrently so that batch token request sent would have a mix of source
+files.
+
+In order to handle persistence of the ACE Tokens, the Ingest Server passes them to a thread which
+does inserts through the database.
+
+=== ActiveMQ
+
+NOTE: This is used by the Intake Services
+
+The `tokenizer-mq` module came about from wanting to have ACE Tokens be cached after they were
+received in the event the Tokenization process was interrupted. When looking into solutions, having
+a message broker which could journal data became appealing as it allowed for a solution which was
+inherent to the processing itself as well as introducing mechanisms for controlling the workflow.
+ActiveMQ Artemis was then chosen as it not only satisfies these requirements, but also can run as an
+embedded server within a JVM.
+
+This implementation uses two topics, `request` and `register` which serve queues that have
+consumers. The {mq-supervisor-link}[MQ Supervisor] then becomes the producer which only has to be
+concerned with where to route messages. Messages are serialized as json and receive headers which
+allow querying for messages.
+
+Consumers are created on demand by checking if messages are in either of the queues, and can be done
+by using a `BROWSE_ONLY` mode which does not remove messages from a queue when read.
+
+Configuration of the ActiveMQ server is defined in the `src/main/resources/broker.xml` and relies on
+a `/var/lib/chronopolis` directory in production which is used by the server.
+
+More information about configuration and the components can be found in the {artemis-docs}[ActiveMQ
+Artemis Documentation].
+
+== CI Deployment
+
+=== RPMs
+
+Through our CI pipeline RPMs are generated which can be deployed at each site in Chronopolis. This
+is handled by the `build_rpms.sh` script which will package the modules, move the jars and
+configuration files into the correct location, then execute `rpmbuild` in order to create an RPM.
+The two modules which we build RPMs for are `ingest-rest` and `replication-shell` which each have
+RPM Specs for EL6 and EL7.
+
+While this is mostly complete, a few tasks remain to help ease upgrades:
+
+* Make sure configuration files are not replaced, and instead have a .rpmnew  if possible
+* Same for the init/systemd files, in the event of modification we do not want to overwrite changes
+
+=== Site
+
+A build server has been deployed at UMIACS on http://adaptci01.umiacs.umd.edu which stores RPMs
+built by our CI pipeline. This uses an authentication token when uploading artifacts and allows for
+simple browsing of projects by their branch and git commits. This is configured in the `build_rpms`
+section of `.gitlab-ci.yml` and uses environment variables for the server and auth token.
+
+NOTE: As this is something which is homemade, one goal is to replace this with either a) a more
+feature full piece of software like artifactory or b) an object store with a static site, similar to
+how releases are now handled at https://ace.umiacs.io.
+

@@ -1,0 +1,99 @@
+=== Bag Staging Operations
+
+In order to transfer Bags throughout the Chronopolis Network, staging information
+needs to be added to the Ingest Server. Typically staging information for the Bag will be added
+first, followed by staging information for the ACE Token Store. This is from the requirement that
+the ACE Tokens need the Bag to exist as a resource in the Ingest Server before being generated.
+
+When Replications pull from the staging storage, no order is required for operations, though the
+ACE Token Store will normally be pulled first.
+
+Upon success of all Replications, the staging storage will be deactivated to reflect that the
+storage can be reclaimed.
+
+NOTE: This section uses the <<bag-staging-type>> discriminator values
+
+==== Get Bag Staging
+`*GET* /api/bags/#:bag_id#/storage/#:type#`
+
+Retrieve the active staging resource for a Bag identified by the given #type#
+
+===== Response Body
+[source,json]
+----
+{
+  "active": Boolean,
+  "size": Long,
+  "region": Long
+  "totalFiles": Long,
+  "path": String,
+  "fixities": [
+    {
+      "value": String,
+      "algorithm": String,
+      "createdAt": ISO-8601 DateTime at UTC-0
+    }
+  ]
+}
+----
+
+==== Create Bag Staging
+`*PUT* /api/bags/#:bag_id#/storage/#:type#`
+
+Create a new staging resource for a Bag
+
+===== Request Body
+[source,json]
+----
+{
+  "location": String,
+  "validationFile": String,
+  "storageRegion": Long,
+  "totalFiles": Long,
+  "size": Long,
+  "storageUnit": StorageUnit
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "active": Boolean,
+  "size": Long,
+  "region": Long
+  "totalFiles": Long,
+  "path": String,
+  "fixities": [
+    {
+      "value": String,
+      "algorithm": String,
+      "createdAt": ISO-8601 DateTime at UTC-0
+    }
+  ]
+}
+----
+
+==== Toggle Bag Staging
+`*PUT* /api/bags/#:bag_id#/storage/#:type#/active`
+
+Toggle the staging resource for a Bag indicating that it is no longer active
+
+===== Response Body
+[source,json]
+----
+{
+  "active": Boolean,
+  "size": Long,
+  "region": Long
+  "totalFiles": Long,
+  "path": String,
+  "fixities": [
+    {
+      "value": String,
+      "algorithm": String,
+      "createdAt": ISO-8601 DateTime at UTC-0
+    }
+  ]
+}
+----

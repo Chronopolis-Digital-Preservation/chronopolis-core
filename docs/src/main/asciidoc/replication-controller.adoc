@@ -1,0 +1,304 @@
+=== Replication Operations
+
+Replications are how data flow is controlled within Chronopolis. Each Replication
+is an action is to be taken on a single Bag.
+
+NOTE: This section uses the <<replication-status>> enum
+
+When Replications reach either a SUCCESS state or a FAILURE state, they become
+read only.
+
+==== Get Replication
+`*GET* /api/replications/#:id#`
+
+Retrieve a single Replication
+
+////
+is there a way to link back to the Bag?
+Should we define the models expected to be returned by the api somewhere
+other than the response bodys?
+////
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "status": ReplicationStatus,
+  "bagLink": String,
+  "tokenLink": String,
+  "protocol": String,
+  "receivedTagFixity": String | Null,
+  "receivedTokenFixity": String | Null,
+  "node": String,
+  "bag": Bag
+}
+----
+
+==== List Replications
+`*GET* /api/replications/`
+
+Retrieve a pageable list of Replications
+
+
+.Query Parameters
+|====
+|Parameter | Type | Description
+
+|page
+|Int
+|The page number to query
+
+|orderBy
+|String
+|The field to order on
+
+|dir
+|String
+|The order to retrieve results, `ASC` or `DESC`
+
+|node
+|String
+|Query on Replications belonging to a Node identified by its username
+
+|bag
+|String
+|Query on the Replications belonging to a Bag identified by its name
+
+|status
+|ReplicationStatus
+|Query on Replication by their ReplicationStatus
+
+|====
+
+===== Response Body
+[source,json]
+----
+{
+  "content": [
+    {
+      "id": Long,
+      "createdAt": ISO-8601 DateTime at UTC-0,
+      "updatedAt": ISO-8601 DateTime at UTC-0,
+      "status": ReplicationStatus,
+      "bagLink": String,
+      "tokenLink": String,
+      "protocol": String,
+      "receivedTagFixity": String,
+      "receivedTokenFixity": String,
+      "node": String,
+      "bag": Bag
+    }, ...
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": Boolean,
+      "unsorted": Boolean,
+      "empty": Boolean
+    },
+    "pageSize": Integer,
+    "pageNumber": Integer
+    "offset": Integer
+    "unpaged": Boolean,
+    "paged": Boolean
+  },
+  "last": Boolean,
+  "totalPages": Integer,
+  "totalElements": Integer,
+  "first": Boolean,
+  "sort": {
+    "sorted": Boolean,
+    "unsorted": Boolean,
+    "empty": Boolean
+  },
+  "numberOfElements": Integer,
+  "size": Integer,
+  "number": Integer
+  "empty": Boolean
+}
+----
+
+==== Create Replication
+`*POST* /api/replications/`
+
+Request that a Replication is made for a Bag to a Chronopolis Node
+
+==== Request Body
+[source,json]
+----
+{
+  "bagId": Long,
+  "nodeId": Long
+}
+----
+
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "status": ReplicationStatus,
+  "bagLink": String,
+  "tokenLink": String,
+  "protocol": String,
+  "receivedTagFixity": String | Null,
+  "receivedTokenFixity": String | Null,
+  "node": String,
+  "bag": Bag
+}
+----
+
+==== Update Replication
+`*PUT* /api/replications/#:id#`
+
+Update specific fields on a Replication in one operation
+
+==== Request Body
+[source,json]
+----
+{
+  "status": ReplicationStatus,
+  "receivedTagFixity": String | Null,
+  "receivedTokenFixity": String | Null,
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "status": ReplicationStatus,
+  "bagLink": String,
+  "tokenLink": String,
+  "protocol": String,
+  "receivedTagFixity": String | Null,
+  "receivedTokenFixity": String | Null,
+  "node": String,
+  "bag": Bag
+}
+----
+
+==== Update Replication Status
+`*PUT* /api/replications/#:id#/status`
+
+Update the value for `Replication::status`
+
+==== Request Body
+[source,json]
+----
+{
+  "status": ReplicationStatus
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "status": ReplicationStatus,
+  "bagLink": String,
+  "tokenLink": String,
+  "protocol": String,
+  "receivedTagFixity": String | Null,
+  "receivedTokenFixity": String | Null,
+  "node": String,
+  "bag": Bag
+}
+----
+
+==== Update Replication TokenStore Fixity
+`*PUT* /api/replications/#:id#/tokenstore`
+
+Update the value for `Replication::receivedTokenFixity`
+
+==== Request Body
+[source,json]
+----
+{
+  "fixity": String
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "status": ReplicationStatus,
+  "bagLink": String,
+  "tokenLink": String,
+  "protocol": String,
+  "receivedTagFixity": String | Null,
+  "receivedTokenFixity": String | Null,
+  "node": String,
+  "bag": Bag
+}
+----
+
+==== Update Replication Tagmanifest Fixity
+`*PUT* /api/replications/#:id#/tagmanifest`
+
+Update the value for `Replication::receivedTagFixity`
+
+==== Request Body
+[source,json]
+----
+{
+  "fixity": String
+}
+----
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "status": ReplicationStatus,
+  "bagLink": String,
+  "tokenLink": String,
+  "protocol": String,
+  "receivedTagFixity": String | Null,
+  "receivedTokenFixity": String | Null,
+  "node": String,
+  "bag": Bag
+}
+----
+
+==== Fail Replication
+`*PUT* /api/replications/#:id#/failure`
+
+Notify that a Replication has had a fatal error and cannot be finished
+
+===== Response Body
+[source,json]
+----
+{
+  "id": Long,
+  "createdAt": ISO-8601 DateTime at UTC-0,
+  "updatedAt": ISO-8601 DateTime at UTC-0,
+  "status": ReplicationStatus,
+  "bagLink": String,
+  "tokenLink": String,
+  "protocol": String,
+  "receivedTagFixity": String | Null,
+  "receivedTokenFixity": String | Null,
+  "node": String,
+  "bag": Bag
+}
+----
+
