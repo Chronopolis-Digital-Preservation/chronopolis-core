@@ -66,7 +66,7 @@ verify:openjdk:
       junit:
         - ./**/target/surefire-reports/TEST-*.xml
 
-# Call mvn deploy to upload artifacts for develop and releases
+# Call mvn deploy to upload artifacts for develop and releases (now tagged)
 # To get this working you need to define a volume while configuring your gitlab-ci-multi-runner.
 # Mount your `settings.xml` as `/root/.m2/settings.xml` which holds your secrets.
 # See https://maven.apache.org/settings.html
@@ -79,7 +79,6 @@ deploy:openjdk:
   only:
     - tags
     - develop
-    - /^release-.*$/
 
 # Build and upload rpms to the adapt-ci server
 # Could have these be separate but for now run them together
@@ -90,7 +89,6 @@ build_rpms:
   only:
     - tags
     - develop
-    - /^release-.*$/
     - merge_requests
   before_script:
     - apt-get update -y
