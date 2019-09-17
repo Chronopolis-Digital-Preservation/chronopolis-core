@@ -17,7 +17,7 @@ import java.time.ZonedDateTime;
 @Data
 @NoArgsConstructor
 @MappedSuperclass
-public class UpdateableEntity extends PersistableEntity {
+public class UpdatableEntity extends PersistableEntity {
 
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime createdAt = ZonedDateTime.now();

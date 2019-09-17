@@ -1,7 +1,12 @@
 package org.chronopolis.rest.lombok;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
 /**
  * @author shake
  */
-public class TokenStore {
+@Entity
+@DiscriminatorValue("TOKEN_STORE")
+public class TokenStore extends DataFile {
 }

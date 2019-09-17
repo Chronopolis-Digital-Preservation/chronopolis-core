@@ -20,7 +20,7 @@ import javax.persistence.PreUpdate;
 @Entity
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class Replication extends UpdateableEntity {
+public class Replication extends UpdatableEntity {
 
     @NonNull
     @Enumerated(EnumType.STRING)

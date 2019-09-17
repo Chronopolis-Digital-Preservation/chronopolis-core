@@ -8,7 +8,7 @@ import javax.persistence.Entity;
  * @author shake
  */
 @Entity
-public class Restoration extends UpdateableEntity {
+public class Restoration extends UpdatableEntity {
 
     protected Restoration() {
     }
