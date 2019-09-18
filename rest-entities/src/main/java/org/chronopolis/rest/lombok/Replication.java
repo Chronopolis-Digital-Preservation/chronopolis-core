@@ -48,7 +48,7 @@ public class Replication extends UpdatableEntity {
         }
 
         if (status == ReplicationStatus.SUCCESS) {
-            // update bag
+            bag.onUpdate();
         }
     }
 

@@ -9,6 +9,8 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 /**
@@ -49,6 +51,10 @@ public class AceToken extends PersistableEntity {
         this.createDate = date;
         this.bag = bag;
         this.file = bagFile;
+    }
+
+    public ZonedDateTime formatDate() {
+        return createDate.toInstant().atZone(ZoneOffset.UTC);
     }
 
 }

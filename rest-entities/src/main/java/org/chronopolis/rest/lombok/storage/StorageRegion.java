@@ -2,6 +2,7 @@ package org.chronopolis.rest.lombok.storage;
 
 import lombok.Data;
 import org.chronopolis.rest.lombok.Node;
+import org.chronopolis.rest.lombok.UpdatableEntity;
 import org.chronopolis.rest.models.enums.DataType;
 import org.chronopolis.rest.models.enums.StorageType;
 
@@ -21,7 +22,7 @@ import static javax.persistence.FetchType.LAZY;
  */
 @Data
 @Entity
-public class StorageRegion {
+public class StorageRegion extends UpdatableEntity {
 
     private String note;
     private Long capacity;
