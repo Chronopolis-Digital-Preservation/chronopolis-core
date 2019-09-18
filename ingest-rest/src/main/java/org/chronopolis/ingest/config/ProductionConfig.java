@@ -15,15 +15,13 @@ import java.util.List;
 
 
 /**
- * Do a few tasks related to startup when running a production server.
+ * Do a few tasks related to startup when running an ingest server.
  * These include:
  *   - Making sure we have an admin user, and if not creating a default one
  *
  * Created by shake on 3/24/15.
  */
 @Configuration
-@Profile("production")
-@SuppressWarnings("unused")
 public class ProductionConfig {
     private final Logger log = LoggerFactory.getLogger(ProductionConfig.class);
 
