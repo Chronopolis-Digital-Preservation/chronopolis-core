@@ -4,6 +4,7 @@
 /ingest-rest/target/
 /ingest-rest/integration/
 /tokenizer/target/
+/tokenizer-mq/target/
 /replication-shell/target/
 /rest-common/target/
 /rest-entities/target/
