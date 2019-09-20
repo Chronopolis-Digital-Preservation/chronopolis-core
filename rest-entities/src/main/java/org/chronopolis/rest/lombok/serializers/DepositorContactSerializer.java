@@ -10,7 +10,17 @@ import java.io.IOException;
 public class DepositorContactSerializer extends JsonSerializer<DepositorContact> {
 
     @Override
-    public void serialize(DepositorContact depositorContact, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(DepositorContact depositorContact,
+                          JsonGenerator jsonGenerator,
+                          SerializerProvider serializerProvider) throws IOException {
+        org.chronopolis.rest.models.DepositorContact model =
+                new org.chronopolis.rest.models.DepositorContact(
+                        depositorContact.getContactName(),
+                        depositorContact.getContactEmail(),
+                        depositorContact.getContactPhone()
+                );
 
+        jsonGenerator.writeObject(model);
     }
+
 }
