@@ -5,12 +5,15 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.chronopolis.rest.lombok.PersistableEntity;
+import org.chronopolis.rest.lombok.Node;
+import org.chronopolis.rest.lombok.UpdatableEntity;
 import org.hibernate.annotations.NaturalId;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +25,7 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class Depositor extends PersistableEntity implements Comparable<Depositor> {
+public class Depositor extends UpdatableEntity implements Comparable<Depositor> {
 
     @NonNull
     @NaturalId
@@ -35,10 +38,10 @@ public class Depositor extends PersistableEntity implements Comparable<Depositor
     @OneToMany(mappedBy = "depositor", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DepositorContact> contacts = new HashSet<>();
 
-    @Override
-    public int compareTo(@NotNull Depositor depositor) {
-        return namespace.compareTo(depositor.namespace);
-    }
+    @JoinTable(name = "depositor_distribution",
+            joinColumns = @JoinColumn(name = "depositor_id"),
+            inverseJoinColumns = @JoinColumn(name = "node_id"))
+    private Set<Node> nodeDistributions = new HashSet<>();
 
     public void addContact(DepositorContact contact) {
         if (contact.getDepositor() == null) {
@@ -53,4 +56,18 @@ public class Depositor extends PersistableEntity implements Comparable<Depositor
             contacts.remove(contact);
         }
     }
+
+    public void addNodeDistribution(Node node) {
+        nodeDistributions.add(node);
+    }
+
+    public void removeNodeDistribution(Node node) {
+        nodeDistributions.remove(node);
+    }
+
+    @Override
+    public int compareTo(@NotNull Depositor depositor) {
+        return namespace.compareTo(depositor.namespace);
+    }
+
 }
