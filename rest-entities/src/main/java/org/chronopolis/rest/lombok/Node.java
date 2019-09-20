@@ -2,6 +2,7 @@ package org.chronopolis.rest.lombok;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -14,7 +15,9 @@ import java.util.Set;
 @Entity
 public class Node extends PersistableEntity {
 
-    @EqualsAndHashCode.Include private String username;
+    @NaturalId
+    @EqualsAndHashCode.Include
+    private String username;
 
     private String password;
     private Boolean enabled;
