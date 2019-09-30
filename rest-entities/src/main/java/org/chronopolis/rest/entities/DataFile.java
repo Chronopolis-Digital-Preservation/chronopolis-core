@@ -2,6 +2,7 @@ package org.chronopolis.rest.entities;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.chronopolis.rest.entities.storage.Fixity;
 
 import javax.persistence.Column;
@@ -27,11 +28,13 @@ import static javax.persistence.FetchType.LAZY;
 @Inheritance
 @Table(name = "file")
 @DiscriminatorColumn(name = "dtype")
+@ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public abstract class DataFile extends UpdatableEntity {
 
     private Long size;
 
+    @ToString.Include
     @EqualsAndHashCode.Include
     private String filename;
 
@@ -47,7 +50,7 @@ public abstract class DataFile extends UpdatableEntity {
     private Set<Fixity> fixities = new HashSet<>();
 
     public void addFixity(Fixity fixity) {
-        if (fixity != null && fixity.getFile() == null) {
+        if (fixity != null && (fixity.getFile() == null || fixity.getFile().equals(this))) {
             fixity.setFile(this);
             fixities.add(fixity);
         }

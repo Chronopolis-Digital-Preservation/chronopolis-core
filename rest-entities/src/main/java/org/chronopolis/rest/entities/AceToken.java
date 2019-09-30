@@ -19,7 +19,7 @@ import java.util.Date;
 @Data
 @Entity
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public class AceToken extends PersistableEntity {
 
     @EqualsAndHashCode.Include private Long round;
