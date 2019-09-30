@@ -31,6 +31,7 @@ import static org.chronopolis.rest.entities.BagDistributionStatus.REPLICATE;
 @Data
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public class Bag extends UpdatableEntity implements Comparable<Bag> {
 
     @NaturalId

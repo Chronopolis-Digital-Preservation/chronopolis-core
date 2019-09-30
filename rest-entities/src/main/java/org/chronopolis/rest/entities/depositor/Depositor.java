@@ -14,6 +14,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +26,7 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @RequiredArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Depositor extends UpdatableEntity implements Comparable<Depositor> {
 
     @NonNull
@@ -39,6 +40,7 @@ public class Depositor extends UpdatableEntity implements Comparable<Depositor> 
     @OneToMany(mappedBy = "depositor", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DepositorContact> contacts = new HashSet<>();
 
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "depositor_distribution",
             joinColumns = @JoinColumn(name = "depositor_id"),
             inverseJoinColumns = @JoinColumn(name = "node_id"))

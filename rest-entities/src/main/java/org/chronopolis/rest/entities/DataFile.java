@@ -27,13 +27,16 @@ import static javax.persistence.FetchType.LAZY;
 @Inheritance
 @Table(name = "file")
 @DiscriminatorColumn(name = "dtype")
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public abstract class DataFile extends UpdatableEntity {
 
     private Long size;
+
+    @EqualsAndHashCode.Include
     private String filename;
 
     @ManyToOne(fetch = LAZY)
+    @EqualsAndHashCode.Include
     private Bag bag;
 
     @Column(insertable = false, updatable = false)

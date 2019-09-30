@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 @Data
 @Entity
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class RepairFile extends PersistableEntity {
 
     @ManyToOne private Repair repair;

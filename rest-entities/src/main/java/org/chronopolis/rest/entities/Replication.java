@@ -21,7 +21,7 @@ import javax.persistence.PreUpdate;
 @Entity
 @NoArgsConstructor
 @RequiredArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Replication extends UpdatableEntity {
 
     @NonNull

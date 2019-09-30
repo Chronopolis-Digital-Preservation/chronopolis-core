@@ -23,7 +23,7 @@ import static javax.persistence.FetchType.LAZY;
  */
 @Data
 @Entity
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class StorageRegion extends UpdatableEntity {
 
     private String note;

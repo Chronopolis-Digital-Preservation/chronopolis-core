@@ -18,7 +18,7 @@ import java.time.ZonedDateTime;
 @Data
 @Entity
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Fixity extends PersistableEntity {
 
     private String value;

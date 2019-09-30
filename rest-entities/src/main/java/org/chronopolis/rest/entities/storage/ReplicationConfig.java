@@ -12,7 +12,7 @@ import javax.persistence.OneToOne;
  */
 @Data
 @Entity
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class ReplicationConfig extends PersistableEntity {
 
     private String path;

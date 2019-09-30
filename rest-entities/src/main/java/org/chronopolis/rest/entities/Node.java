@@ -15,7 +15,7 @@ import java.util.Set;
 @Data
 @Entity
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Node extends PersistableEntity {
 
     @NaturalId

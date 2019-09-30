@@ -14,7 +14,7 @@ import javax.persistence.OneToOne;
 @Data
 @Entity
 @DiscriminatorValue("RSYNC")
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Rsync extends Strategy {
 
     private String link;

@@ -19,14 +19,16 @@ import javax.persistence.ManyToOne;
 @Entity
 @NoArgsConstructor
 @RequiredArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class BagDistribution extends PersistableEntity {
 
     @NonNull
+    @EqualsAndHashCode.Include
     @ManyToOne(fetch = FetchType.LAZY)
     private Bag bag;
 
     @NonNull
+    @EqualsAndHashCode.Include
     @ManyToOne(fetch = FetchType.LAZY)
     private Node node;
 

@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
@@ -24,6 +25,7 @@ public class DepositorContact implements Comparable<DepositorContact> {
 
     @NonNull private String contactName;
     @NonNull private String contactPhone;
+    @Id
     @NonNull private String contactEmail;
 
     @ManyToOne(fetch = FetchType.LAZY)

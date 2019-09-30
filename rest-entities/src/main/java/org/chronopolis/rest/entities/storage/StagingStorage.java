@@ -16,17 +16,17 @@ import javax.persistence.ManyToOne;
 @Data
 @Entity
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class StagingStorage extends UpdatableEntity {
 
-    private Long size;
-    private Long totalFiles;
-    private String path;
-    private Boolean active;
+    @EqualsAndHashCode.Include private Long size;
+    @EqualsAndHashCode.Include private Long totalFiles;
+    @EqualsAndHashCode.Include private String path;
+    @EqualsAndHashCode.Include private Boolean active;
 
     @ManyToOne private Bag bag;
-    @ManyToOne private DataFile file;
     @ManyToOne private StorageRegion region;
+    @ManyToOne @EqualsAndHashCode.Include private DataFile file;
 
     public StagingStorage(StorageRegion region,
                           Bag bag,

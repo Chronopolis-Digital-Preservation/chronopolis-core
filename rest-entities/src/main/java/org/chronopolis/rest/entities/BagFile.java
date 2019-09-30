@@ -16,7 +16,7 @@ import static javax.persistence.CascadeType.PERSIST;
 @Data
 @Entity
 @DiscriminatorValue("BAG")
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class BagFile extends DataFile {
 
     @OneToOne(mappedBy = "file", cascade = {MERGE, PERSIST}, orphanRemoval = true)

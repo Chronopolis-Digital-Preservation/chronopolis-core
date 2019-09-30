@@ -18,7 +18,7 @@ import java.time.ZonedDateTime;
 @Data
 @NoArgsConstructor
 @MappedSuperclass
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class UpdatableEntity extends PersistableEntity {
 
     @Convert(converter = ZonedDateTimeConverter.class)
