@@ -10,13 +10,17 @@ import org.chronopolis.rest.entities.Bag;
 import org.chronopolis.rest.entities.Node;
 import org.chronopolis.rest.entities.QBag;
 import org.chronopolis.rest.entities.QNode;
+import org.chronopolis.rest.entities.repair.Ace;
 import org.chronopolis.rest.entities.repair.QRepair;
 import org.chronopolis.rest.entities.repair.Repair;
+import org.chronopolis.rest.entities.repair.Rsync;
 import org.chronopolis.rest.entities.repair.Strategy;
-import org.chronopolis.rest.entities.serializers.ExtensionsKt;
+import org.chronopolis.rest.models.AceStrategy;
 import org.chronopolis.rest.models.FulfillmentStrategy;
+import org.chronopolis.rest.models.RsyncStrategy;
 import org.chronopolis.rest.models.create.RepairCreate;
 import org.chronopolis.rest.models.enums.AuditStatus;
+import org.chronopolis.rest.models.enums.FulfillmentType;
 import org.chronopolis.rest.models.enums.RepairStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.HashSet;
+import java.util.Optional;
 
 import static org.chronopolis.ingest.IngestController.hasRoleAdmin;
 
@@ -201,14 +206,14 @@ public class RepairController {
             }
         }
 
-
-        Strategy entity = ExtensionsKt.toEntity(strategy);
-        entity.setRepair(repair);
-        log.info("Adding strategy of type {} to repair {}", strategy.getType(), repair.getId());
-        repair.setType(strategy.getType());
-        repair.setStrategy(entity);
-        repair.setStatus(RepairStatus.READY);
-        dao.save(repair);
+        Optional<Strategy> strategyOptional = toEntity(strategy, repair);
+        strategyOptional.ifPresent(entity -> {
+            log.info("Adding strategy of type {} to repair {}", strategy.getType(), repair.getId());
+            repair.setType(strategy.getType());
+            repair.setStrategy(entity);
+            repair.setStatus(RepairStatus.READY);
+            dao.save(repair);
+        });
         return repair;
     }
 
@@ -416,5 +421,36 @@ public class RepairController {
             throw new NotFoundException(message);
         }
     }
+
+    // Replacement for Kotlin extension method
+
+    /**
+     * Process a {@link FulfillmentStrategy} and determine what type of {@link Strategy} should be
+     * created for a {@link Repair}. If no viable strategies can be created, return an empty
+     * {@link Optional}, otherwise wrap the created {@link Strategy}.
+     *
+     * @param strategy the {@link FulfillmentStrategy} to persist
+     * @param repair the {@link Repair} receiving the fulfillment
+     * @return an {@link Optional} holding the created {@link Strategy}
+     */
+    private Optional<Strategy> toEntity(FulfillmentStrategy strategy, Repair repair) {
+        Optional<Strategy> response = Optional.empty();
+
+        FulfillmentType type = strategy.getType();
+        if (type == FulfillmentType.NODE_TO_NODE || type == FulfillmentType.INGEST) {
+            RsyncStrategy rsyncStrategy = (RsyncStrategy) strategy;
+            Rsync rsync = new Rsync(rsyncStrategy.getLink());
+            rsync.setRepair(repair);
+            response = Optional.of(rsync);
+        } else if (type == FulfillmentType.ACE) {
+            AceStrategy aceStrategy = (AceStrategy) strategy;
+            Ace ace = new Ace(aceStrategy.getApiKey(), aceStrategy.getUrl());
+            ace.setRepair(repair);
+            response = Optional.of(ace);
+        }
+
+        return response;
+    }
+
 
 }

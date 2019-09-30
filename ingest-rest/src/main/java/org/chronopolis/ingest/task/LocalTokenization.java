@@ -12,7 +12,7 @@ import org.chronopolis.rest.entities.QAceToken;
 import org.chronopolis.rest.entities.QBag;
 import org.chronopolis.rest.entities.QBagFile;
 import org.chronopolis.rest.entities.QDataFile;
-import org.chronopolis.rest.entities.serializers.ExtensionsKt;
+import org.chronopolis.rest.entities.serializers.BagSerializer;
 import org.chronopolis.rest.entities.storage.QStagingStorage;
 import org.chronopolis.rest.models.enums.BagStatus;
 import org.chronopolis.tokenize.BagProcessor;
@@ -109,8 +109,9 @@ public class LocalTokenization {
 
             log.trace("[{}] Submitting: {}", bag.getName(), count < bag.getTotalFiles());
             if (count < bag.getTotalFiles()) {
+                BagSerializer serializer = new BagSerializer();
                 BagProcessor processor =
-                        new BagProcessor(ExtensionsKt.model(bag), predicates, bp, tws);
+                        new BagProcessor(serializer.modelFor(bag), predicates, bp, tws);
                 executor.submitIfAvailable(processor, bag);
             }
         }

@@ -24,7 +24,6 @@ import org.chronopolis.rest.entities.QBag;
 import org.chronopolis.rest.entities.QNode;
 import org.chronopolis.rest.entities.depositor.Depositor;
 import org.chronopolis.rest.entities.depositor.DepositorContact;
-import org.chronopolis.rest.entities.depositor.DepositorContactKt;
 import org.chronopolis.rest.entities.depositor.QDepositor;
 import org.chronopolis.rest.entities.depositor.QDepositorContact;
 import org.chronopolis.rest.models.create.DepositorContactCreate;
@@ -49,6 +48,7 @@ import java.security.Principal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -302,7 +302,7 @@ public class DepositorUIController extends IngestController {
             return "depositors/add_contact";
         }
 
-        return DepositorContactKt.fromRequest(depositorContactCreate)
+        return fromRequest(depositorContactCreate)
                 .map(fromRequest -> {
                     depositor.addContact(fromRequest);
                     dao.save(fromRequest);
@@ -416,5 +416,13 @@ public class DepositorUIController extends IngestController {
         }
 
         return depositor;
+    }
+
+    private Optional<DepositorContact> fromRequest(DepositorContactCreate request) {
+        return request.getContactPhone().formatNumber()
+                .map(contactPhoneNumber -> new DepositorContact(
+                        request.getContactName(),
+                        contactPhoneNumber,
+                        request.getContactEmail()));
     }
 }

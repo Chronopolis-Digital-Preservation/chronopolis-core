@@ -10,7 +10,6 @@ import org.chronopolis.rest.entities.QBag;
 import org.chronopolis.rest.entities.QNode;
 import org.chronopolis.rest.entities.depositor.Depositor;
 import org.chronopolis.rest.entities.depositor.DepositorContact;
-import org.chronopolis.rest.entities.depositor.DepositorContactKt;
 import org.chronopolis.rest.entities.depositor.QDepositor;
 import org.chronopolis.rest.entities.depositor.QDepositorContact;
 import org.chronopolis.rest.models.create.DepositorContactCreate;
@@ -32,7 +31,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.chronopolis.ingest.IngestController.hasRoleAdmin;
 
@@ -93,8 +94,7 @@ public class DepositorController {
         } else if (exists != null) {
             response = ResponseEntity.status(HttpStatus.CONFLICT).build();
         } else {
-            Set<DepositorContact> contacts = DepositorContactKt
-                    .fromRequest(depositorCreate.getContacts());
+            Set<DepositorContact> contacts = fromRequest(depositorCreate.getContacts());
 
             if (contacts.size() == depositorCreate.getContacts().size()) {
                 Depositor dep = new Depositor(depositorCreate.getNamespace(),
@@ -211,7 +211,7 @@ public class DepositorController {
                     qDepositorContact.depositor.namespace.eq(namespace)
                             .and(qDepositorContact.contactEmail.eq(create.getContactEmail())));
             if (depositor != null && depositorContact == null) {
-                response = DepositorContactKt.fromRequest(create).map(entity -> {
+                response = fromRequest(create).map(entity -> {
                     depositor.addContact(entity);
                     dao.save(depositor);
                     return ResponseEntity.status(HttpStatus.CREATED).body(entity);
@@ -339,5 +339,23 @@ public class DepositorController {
 
         return response;
     }
+
+    // Some one offs which we should maybe look at finding homes for
+    private Optional<DepositorContact> fromRequest(DepositorContactCreate request) {
+        return request.getContactPhone().formatNumber()
+                .map(contactPhoneNumber -> new DepositorContact(
+                        request.getContactName(),
+                        contactPhoneNumber,
+                        request.getContactEmail()));
+    }
+
+    private Set<DepositorContact> fromRequest(List<DepositorContactCreate> contacts) {
+        return contacts.stream()
+            .map(this::fromRequest)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
+    }
+
 
 }
