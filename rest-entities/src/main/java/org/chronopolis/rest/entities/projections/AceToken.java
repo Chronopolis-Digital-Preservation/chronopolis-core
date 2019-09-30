@@ -20,7 +20,7 @@ public class AceToken {
     private final String imsService;
     private final String algorithm;
     private final String proof;
-    private final Date createdAt;
+    private final Date createDate;
 
     @QueryProjection
     public AceToken(Long id,
@@ -30,7 +30,7 @@ public class AceToken {
                     String imsService,
                     String algorithm,
                     String proof,
-                    Date createdAt,
+                    Date createDate,
                     String filename) {
         this.id = id;
         this.bagId = bagId;
@@ -39,7 +39,7 @@ public class AceToken {
         this.imsService = imsService;
         this.algorithm = algorithm;
         this.proof = proof;
-        this.createdAt = createdAt;
+        this.createDate = createDate;
         this.filename = filename;
     }
 }
