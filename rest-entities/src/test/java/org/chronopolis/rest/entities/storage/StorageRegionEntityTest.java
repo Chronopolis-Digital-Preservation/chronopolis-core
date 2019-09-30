@@ -1,12 +1,22 @@
 package org.chronopolis.rest.entities.storage;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.chronopolis.rest.entities.JPAContext;
+import org.chronopolis.rest.entities.Node;
+import org.chronopolis.rest.entities.QNode;
+import org.chronopolis.rest.models.enums.DataType;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.persistence.EntityManager;
 
 /**
  * @author shake
@@ -17,12 +27,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class StorageRegionEntityTest {
 
-    /*
     @Autowired
     private EntityManager entityManager;
     private Node ucsd;
 
-    /*
     @Before
     public void initFromDb() {
         JPAQueryFactory query = new JPAQueryFactory(entityManager);
@@ -48,13 +56,13 @@ public class StorageRegionEntityTest {
         entityManager.persist(persist);
 
         JPAQueryFactory query = new JPAQueryFactory(entityManager);
-        StorageRegion fetch = query.selectFrom(QStorageRegion.storageRegion)
-                .where(QStorageRegion.storageRegion.note.eq("test-persist-storage-region"))
+        StorageRegion fetch = query.selectFrom(org.chronopolis.rest.entities.storage.QStorageRegion.storageRegion)
+                .where(org.chronopolis.rest.entities.storage.QStorageRegion.storageRegion.note.eq("test-persist-storage-region"))
                 .fetchOne();
 
         // basic persist tests
         Assert.assertNotNull(fetch);
-        Assert.assertNotEquals(0L, persist.getId());
+        Assert.assertNotEquals(Long.valueOf(0), persist.getId());
         Assert.assertEquals(persist, fetch);
 
         // test fetch worked properly
@@ -63,6 +71,5 @@ public class StorageRegionEntityTest {
         Assert.assertEquals("test-server", fetch.getReplicationConfig().getServer());
         Assert.assertEquals("test-user", fetch.getReplicationConfig().getUsername());
     }
-    */
 
 }

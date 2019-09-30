@@ -2,6 +2,7 @@ package org.chronopolis.rest.entities.depositor;
 
 import com.google.common.collect.ComparisonChain;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,11 @@ public class DepositorContact implements Comparable<DepositorContact> {
 
     @NonNull private String contactName;
     @NonNull private String contactPhone;
+
     @Id
     @NonNull private String contactEmail;
 
+    @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "depositor_id")
     private Depositor depositor;

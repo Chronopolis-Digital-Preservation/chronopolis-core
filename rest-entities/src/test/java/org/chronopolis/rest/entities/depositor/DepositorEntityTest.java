@@ -1,12 +1,27 @@
 package org.chronopolis.rest.entities.depositor;
 
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.chronopolis.rest.entities.JPAContext;
+import org.chronopolis.rest.entities.Node;
+import org.chronopolis.rest.entities.QNode;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.persistence.EntityManager;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author shake
@@ -23,14 +38,12 @@ public class DepositorEntityTest {
     private final String contactPhone = "test-persist-contact-phone";
     private final String contactEmail = "test-persist-contact-email";
 
-    /*
     @Autowired
     private EntityManager entityManager;
 
     private Node sdsc;
     private Node ncar;
 
-    /*
     @Before
     public void initFromDb() {
         JPAQueryFactory query = new JPAQueryFactory(entityManager);
@@ -51,15 +64,15 @@ public class DepositorEntityTest {
         final String namespace = "test-depositor";
         JPAQueryFactory factory = new JPAQueryFactory(entityManager);
 
-        Depositor depositor = factory.selectFrom(QDepositor.depositor)
-                .where(QDepositor.depositor.namespace.eq(namespace))
+        Depositor depositor = factory.selectFrom(org.chronopolis.rest.entities.depositor.QDepositor.depositor)
+                .where(org.chronopolis.rest.entities.depositor.QDepositor.depositor.namespace.eq(namespace))
                 .fetchOne();
 
         Assert.assertNotNull(depositor);
         Assert.assertNotNull(depositor.getNodeDistributions());
         Assert.assertEquals(3, depositor.getNodeDistributions().size());
 
-        QDepositor qd = QDepositor.depositor;
+        org.chronopolis.rest.entities.depositor.QDepositor qd = org.chronopolis.rest.entities.depositor.QDepositor.depositor;
         QNode qn = QNode.node;
 
         // first select the nodes which are used (basically validate our subquery)
@@ -99,13 +112,13 @@ public class DepositorEntityTest {
         entityManager.persist(depositor);
 
         JPAQueryFactory query = new JPAQueryFactory(entityManager);
-        Depositor fetch = query.selectFrom(QDepositor.depositor)
-                .where(QDepositor.depositor.namespace.eq(namespace))
+        Depositor fetch = query.selectFrom(org.chronopolis.rest.entities.depositor.QDepositor.depositor)
+                .where(org.chronopolis.rest.entities.depositor.QDepositor.depositor.namespace.eq(namespace))
                 .fetchOne();
 
         Assert.assertNotNull(fetch);
         Assert.assertEquals(depositor, fetch);
-        Assert.assertNotEquals(0L, depositor.getId());
+        Assert.assertNotEquals(Long.valueOf(0), depositor.getId());
 
         Assert.assertEquals(1, fetch.getContacts().size());
         Assert.assertEquals(1, fetch.getNodeDistributions().size());
@@ -129,8 +142,8 @@ public class DepositorEntityTest {
         entityManager.refresh(depositor);
 
         JPAQueryFactory query = new JPAQueryFactory(entityManager);
-        Depositor merge = query.selectFrom(QDepositor.depositor)
-                .where(QDepositor.depositor.namespace.eq(namespace))
+        Depositor merge = query.selectFrom(org.chronopolis.rest.entities.depositor.QDepositor.depositor)
+                .where(org.chronopolis.rest.entities.depositor.QDepositor.depositor.namespace.eq(namespace))
                 .fetchOne();
 
         Assert.assertNotNull(merge);
@@ -141,8 +154,8 @@ public class DepositorEntityTest {
         entityManager.merge(merge);
         entityManager.flush();
 
-        Depositor fetch = query.selectFrom(QDepositor.depositor)
-                .where(QDepositor.depositor.namespace.eq(namespace))
+        Depositor fetch = query.selectFrom(org.chronopolis.rest.entities.depositor.QDepositor.depositor)
+                .where(org.chronopolis.rest.entities.depositor.QDepositor.depositor.namespace.eq(namespace))
                 .fetchOne();
 
         // might be able to put all this in a single function but not really that important
@@ -160,6 +173,8 @@ public class DepositorEntityTest {
 
         fetch.getNodeDistributions().forEach(dist -> Assert.assertEquals(sdsc, dist));
     }
+
+    private final Logger log = LoggerFactory.getLogger(DepositorEntityTest.class);
 
     @Test
     public void testDepositorRmKeys() {
@@ -186,13 +201,16 @@ public class DepositorEntityTest {
 
         // first rm
         JPAQueryFactory query = new JPAQueryFactory(entityManager);
-        Depositor rm = query.selectFrom(QDepositor.depositor)
-                .where(QDepositor.depositor.namespace.eq(namespace))
+        Depositor rm = query.selectFrom(org.chronopolis.rest.entities.depositor.QDepositor.depositor)
+                .where(org.chronopolis.rest.entities.depositor.QDepositor.depositor.namespace.eq(namespace))
                 .fetchOne();
 
         Assert.assertNotNull(rm);
         rm.removeContact(contact1);
         rm.removeNodeDistribution(ncar);
+
+        log.info("Removed contacts: {}", rm.getContacts().size());
+        log.info("Removed depositor isnull?: {}", contact1.getDepositor() == null);
 
         entityManager.merge(rm);
         entityManager.flush();
@@ -215,5 +233,4 @@ public class DepositorEntityTest {
         Assert.assertEquals(0, rm.getContacts().size());
         Assert.assertEquals(0, rm.getNodeDistributions().size());
     }
-    */
 }
