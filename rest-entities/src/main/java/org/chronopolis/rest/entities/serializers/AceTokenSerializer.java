@@ -20,8 +20,8 @@ public class AceTokenSerializer extends JsonSerializer<AceToken> {
                 aceToken.getRound(),
                 aceToken.getProof(),
                 aceToken.getImsHost(),
-                aceToken.getAlgorithm(),
                 aceToken.getFile().getFilename(),
+                aceToken.getAlgorithm(),
                 aceToken.getImsService(),
                 aceToken.formatDate()
         );

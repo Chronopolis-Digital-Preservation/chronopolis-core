@@ -1,7 +1,7 @@
 package org.chronopolis.rest.models
 
-import org.hibernate.validator.constraints.NotBlank
 import java.time.ZonedDateTime
+import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
 data class AceToken(val id: Long,
