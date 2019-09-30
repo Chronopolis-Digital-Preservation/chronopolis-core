@@ -1,6 +1,7 @@
 package org.chronopolis.rest.entities;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import javax.persistence.ManyToOne;
 @Entity
 @NoArgsConstructor
 @RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class BagDistribution extends PersistableEntity {
 
     @NonNull

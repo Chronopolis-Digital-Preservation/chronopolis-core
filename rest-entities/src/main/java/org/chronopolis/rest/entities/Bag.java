@@ -40,7 +40,7 @@ public class Bag extends UpdatableEntity implements Comparable<Bag> {
 
     private Long size;
     private Long totalFiles;
-    private BagStatus status;
+    private BagStatus status = BagStatus.DEPOSITED;
 
     // joins
 
@@ -56,6 +56,22 @@ public class Bag extends UpdatableEntity implements Comparable<Bag> {
 
     @OneToMany(mappedBy = "bag", cascade = {MERGE, PERSIST}, fetch = EAGER, orphanRemoval = true)
     private Set<StagingStorage> storage = new HashSet<>();
+
+
+    public Bag(String name,
+               String creator,
+               Depositor depositor,
+               Long size,
+               Long totalFiles,
+               BagStatus status) {
+        this.name = name;
+        this.creator = creator;
+        this.depositor = depositor;
+        this.size = size;
+        this.totalFiles = totalFiles;
+        this.status = status;
+    }
+
 
     // persistence helpers
 

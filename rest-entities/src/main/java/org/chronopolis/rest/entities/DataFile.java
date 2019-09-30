@@ -27,6 +27,7 @@ import static javax.persistence.FetchType.LAZY;
 @Inheritance
 @Table(name = "file")
 @DiscriminatorColumn(name = "dtype")
+@EqualsAndHashCode(callSuper = true)
 public abstract class DataFile extends UpdatableEntity {
 
     private Long size;

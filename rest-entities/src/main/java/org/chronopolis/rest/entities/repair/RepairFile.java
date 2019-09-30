@@ -1,6 +1,7 @@
 package org.chronopolis.rest.entities.repair;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.chronopolis.rest.entities.PersistableEntity;
@@ -14,6 +15,7 @@ import javax.persistence.ManyToOne;
 @Data
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class RepairFile extends PersistableEntity {
 
     @ManyToOne private Repair repair;

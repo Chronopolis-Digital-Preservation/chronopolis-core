@@ -1,6 +1,7 @@
 package org.chronopolis.rest.entities;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import javax.persistence.PreUpdate;
 @Entity
 @NoArgsConstructor
 @RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Replication extends UpdatableEntity {
 
     @NonNull
@@ -40,6 +42,24 @@ public class Replication extends UpdatableEntity {
 
     private String receivedTagFixity;
     private String receivedTokenFixity;
+
+    public Replication(ReplicationStatus status,
+                       Node node,
+                       Bag bag,
+                       String bagLink,
+                       String tokenLink,
+                       String protocol,
+                       String receivedTagFixity,
+                       String receivedTokenFixity) {
+        this.status = status;
+        this.node = node;
+        this.bag = bag;
+        this.bagLink = bagLink;
+        this.tokenLink = tokenLink;
+        this.protocol = protocol;
+        this.receivedTagFixity = receivedTagFixity;
+        this.receivedTokenFixity = receivedTokenFixity;
+    }
 
     @PreUpdate
     protected void updateReplication() {

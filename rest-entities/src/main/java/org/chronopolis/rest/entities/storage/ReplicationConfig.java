@@ -1,6 +1,7 @@
 package org.chronopolis.rest.entities.storage;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.chronopolis.rest.entities.PersistableEntity;
 
 import javax.persistence.Entity;
@@ -11,6 +12,7 @@ import javax.persistence.OneToOne;
  */
 @Data
 @Entity
+@EqualsAndHashCode(callSuper = true)
 public class ReplicationConfig extends PersistableEntity {
 
     private String path;

@@ -1,6 +1,7 @@
 package org.chronopolis.rest.entities.storage;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.chronopolis.rest.entities.Bag;
 import org.chronopolis.rest.entities.DataFile;
@@ -15,6 +16,7 @@ import javax.persistence.ManyToOne;
 @Data
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class StagingStorage extends UpdatableEntity {
 
     private Long size;

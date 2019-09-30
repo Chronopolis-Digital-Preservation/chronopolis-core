@@ -1,6 +1,7 @@
 package org.chronopolis.rest.entities.storage;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.chronopolis.rest.entities.Node;
 import org.chronopolis.rest.entities.UpdatableEntity;
 import org.chronopolis.rest.models.enums.DataType;
@@ -22,6 +23,7 @@ import static javax.persistence.FetchType.LAZY;
  */
 @Data
 @Entity
+@EqualsAndHashCode(callSuper = true)
 public class StorageRegion extends UpdatableEntity {
 
     private String note;

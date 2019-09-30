@@ -1,18 +1,12 @@
-package org.chronopolis.rest.lombok;
+package org.chronopolis.rest.entities;
 
 import com.google.common.collect.ImmutableSet;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.chronopolis.rest.entities.Bag;
-import org.chronopolis.rest.entities.BagDistributionStatus;
-import org.chronopolis.rest.entities.BagFile;
-import org.chronopolis.rest.entities.JPAContext;
-import org.chronopolis.rest.entities.Node;
-import org.chronopolis.rest.entities.TokenStore;
 import org.chronopolis.rest.entities.depositor.Depositor;
-import org.chronopolis.rest.lombok.depositor.QDepositor;
+import org.chronopolis.rest.entities.depositor.QDepositor;
 import org.chronopolis.rest.entities.storage.Fixity;
-import org.chronopolis.rest.lombok.storage.QStagingStorage;
-import org.chronopolis.rest.lombok.storage.QStorageRegion;
+import org.chronopolis.rest.entities.storage.QStagingStorage;
+import org.chronopolis.rest.entities.storage.QStorageRegion;
 import org.chronopolis.rest.entities.storage.StagingStorage;
 import org.chronopolis.rest.entities.storage.StorageRegion;
 import org.chronopolis.rest.models.enums.BagStatus;
@@ -66,11 +60,11 @@ public class BagLombokTest {
         depositor = qf.selectFrom(QDepositor.depositor)
                 .where(QDepositor.depositor.namespace.eq("test-depositor"))
                 .fetchOne();
-        ncar = qf.selectFrom(org.chronopolis.rest.lombok.QNode.node)
-                .where(org.chronopolis.rest.lombok.QNode.node.username.eq("ncar"))
+        ncar = qf.selectFrom(org.chronopolis.rest.entities.QNode.node)
+                .where(org.chronopolis.rest.entities.QNode.node.username.eq("ncar"))
                 .fetchOne();
-        umiacs = qf.selectFrom(org.chronopolis.rest.lombok.QNode.node)
-                .where(org.chronopolis.rest.lombok.QNode.node.username.eq("umiacs"))
+        umiacs = qf.selectFrom(org.chronopolis.rest.entities.QNode.node)
+                .where(org.chronopolis.rest.entities.QNode.node.username.eq("umiacs"))
                 .fetchOne();
 
         Assert.assertNotNull(storageRegion);
@@ -126,8 +120,8 @@ public class BagLombokTest {
 
         entityManager.persist(persist);
 
-        Bag fetch = qf.selectFrom(org.chronopolis.rest.lombok.QBag.bag)
-                .where(org.chronopolis.rest.lombok.QBag.bag.name.eq(BAG_NAME))
+        Bag fetch = qf.selectFrom(org.chronopolis.rest.entities.QBag.bag)
+                .where(org.chronopolis.rest.entities.QBag.bag.name.eq(BAG_NAME))
                 .fetchOne();
 
         Assert.assertNotNull(fetch);
@@ -138,8 +132,8 @@ public class BagLombokTest {
 
         // also storage
         StagingStorage fetchStorage = qf.select(QStagingStorage.stagingStorage)
-                .from(org.chronopolis.rest.lombok.QBag.bag)
-                .join(org.chronopolis.rest.lombok.QBag.bag.storage, QStagingStorage.stagingStorage)
+                .from(org.chronopolis.rest.entities.QBag.bag)
+                .join(org.chronopolis.rest.entities.QBag.bag.storage, QStagingStorage.stagingStorage)
                 .where(QStagingStorage.stagingStorage.active.isTrue()
                     .and(QStagingStorage.stagingStorage.file.dtype.eq("BAG")))
                 .fetchOne();
@@ -213,8 +207,8 @@ public class BagLombokTest {
         entityManager.merge(bag);
 
         // fetch and asserts
-        Bag fetchedBag = qf.selectFrom(org.chronopolis.rest.lombok.QBag.bag)
-                .where(org.chronopolis.rest.lombok.QBag.bag.name.eq(BAG_NAME))
+        Bag fetchedBag = qf.selectFrom(org.chronopolis.rest.entities.QBag.bag)
+                .where(org.chronopolis.rest.entities.QBag.bag.name.eq(BAG_NAME))
                 .fetchOne();
 
         Assert.assertNotEquals(Long.valueOf(0), bag.getId());

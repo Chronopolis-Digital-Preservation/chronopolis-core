@@ -1,6 +1,7 @@
 package org.chronopolis.rest.entities;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -15,6 +16,7 @@ import static javax.persistence.CascadeType.PERSIST;
 @Data
 @Entity
 @DiscriminatorValue("BAG")
+@EqualsAndHashCode(callSuper = true)
 public class BagFile extends DataFile {
 
     @OneToOne(mappedBy = "file", cascade = {MERGE, PERSIST}, orphanRemoval = true)

@@ -1,6 +1,7 @@
 package org.chronopolis.rest.entities;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.chronopolis.rest.entities.converters.ZonedDateTimeConverter;
 
@@ -17,6 +18,7 @@ import java.time.ZonedDateTime;
 @Data
 @NoArgsConstructor
 @MappedSuperclass
+@EqualsAndHashCode(callSuper = true)
 public class UpdatableEntity extends PersistableEntity {
 
     @Convert(converter = ZonedDateTimeConverter.class)

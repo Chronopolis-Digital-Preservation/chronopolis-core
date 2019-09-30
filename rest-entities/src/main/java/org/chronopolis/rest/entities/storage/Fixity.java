@@ -1,6 +1,7 @@
 package org.chronopolis.rest.entities.storage;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.chronopolis.rest.entities.DataFile;
 import org.chronopolis.rest.entities.PersistableEntity;
@@ -17,6 +18,7 @@ import java.time.ZonedDateTime;
 @Data
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Fixity extends PersistableEntity {
 
     private String value;

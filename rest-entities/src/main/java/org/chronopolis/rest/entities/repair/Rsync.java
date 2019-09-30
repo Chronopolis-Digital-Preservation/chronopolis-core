@@ -1,6 +1,7 @@
 package org.chronopolis.rest.entities.repair;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.chronopolis.rest.models.FulfillmentStrategy;
 
 import javax.persistence.DiscriminatorValue;
@@ -13,6 +14,7 @@ import javax.persistence.OneToOne;
 @Data
 @Entity
 @DiscriminatorValue("RSYNC")
+@EqualsAndHashCode(callSuper = true)
 public class Rsync extends Strategy {
 
     private String link;

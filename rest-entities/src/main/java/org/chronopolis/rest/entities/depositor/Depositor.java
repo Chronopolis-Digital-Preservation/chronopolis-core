@@ -25,6 +25,7 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Depositor extends UpdatableEntity implements Comparable<Depositor> {
 
     @NonNull
