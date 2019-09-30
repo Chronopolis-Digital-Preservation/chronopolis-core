@@ -78,7 +78,7 @@ public class DataFileSerializerTest {
         tokenStore.setCreatedAt(from);
         tokenStore.setUpdatedAt(from);
         tokenStore.setFilename("/test-filename");
-        tokenStore.addFixity(new Fixity(from, bagFile, fixityVal, FixityAlgorithm.SHA_256.getCanonical()));
+        tokenStore.addFixity(new Fixity(from, tokenStore, fixityVal, FixityAlgorithm.SHA_256.getCanonical()));
 
         assertThat(json.write(bagFile)).isEqualTo("file.json");
         assertThat(json.write(tokenStore)).isEqualTo("file.json");

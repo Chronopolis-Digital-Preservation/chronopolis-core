@@ -3,9 +3,11 @@ package org.chronopolis.rest.entities.serializers;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import org.chronopolis.rest.entities.repair.Ace;
 import org.chronopolis.rest.entities.repair.Repair;
 import org.chronopolis.rest.entities.repair.RepairFile;
 import org.chronopolis.rest.entities.repair.Rsync;
+import org.chronopolis.rest.models.AceStrategy;
 import org.chronopolis.rest.models.FulfillmentStrategy;
 import org.chronopolis.rest.models.RsyncStrategy;
 import org.chronopolis.rest.models.enums.FulfillmentType;
@@ -37,6 +39,9 @@ public class RepairSerializer extends JsonSerializer<Repair> {
             if (type == FulfillmentType.NODE_TO_NODE && repair.getStrategy() instanceof Rsync) {
                 Rsync rsync = (Rsync) repair.getStrategy();
                 strategy = new RsyncStrategy(rsync.getLink());
+            } else if (type == FulfillmentType.ACE) {
+                Ace ace = (Ace) repair.getStrategy();
+                strategy = new AceStrategy(ace.getApiKey(), ace.getUrl());
             }
         }
 

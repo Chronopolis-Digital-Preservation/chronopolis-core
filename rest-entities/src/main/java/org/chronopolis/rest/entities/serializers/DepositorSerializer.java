@@ -3,6 +3,7 @@ package org.chronopolis.rest.entities.serializers;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import org.chronopolis.rest.entities.Node;
 import org.chronopolis.rest.entities.depositor.Depositor;
 import org.chronopolis.rest.models.DepositorContact;
 
@@ -24,6 +25,11 @@ public class DepositorSerializer extends JsonSerializer<Depositor> {
                         contact.getContactPhone()
                 )).collect(Collectors.toSet());
 
+        Set<String> replicatingNodes = depositor.getNodeDistributions()
+                .stream()
+                .map(Node::getUsername)
+                .collect(Collectors.toSet());
+
         org.chronopolis.rest.models.Depositor model = new org.chronopolis.rest.models.Depositor(
                 depositor.getId(),
                 depositor.getNamespace(),
@@ -31,7 +37,7 @@ public class DepositorSerializer extends JsonSerializer<Depositor> {
                 depositor.getOrganizationAddress(),
                 depositor.getCreatedAt(),
                 depositor.getUpdatedAt(),
-                null,
+                replicatingNodes,
                 contacts
         );
 

@@ -71,7 +71,7 @@ public class BagSerializerTest {
         Bag bag = new Bag("bag", "creator", depositor, 1L, 1L, BagStatus.REPLICATING);
         bag.setId(1L);
         bag.addStagingStorage(createStorage());
-        bag.setDistributions(of(new BagDistribution(bag, node, BagDistributionStatus.DISTRIBUTE)));
+        bag.setDistributions(of(new BagDistribution(bag, node, BagDistributionStatus.REPLICATE)));
         bag.setCreatedAt(dateTime);
         bag.setUpdatedAt(dateTime);
         assertThat(json.write(bag)).isEqualToJson("bag.json");

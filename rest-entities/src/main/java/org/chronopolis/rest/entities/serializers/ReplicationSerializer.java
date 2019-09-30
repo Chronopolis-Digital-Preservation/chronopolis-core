@@ -32,6 +32,6 @@ public class ReplicationSerializer extends JsonSerializer<Replication> {
                 bagSerializer.modelFor(replication.getBag())
         );
 
-        jsonGenerator.writeObject(replication);
+        jsonGenerator.writeObject(model);
     }
 }

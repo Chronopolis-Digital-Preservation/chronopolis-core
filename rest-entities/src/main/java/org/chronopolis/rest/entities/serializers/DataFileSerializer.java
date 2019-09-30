@@ -20,7 +20,7 @@ public class DataFileSerializer extends JsonSerializer<DataFile> {
                           SerializerProvider serializerProvider) throws IOException {
         Set<Fixity> fixities = dataFile.getFixities().stream()
                 .map(fixity -> new Fixity(fixity.getValue(),
-                        FixityAlgorithm.valueOf(fixity.getAlgorithm()),
+                        algorithmFromString(fixity.getAlgorithm()),
                         fixity.getCreatedAt()))
                 .collect(Collectors.toSet());
 
@@ -36,4 +36,16 @@ public class DataFileSerializer extends JsonSerializer<DataFile> {
 
         jsonGenerator.writeObject(model);
     }
+
+    private FixityAlgorithm algorithmFromString(String algorithm) {
+        switch (algorithm.toLowerCase()) {
+            case "sha256":
+            case "sha-256":
+            case "sha_256":
+                return FixityAlgorithm.SHA_256;
+            default:
+                return FixityAlgorithm.UNSUPPORTED;
+        }
+    }
+
 }
