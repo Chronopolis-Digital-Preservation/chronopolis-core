@@ -26,11 +26,23 @@ public class StagingStorageSerializer extends JsonSerializer<StagingStorage> {
                 storage.getRegion().getId(),
                 storage.getTotalFiles(),
                 storage.getPath(),
-                storage.getFile().getFixities().stream().map(fixity -> new Fixity(
-                        fixity.getValue(),
-                        FixityAlgorithm.valueOf(fixity.getAlgorithm()),
-                        fixity.getCreatedAt())
-                ).collect(Collectors.toSet())
+                storage.getFile().getFixities().stream().map(fixity ->
+                        new Fixity(
+                                fixity.getValue(),
+                                algorithmFromString(fixity.getAlgorithm()),
+                                fixity.getCreatedAt()))
+                        .collect(Collectors.toSet())
         );
+    }
+
+    private FixityAlgorithm algorithmFromString(String algorithm) {
+        switch (algorithm.toLowerCase()) {
+            case "sha256":
+            case "sha-256":
+            case "sha_256":
+                return FixityAlgorithm.SHA_256;
+            default:
+                return FixityAlgorithm.UNSUPPORTED;
+        }
     }
 }
