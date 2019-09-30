@@ -1,5 +1,16 @@
 package org.chronopolis.rest.entities;
 
+import com.google.common.collect.ImmutableSet;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.chronopolis.rest.entities.depositor.Depositor;
+import org.chronopolis.rest.entities.depositor.QDepositor;
+import org.chronopolis.rest.entities.storage.QStorageRegion;
+import org.chronopolis.rest.entities.storage.StorageRegion;
+import org.chronopolis.rest.models.enums.BagStatus;
+import org.chronopolis.rest.models.enums.ReplicationStatus;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
@@ -9,6 +20,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
+import java.util.HashSet;
+
+import static org.chronopolis.rest.entities.BagDistributionStatus.DISTRIBUTE;
+import static org.chronopolis.rest.entities.BagDistributionStatus.REPLICATE;
 
 /**
  * @author shake
@@ -26,7 +41,6 @@ public class ReplicationEntityTest {
     @Autowired
     private EntityManager entityManager;
 
-    /*
     private Node ncar;
     private Node umiacs;
     private Depositor depositor;
@@ -44,11 +58,11 @@ public class ReplicationEntityTest {
         depositor = qf.selectFrom(QDepositor.depositor)
                 .where(QDepositor.depositor.namespace.eq("test-depositor"))
                 .fetchOne();
-        ncar = qf.selectFrom(QNode.node)
-                .where(QNode.node.username.eq("ncar"))
+        ncar = qf.selectFrom(org.chronopolis.rest.entities.QNode.node)
+                .where(org.chronopolis.rest.entities.QNode.node.username.eq("ncar"))
                 .fetchOne();
-        umiacs = qf.selectFrom(QNode.node)
-                .where(QNode.node.username.eq("umiacs"))
+        umiacs = qf.selectFrom(org.chronopolis.rest.entities.QNode.node)
+                .where(org.chronopolis.rest.entities.QNode.node.username.eq("umiacs"))
                 .fetchOne();
 
         Assert.assertNotNull(storageRegion);
@@ -84,8 +98,8 @@ public class ReplicationEntityTest {
         entityManager.flush();
 
         JPAQueryFactory query = new JPAQueryFactory(entityManager);
-        Replication fetch = query.selectFrom(QReplication.replication)
-                .where(QReplication.replication.id.eq(persist.getId()))
+        Replication fetch = query.selectFrom(org.chronopolis.rest.entities.QReplication.replication)
+                .where(org.chronopolis.rest.entities.QReplication.replication.id.eq(persist.getId()))
                 .fetchOne();
 
         // persist check
@@ -100,7 +114,7 @@ public class ReplicationEntityTest {
     /**
      * I wonder if the tests could be ordered such that we don't need to persist a bunch of entities
      * again. Not really a big deal and probably better to keep tests idempotent anyhow.
-     *
+     */
     @Test
     public void testAllReplicatedUpdatesBag() {
         final String BAG_LINK = "merge-bag-link";
@@ -140,8 +154,8 @@ public class ReplicationEntityTest {
         entityManager.refresh(bag);
         entityManager.flush();
         JPAQueryFactory query = new JPAQueryFactory(entityManager);
-        Replication fetch = query.selectFrom(QReplication.replication)
-                .where(QReplication.replication.id.eq(merge.getId()))
+        Replication fetch = query.selectFrom(org.chronopolis.rest.entities.QReplication.replication)
+                .where(org.chronopolis.rest.entities.QReplication.replication.id.eq(merge.getId()))
                 .fetchOne();
 
 
@@ -158,6 +172,5 @@ public class ReplicationEntityTest {
         bag.getDistributions().forEach(dist -> Assert.assertEquals(REPLICATE, dist.getStatus()));
         Assert.assertEquals(BagStatus.PRESERVED, bag.getStatus());
     }
-    */
 
 }
