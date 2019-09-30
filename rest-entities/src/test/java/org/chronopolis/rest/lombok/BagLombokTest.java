@@ -1,5 +1,24 @@
-package org.chronopolis.rest.entities;
+package org.chronopolis.rest.lombok;
 
+import com.google.common.collect.ImmutableSet;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.chronopolis.rest.entities.Bag;
+import org.chronopolis.rest.entities.BagDistributionStatus;
+import org.chronopolis.rest.entities.BagFile;
+import org.chronopolis.rest.entities.JPAContext;
+import org.chronopolis.rest.entities.Node;
+import org.chronopolis.rest.entities.TokenStore;
+import org.chronopolis.rest.entities.depositor.Depositor;
+import org.chronopolis.rest.lombok.depositor.QDepositor;
+import org.chronopolis.rest.entities.storage.Fixity;
+import org.chronopolis.rest.lombok.storage.QStagingStorage;
+import org.chronopolis.rest.lombok.storage.QStorageRegion;
+import org.chronopolis.rest.entities.storage.StagingStorage;
+import org.chronopolis.rest.entities.storage.StorageRegion;
+import org.chronopolis.rest.models.enums.BagStatus;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
@@ -9,6 +28,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
+import java.time.ZonedDateTime;
+import java.util.HashSet;
 
 /**
  * Oh boy
@@ -19,7 +40,7 @@ import javax.persistence.EntityManager;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = JPAContext.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class BagEntityTest {
+public class BagLombokTest {
 
     private final Long LONG_VALUE = 1L;
     private final String CREATOR = "bag-entity-test";
@@ -28,7 +49,6 @@ public class BagEntityTest {
     @Autowired
     private EntityManager entityManager;
 
-    /*
     private Node ncar;
     private Node umiacs;
     private Depositor depositor;
@@ -46,11 +66,11 @@ public class BagEntityTest {
         depositor = qf.selectFrom(QDepositor.depositor)
                 .where(QDepositor.depositor.namespace.eq("test-depositor"))
                 .fetchOne();
-        ncar = qf.selectFrom(QNode.node)
-                .where(QNode.node.username.eq("ncar"))
+        ncar = qf.selectFrom(org.chronopolis.rest.lombok.QNode.node)
+                .where(org.chronopolis.rest.lombok.QNode.node.username.eq("ncar"))
                 .fetchOne();
-        umiacs = qf.selectFrom(QNode.node)
-                .where(QNode.node.username.eq("umiacs"))
+        umiacs = qf.selectFrom(org.chronopolis.rest.lombok.QNode.node)
+                .where(org.chronopolis.rest.lombok.QNode.node.username.eq("umiacs"))
                 .fetchOne();
 
         Assert.assertNotNull(storageRegion);
@@ -65,7 +85,7 @@ public class BagEntityTest {
      * ---- Fixity
      * -- Storage (w/ File)
      * -- Distribution
-     *
+     */
     @Test
     public void testBagPersistTests() {
         final String BAG_NAME = "test-bag-persist";
@@ -80,7 +100,7 @@ public class BagEntityTest {
         persist.setStatus(BagStatus.DEPOSITED);
 
         BagFile bf = new BagFile();
-        Fixity fixity = new Fixity(ZonedDateTime.now(), bf, FIXITY_VALUE, FIXITY_ALGORITHM);
+        Fixity fixity = new Fixity(ZonedDateTime.now(), bf, JPAContext.FIXITY_VALUE, JPAContext.FIXITY_ALGORITHM);
         bf.setFilename(TEST_PATH);
         bf.setSize(LONG_VALUE);
         bf.setBag(persist);
@@ -106,20 +126,20 @@ public class BagEntityTest {
 
         entityManager.persist(persist);
 
-        Bag fetch = qf.selectFrom(QBag.bag)
-                .where(QBag.bag.name.eq(BAG_NAME))
+        Bag fetch = qf.selectFrom(org.chronopolis.rest.lombok.QBag.bag)
+                .where(org.chronopolis.rest.lombok.QBag.bag.name.eq(BAG_NAME))
                 .fetchOne();
 
         Assert.assertNotNull(fetch);
         Assert.assertEquals(persist, fetch);
-        Assert.assertNotEquals(0, persist.getId());
+        Assert.assertNotEquals(Long.valueOf(0), persist.getId());
         Assert.assertEquals(2, fetch.getStorage().size());
         Assert.assertEquals(2, fetch.getDistributions().size());
 
         // also storage
         StagingStorage fetchStorage = qf.select(QStagingStorage.stagingStorage)
-                .from(QBag.bag)
-                .join(QBag.bag.storage, QStagingStorage.stagingStorage)
+                .from(org.chronopolis.rest.lombok.QBag.bag)
+                .join(org.chronopolis.rest.lombok.QBag.bag.storage, QStagingStorage.stagingStorage)
                 .where(QStagingStorage.stagingStorage.active.isTrue()
                     .and(QStagingStorage.stagingStorage.file.dtype.eq("BAG")))
                 .fetchOne();
@@ -138,7 +158,7 @@ public class BagEntityTest {
      * -- Fixity
      * - Storage
      * - Distribution
-     *
+     */
     @Test
     public void testBagMergeTests() {
         final String BAG_NAME = "test-bag-merge";
@@ -160,7 +180,7 @@ public class BagEntityTest {
         entityManager.refresh(bag);
 
         BagFile bagFile = new BagFile();
-        Fixity fixity = new Fixity(ZonedDateTime.now(), bagFile, FIXITY_VALUE, FIXITY_ALGORITHM);
+        Fixity fixity = new Fixity(ZonedDateTime.now(), bagFile, JPAContext.FIXITY_VALUE, JPAContext.FIXITY_ALGORITHM);
         bagFile.setFilename(TEST_PATH);
         bagFile.setSize(LONG_VALUE);
         bagFile.setBag(bag);
@@ -174,7 +194,7 @@ public class BagEntityTest {
         bag.getFiles().add(bagFile);
         bag.getFiles().add(tokenFile);
 
-        // setup Staging entities to merge
+        // setup Staging lombok to merge
         StagingStorage bagStore =
                 new StagingStorage(storageRegion, bag, LONG_VALUE, LONG_VALUE, TEST_PATH, true);
         StagingStorage bagStoreInactive =
@@ -193,17 +213,16 @@ public class BagEntityTest {
         entityManager.merge(bag);
 
         // fetch and asserts
-        Bag fetchedBag = qf.selectFrom(QBag.bag)
-                .where(QBag.bag.name.eq(BAG_NAME))
+        Bag fetchedBag = qf.selectFrom(org.chronopolis.rest.lombok.QBag.bag)
+                .where(org.chronopolis.rest.lombok.QBag.bag.name.eq(BAG_NAME))
                 .fetchOne();
 
-        Assert.assertNotEquals(0L, bag.getId());
+        Assert.assertNotEquals(Long.valueOf(0), bag.getId());
         Assert.assertNotNull(fetchedBag);
         Assert.assertEquals(bag, fetchedBag);
         Assert.assertEquals(3, fetchedBag.getStorage().size());
         Assert.assertEquals(2, fetchedBag.getDistributions().size());
         Assert.assertEquals(2, fetchedBag.getFiles().size());
     }
-    */
 
 }

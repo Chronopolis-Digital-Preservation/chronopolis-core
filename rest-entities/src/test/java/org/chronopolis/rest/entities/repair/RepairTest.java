@@ -1,22 +1,6 @@
 package org.chronopolis.rest.entities.repair;
 
-import com.google.common.collect.ImmutableSet;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.chronopolis.rest.entities.Bag;
-import org.chronopolis.rest.entities.BagDistributionStatus;
 import org.chronopolis.rest.entities.JPAContext;
-import org.chronopolis.rest.entities.Node;
-import org.chronopolis.rest.entities.depositor.Depositor;
-import org.chronopolis.rest.entities.depositor.QDepositor;
-import org.chronopolis.rest.entities.storage.QStorageRegion;
-import org.chronopolis.rest.entities.storage.StorageRegion;
-import org.chronopolis.rest.models.enums.AuditStatus;
-import org.chronopolis.rest.models.enums.BagStatus;
-import org.chronopolis.rest.models.enums.FulfillmentType;
-import org.chronopolis.rest.models.enums.RepairStatus;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
@@ -26,7 +10,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
-import java.util.HashSet;
 
 /**
  * @author shake
@@ -44,11 +27,13 @@ public class RepairTest {
     @Autowired
     private EntityManager entityManager;
 
+    /*
     private Node to;
     private Node from;
     private Depositor depositor;
     private StorageRegion storageRegion;
 
+    /*
     @Before
     public void init() {
         to = entityManager.find(Node.class, 1L);
@@ -201,4 +186,5 @@ public class RepairTest {
         entityManager.persist(persist);
         return persist;
     }
+    */
 }

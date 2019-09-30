@@ -1,31 +1,11 @@
 package org.chronopolis.rest.entities;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.chronopolis.rest.entities.depositor.Depositor;
-import org.chronopolis.rest.entities.storage.Fixity;
-import org.chronopolis.rest.entities.storage.QFixity;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import javax.persistence.EntityManager;
-import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.Set;
-
-import static org.chronopolis.rest.entities.JPAContext.FIXITY_ALGORITHM;
-import static org.chronopolis.rest.entities.JPAContext.FIXITY_VALUE;
-import static org.chronopolis.rest.entities.JPAContext.IMS_HOST;
-import static org.chronopolis.rest.entities.JPAContext.IMS_SERVICE;
-import static org.chronopolis.rest.entities.JPAContext.LONG_VALUE;
-import static org.chronopolis.rest.entities.JPAContext.PROOF;
 
 /**
  * Test for persistence of BagFiles with AceTokens
@@ -41,6 +21,7 @@ public class DataFileTest {
     private final String CREATOR = "data-file-test";
     private final String TEST_PATH = "/test-path";
 
+    /*
     private Depositor depositor;
 
     @Autowired
@@ -79,8 +60,11 @@ public class DataFileTest {
             Assert.assertEquals(bag, df.getBag());
         });
     }
+    */
 
+    /*
     @Test
+    @Ignore
     public void persistWithFileAndToken() {
         final String name = "persist-file-token";
 
@@ -117,6 +101,7 @@ public class DataFileTest {
     }
 
     @Test
+    @Ignore
     public void mergeToken() {
         final String name = "merge-token";
         Date date = new Date();
@@ -155,4 +140,5 @@ public class DataFileTest {
         entityManager.merge(fetch);
         runChecks(name, fetch, token, fixity);
     }
+    */
 }

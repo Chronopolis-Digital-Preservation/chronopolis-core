@@ -1,22 +1,12 @@
 package org.chronopolis.rest.entities.storage;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.chronopolis.rest.entities.JPAContext;
-import org.chronopolis.rest.entities.Node;
-import org.chronopolis.rest.entities.QNode;
-import org.chronopolis.rest.models.enums.DataType;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import javax.persistence.EntityManager;
 
 /**
  * @author shake
@@ -27,10 +17,12 @@ import javax.persistence.EntityManager;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class StorageRegionEntityTest {
 
+    /*
     @Autowired
     private EntityManager entityManager;
     private Node ucsd;
 
+    /*
     @Before
     public void initFromDb() {
         JPAQueryFactory query = new JPAQueryFactory(entityManager);
@@ -71,5 +63,6 @@ public class StorageRegionEntityTest {
         Assert.assertEquals("test-server", fetch.getReplicationConfig().getServer());
         Assert.assertEquals("test-user", fetch.getReplicationConfig().getUsername());
     }
+    */
 
 }

@@ -1,25 +1,12 @@
 package org.chronopolis.rest.entities.depositor;
 
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.chronopolis.rest.entities.JPAContext;
-import org.chronopolis.rest.entities.Node;
-import org.chronopolis.rest.entities.QNode;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import javax.persistence.EntityManager;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * @author shake
@@ -36,12 +23,14 @@ public class DepositorEntityTest {
     private final String contactPhone = "test-persist-contact-phone";
     private final String contactEmail = "test-persist-contact-email";
 
+    /*
     @Autowired
     private EntityManager entityManager;
 
     private Node sdsc;
     private Node ncar;
 
+    /*
     @Before
     public void initFromDb() {
         JPAQueryFactory query = new JPAQueryFactory(entityManager);
@@ -226,4 +215,5 @@ public class DepositorEntityTest {
         Assert.assertEquals(0, rm.getContacts().size());
         Assert.assertEquals(0, rm.getNodeDistributions().size());
     }
+    */
 }
