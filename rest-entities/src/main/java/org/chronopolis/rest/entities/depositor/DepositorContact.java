@@ -6,11 +6,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.chronopolis.rest.entities.PersistableEntity;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
@@ -22,12 +22,11 @@ import javax.persistence.ManyToOne;
 @Entity
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class DepositorContact implements Comparable<DepositorContact> {
+@EqualsAndHashCode(callSuper = false)
+public class DepositorContact extends PersistableEntity implements Comparable<DepositorContact> {
 
     @NonNull private String contactName;
     @NonNull private String contactPhone;
-
-    @Id
     @NonNull private String contactEmail;
 
     @EqualsAndHashCode.Exclude
