@@ -68,6 +68,11 @@ public class Replication extends UpdatableEntity {
         }
 
         if (status == ReplicationStatus.SUCCESS) {
+            // ehhhhhh
+            bag.getDistributions().stream()
+                .filter(dist -> dist.getNode().equals(node))
+                .findFirst().ifPresent(dist -> dist.setStatus(BagDistributionStatus.REPLICATE));
+
             bag.onUpdate();
         }
     }
