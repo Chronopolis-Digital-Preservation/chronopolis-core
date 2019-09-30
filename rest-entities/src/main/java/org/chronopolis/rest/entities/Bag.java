@@ -18,6 +18,7 @@ import javax.persistence.PreUpdate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static javax.persistence.CascadeType.MERGE;
 import static javax.persistence.CascadeType.PERSIST;
@@ -77,7 +78,10 @@ public class Bag extends UpdatableEntity implements Comparable<Bag> {
     // persistence helpers
 
     public Set<String> getReplicatingNodes() {
-        return new HashSet<>();
+        return distributions.stream()
+                .filter(dist -> dist.getStatus() == BagDistributionStatus.REPLICATE)
+                .map(dist -> dist.getNode().getUsername())
+                .collect(Collectors.toSet());
     }
 
     public void addFile(DataFile file) {
