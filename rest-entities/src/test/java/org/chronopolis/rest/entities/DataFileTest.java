@@ -1,11 +1,33 @@
 package org.chronopolis.rest.entities;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.chronopolis.rest.entities.depositor.Depositor;
+import org.chronopolis.rest.entities.storage.Fixity;
+import org.chronopolis.rest.entities.storage.QFixity;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.persistence.EntityManager;
+import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.Set;
+
+import static org.chronopolis.rest.entities.JPAContext.FIXITY_ALGORITHM;
+import static org.chronopolis.rest.entities.JPAContext.FIXITY_VALUE;
+import static org.chronopolis.rest.entities.JPAContext.IMS_HOST;
+import static org.chronopolis.rest.entities.JPAContext.IMS_SERVICE;
+import static org.chronopolis.rest.entities.JPAContext.LONG_VALUE;
+import static org.chronopolis.rest.entities.JPAContext.PROOF;
 
 /**
  * Test for persistence of BagFiles with AceTokens
@@ -21,7 +43,6 @@ public class DataFileTest {
     private final String CREATOR = "data-file-test";
     private final String TEST_PATH = "/test-path";
 
-    /*
     private Depositor depositor;
 
     @Autowired
@@ -34,37 +55,38 @@ public class DataFileTest {
 
     public void runChecks(String name, Bag bag, AceToken token, Fixity fixity) {
         JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
-        QBag qBag = QBag.bag;
+        org.chronopolis.rest.entities.QBag qBag = org.chronopolis.rest.entities.QBag.bag;
         Bag fetch = queryFactory.selectFrom(qBag)
-                .where(QBag.bag.name.eq(name))
+                .where(org.chronopolis.rest.entities.QBag.bag.name.eq(name))
                 .fetchOne();
 
         Assert.assertNotNull(fetch);
         Assert.assertNotNull(fetch.getFiles());
         Assert.assertEquals(1, fetch.getFiles().size());
 
-        fetch.getFiles().forEach(df -> {
-            Assert.assertEquals(1L, df.getSize());
+        for (DataFile df : fetch.getFiles()) {
+            Assert.assertEquals(Long.valueOf(1), df.getSize());
             Assert.assertEquals(TEST_PATH, df.getFilename());
             Assert.assertEquals(1, df.getFixities().size());
-            df.getFixities().forEach(registeredFixity -> {
+            for (Fixity registeredFixity : df.getFixities()) {
                 Assert.assertEquals(fixity.getValue(), registeredFixity.getValue());
                 Assert.assertEquals(fixity.getAlgorithm(), registeredFixity.getAlgorithm());
-            });
+            }
+
 
             Assert.assertTrue(df instanceof BagFile);
             BagFile bf = (BagFile) df;
+            log.info("token id {}, bf id {}", token.getId(), bf.getToken().getId());
             Assert.assertNotNull(bf.getToken());
             Assert.assertEquals(token, bf.getToken());
             Assert.assertEquals(bag, bf.getToken().getBag());
             Assert.assertEquals(bag, df.getBag());
-        });
+        }
     }
-    */
 
-    /*
+    private final Logger log = LoggerFactory.getLogger(DataFileTest.class);
+
     @Test
-    @Ignore
     public void persistWithFileAndToken() {
         final String name = "persist-file-token";
 
@@ -90,9 +112,9 @@ public class DataFileTest {
         JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
         QFixity qFixity = QFixity.fixity;
         Fixity fetchFixity = queryFactory.select(qFixity)
-                .from(QBagFile.bagFile)
-                .join(QBagFile.bagFile.fixities, qFixity)
-                .where(QBagFile.bagFile.id.eq(file.getId())
+                .from(org.chronopolis.rest.entities.QBagFile.bagFile)
+                .join(org.chronopolis.rest.entities.QBagFile.bagFile.fixities, qFixity)
+                .where(org.chronopolis.rest.entities.QBagFile.bagFile.id.eq(file.getId())
                         .and(qFixity.algorithm.eq(FIXITY_ALGORITHM)))
                 .fetchOne();
 
@@ -101,7 +123,6 @@ public class DataFileTest {
     }
 
     @Test
-    @Ignore
     public void mergeToken() {
         final String name = "merge-token";
         Date date = new Date();
@@ -115,8 +136,8 @@ public class DataFileTest {
         entityManager.persist(bag);
 
         JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
-        Bag fetch = queryFactory.selectFrom(QBag.bag)
-                .where(QBag.bag.name.eq(name))
+        Bag fetch = queryFactory.selectFrom(org.chronopolis.rest.entities.QBag.bag)
+                .where(org.chronopolis.rest.entities.QBag.bag.name.eq(name))
                 .fetchOne();
 
         Assert.assertNotNull(fetch);
@@ -125,8 +146,8 @@ public class DataFileTest {
         Assert.assertEquals(1L, files.size());
 
         // For fun, query the BagFile
-        BagFile bagFile = queryFactory.selectFrom(QBagFile.bagFile)
-                .where(QBagFile.bagFile.bag.eq(fetch))
+        BagFile bagFile = queryFactory.selectFrom(org.chronopolis.rest.entities.QBagFile.bagFile)
+                .where(org.chronopolis.rest.entities.QBagFile.bagFile.bag.eq(fetch))
                 .fetchFirst();
         Fixity fixity;
         AceToken token;
@@ -140,5 +161,5 @@ public class DataFileTest {
         entityManager.merge(fetch);
         runChecks(name, fetch, token, fixity);
     }
-    */
+
 }

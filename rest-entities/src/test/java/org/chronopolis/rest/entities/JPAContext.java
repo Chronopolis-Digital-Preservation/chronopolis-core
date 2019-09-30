@@ -2,6 +2,8 @@ package org.chronopolis.rest.entities;
 
 import com.opentable.db.postgres.embedded.FlywayPreparer;
 import com.opentable.db.postgres.embedded.PreparedDbProvider;
+import org.chronopolis.rest.entities.depositor.Depositor;
+import org.chronopolis.rest.models.enums.BagStatus;
 import org.flywaydb.core.Flyway;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -38,7 +40,6 @@ public class JPAContext {
         SpringApplication.run(JPAContext.class);
     }
 
-    /*
     public static Bag createBag(String name, String creator, Depositor depositor) {
         Bag persist = new Bag();
         persist.setName(name);
@@ -49,7 +50,6 @@ public class JPAContext {
         persist.setStatus(BagStatus.DEPOSITED);
         return persist;
     }
-    */
 
     @Bean
     @Profile("!gitlab")
