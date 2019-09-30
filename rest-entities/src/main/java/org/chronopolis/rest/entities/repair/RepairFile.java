@@ -19,7 +19,10 @@ import javax.persistence.ManyToOne;
 public class RepairFile extends PersistableEntity {
 
     @ManyToOne private Repair repair;
-    @ToString.Include private String path;
+
+    @ToString.Include
+    @EqualsAndHashCode.Include
+    private String path;
 
     public RepairFile(Repair repair, String path) {
         this.repair = repair;

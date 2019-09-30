@@ -1,6 +1,7 @@
 package org.chronopolis.rest.entities.repair;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.chronopolis.rest.entities.Bag;
 import org.chronopolis.rest.entities.Node;
@@ -28,6 +29,7 @@ import static javax.persistence.FetchType.EAGER;
 @Data
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Repair extends UpdatableEntity {
 
     private String requester;
