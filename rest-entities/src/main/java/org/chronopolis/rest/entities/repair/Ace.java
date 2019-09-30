@@ -20,7 +20,7 @@ import javax.persistence.OneToOne;
 public class Ace extends Strategy {
     private String url;
     private String apiKey;
-    @OneToOne private Repair repair;
+    @OneToOne(mappedBy = "strategy") private Repair repair;
 
     public Ace(String apiKey, String url) {
         this.url = url;

@@ -23,7 +23,7 @@ import javax.persistence.OneToOne;
 public class Rsync extends Strategy {
 
     @NonNull private String link;
-    @OneToOne private Repair repair;
+    @OneToOne(mappedBy = "strategy") private Repair repair;
 
     @Override
     public FulfillmentStrategy model() {
