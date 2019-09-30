@@ -15,6 +15,6 @@ import javax.persistence.Table;
 @Inheritance
 @Table(name = "strategy")
 @DiscriminatorColumn(name = "TYPE")
-abstract class Strategy extends PersistableEntity {
+public abstract class Strategy extends PersistableEntity {
     abstract public FulfillmentStrategy model();
 }
