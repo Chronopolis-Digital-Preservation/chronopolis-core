@@ -52,7 +52,7 @@ public class RepairSerializer extends JsonSerializer<Repair> {
                 repair.getCleaned(),
                 repair.getReplaced(),
                 repair.getValidated(),
-                repair.getAuditStatus(),
+                repair.getAudit(),
                 repair.getStatus(),
                 repair.getTo().getUsername(),
                 repair.getRequester(),

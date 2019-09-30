@@ -43,15 +43,15 @@ public class Repair extends UpdatableEntity {
     @OneToOne(cascade = MERGE, fetch = EAGER) private Strategy strategy;
     @OneToMany(mappedBy = "repair", cascade = ALL, fetch = EAGER) private Set<RepairFile> files;
 
-    @Enumerated(value = STRING) private RepairStatus status = RepairStatus.REQUESTED;
-    @Enumerated(value = STRING) private AuditStatus auditStatus = AuditStatus.PRE;
     @Enumerated(value = STRING) private FulfillmentType type;
+    @Enumerated(value = STRING) private AuditStatus audit = AuditStatus.PRE;
+    @Enumerated(value = STRING) private RepairStatus status = RepairStatus.REQUESTED;
 
     public Repair(Bag bag,
                   Node to,
                   Node from,
                   RepairStatus status,
-                  AuditStatus auditStatus,
+                  AuditStatus audit,
                   FulfillmentType type,
                   Strategy strategy,
                   String requester,
@@ -62,7 +62,7 @@ public class Repair extends UpdatableEntity {
         this.to = to;
         this.from = from;
         this.status = status;
-        this.auditStatus = auditStatus;
+        this.audit = audit;
         this.type = type;
         this.strategy = strategy;
         this.requester = requester;
