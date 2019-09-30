@@ -3,6 +3,7 @@ package org.chronopolis.rest.entities.repair;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.chronopolis.rest.models.AceStrategy;
 import org.chronopolis.rest.models.FulfillmentStrategy;
 
 import javax.persistence.DiscriminatorValue;
@@ -29,6 +30,6 @@ public class Ace extends Strategy {
 
     @Override
     public FulfillmentStrategy model() {
-        return null;
+        return new AceStrategy(apiKey, url);
     }
 }

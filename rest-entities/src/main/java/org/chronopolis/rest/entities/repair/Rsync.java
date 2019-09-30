@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.chronopolis.rest.models.FulfillmentStrategy;
+import org.chronopolis.rest.models.RsyncStrategy;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -27,6 +28,6 @@ public class Rsync extends Strategy {
 
     @Override
     public FulfillmentStrategy model() {
-        return null;
+        return new RsyncStrategy(link);
     }
 }
