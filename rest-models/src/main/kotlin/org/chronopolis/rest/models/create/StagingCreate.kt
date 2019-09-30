@@ -4,8 +4,8 @@ import org.chronopolis.rest.models.Bag
 import org.chronopolis.rest.models.StagingStorage
 import org.chronopolis.rest.models.StorageRegion
 import org.chronopolis.rest.models.enums.StorageUnit
-import org.hibernate.validator.constraints.NotBlank
 import javax.validation.constraints.Min
+import javax.validation.constraints.NotBlank
 
 /**
  * Request to create [StagingStorage] for a [Bag]

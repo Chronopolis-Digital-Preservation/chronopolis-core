@@ -2,8 +2,8 @@ package org.chronopolis.rest.models.create
 
 import org.chronopolis.rest.models.Depositor
 import org.chronopolis.rest.models.DepositorContact
-import org.hibernate.validator.constraints.NotBlank
 import javax.validation.Valid
+import javax.validation.constraints.NotBlank
 
 /**
  * Request used to create a [Depositor]

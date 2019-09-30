@@ -5,8 +5,8 @@ import org.chronopolis.rest.models.StorageRegion
 import org.chronopolis.rest.models.enums.DataType
 import org.chronopolis.rest.models.enums.StorageType
 import org.chronopolis.rest.models.enums.StorageUnit
-import org.hibernate.validator.constraints.NotEmpty
 import javax.validation.constraints.Min
+import javax.validation.constraints.NotEmpty
 
 /**
  * A request to create a [StorageRegion]
