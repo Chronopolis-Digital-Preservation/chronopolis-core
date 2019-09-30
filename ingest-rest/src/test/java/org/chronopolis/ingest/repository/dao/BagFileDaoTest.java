@@ -115,7 +115,7 @@ public class BagFileDaoTest extends IngestTest {
 
         Assert.assertEquals(HttpStatus.CREATED, bagFile.response().getStatusCode());
         Assert.assertTrue(bagFile.get().isPresent());
-        Assert.assertNotEquals(0, bagFile.get().get().getId());
+        Assert.assertNotEquals(Long.valueOf(0), bagFile.get().get().getId());
 
         JPAQueryFactory qf = new JPAQueryFactory(entityManager);
         BagFile bf = qf.selectFrom(QBagFile.bagFile)

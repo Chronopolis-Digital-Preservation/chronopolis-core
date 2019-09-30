@@ -4,7 +4,7 @@ import org.chronopolis.ingest.IngestTest;
 import org.chronopolis.ingest.JpaContext;
 import org.chronopolis.ingest.repository.dao.PagedDao;
 import org.chronopolis.rest.entities.QBag;
-import org.chronopolis.rest.entities.serializers.ExtensionsKt;
+import org.chronopolis.rest.entities.serializers.BagSerializer;
 import org.chronopolis.rest.models.Bag;
 import org.chronopolis.tokenize.ManifestEntry;
 import org.junit.Assert;
@@ -47,11 +47,13 @@ public class DatabasePredicateTest extends IngestTest {
 
     private PagedDao dao;
     private DatabasePredicate predicate;
+    private BagSerializer serializer;
 
     @Before
     public void setup() {
         dao = new PagedDao(entityManager);
         predicate = new DatabasePredicate(dao);
+        serializer = new BagSerializer();
     }
 
     @Test
@@ -61,7 +63,7 @@ public class DatabasePredicateTest extends IngestTest {
         final String fileNotExists = "/data/hello_other_world";
         org.chronopolis.rest.entities.Bag be = dao.findOne(QBag.bag, QBag.bag.name.eq("bag-3"));
 
-        final Bag bag = ExtensionsKt.model(be);
+        final Bag bag = serializer.modelFor(be);
         // an unfortunate side effect of immutability + java :(
         final Bag invalidId = bag.copy(999L,
                 bag.getSize(),

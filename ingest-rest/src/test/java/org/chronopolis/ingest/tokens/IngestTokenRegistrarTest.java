@@ -11,7 +11,7 @@ import org.chronopolis.rest.entities.AceToken;
 import org.chronopolis.rest.entities.Bag;
 import org.chronopolis.rest.entities.QAceToken;
 import org.chronopolis.rest.entities.QBag;
-import org.chronopolis.rest.entities.serializers.ExtensionsKt;
+import org.chronopolis.rest.entities.serializers.BagSerializer;
 import org.chronopolis.tokenize.ManifestEntry;
 import org.chronopolis.tokenize.supervisor.TokenWorkSupervisor;
 import org.junit.Assert;
@@ -63,6 +63,7 @@ public class IngestTokenRegistrarTest extends IngestTest {
     private PagedDao dao;
     private TokenWorkSupervisor tws;
     private IngestTokenRegistrar registrar;
+    private BagSerializer serializer;
 
     private final String TOKEN_FORMAT = "(%s,%s)::%s";
     private final String FILENAME = "/manifest-sha256.txt";
@@ -79,6 +80,7 @@ public class IngestTokenRegistrarTest extends IngestTest {
         tws = mock(TokenWorkSupervisor.class);
         dao = new PagedDao(entityManager);
         registrar = new IngestTokenRegistrar(dao, tws);
+        serializer = new BagSerializer();
 
         GregorianCalendar gc = GregorianCalendar.from(ZonedDateTime.now());
         xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gc);
@@ -94,7 +96,7 @@ public class IngestTokenRegistrarTest extends IngestTest {
     @Test
     public void saveToken() {
         Bag bag = getBag(BAG_ONE_NAME);
-        ManifestEntry entry = new ManifestEntry(ExtensionsKt.model(bag), FILENAME, "digest");
+        ManifestEntry entry = new ManifestEntry(serializer.modelFor(bag), FILENAME, "digest");
         TokenResponse response = new TokenResponse();
         response.setRoundId(1L);
         response.setTimestamp(xmlCal);
@@ -113,7 +115,7 @@ public class IngestTokenRegistrarTest extends IngestTest {
     @Test
     public void saveTokenConflict() {
         Bag bag = getBag(BAG_THREE_NAME);
-        ManifestEntry entry = new ManifestEntry(ExtensionsKt.model(bag), FILENAME, "digest");
+        ManifestEntry entry = new ManifestEntry(serializer.modelFor(bag), FILENAME, "digest");
         TokenResponse response = new TokenResponse();
         response.setRoundId(1L);
         response.setTimestamp(xmlCal);
@@ -143,7 +145,7 @@ public class IngestTokenRegistrarTest extends IngestTest {
         long id = -100L;
         Bag bag = getBag(BAG_ONE_NAME);
         // not the prettiest but we can't update the Bag entity or else we get a hibernate exception
-        org.chronopolis.rest.models.Bag model = ExtensionsKt.model(bag);
+        org.chronopolis.rest.models.Bag model = serializer.modelFor(bag);
         org.chronopolis.rest.models.Bag invalid = model.copy(
                 -100L, model.getSize(), model.getTotalFiles(), model.getBagStorage(),
                 model.getTokenStorage(), model.getCreatedAt(), model.getUpdatedAt(),

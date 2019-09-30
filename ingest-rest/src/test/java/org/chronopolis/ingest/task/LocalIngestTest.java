@@ -14,7 +14,6 @@ import org.chronopolis.rest.entities.depositor.QDepositor;
 import org.chronopolis.rest.entities.storage.Fixity;
 import org.chronopolis.rest.entities.storage.QStagingStorage;
 import org.chronopolis.rest.entities.storage.StagingStorage;
-import org.chronopolis.rest.models.enums.BagStatus;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,13 +28,13 @@ import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
 import static org.chronopolis.ingest.JpaContext.DELETE_SCRIPT;
+import static org.chronopolis.rest.models.enums.BagStatus.DEPOSITED;
 import static org.chronopolis.rest.models.enums.FixityAlgorithm.SHA_256;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 
@@ -47,6 +46,9 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
         @Sql(executionPhase = AFTER_TEST_METHOD, scripts = DELETE_SCRIPT)
 })
 public class LocalIngestTest extends IngestTest {
+
+    private final Long BAG_SIZE = 189L;
+    private final Long BAG_TOTAL_FILES = 3L;
 
     private static final Long ID = 1L;
     private static final String BAG_NAME = "new-bag-1";
@@ -70,7 +72,7 @@ public class LocalIngestTest extends IngestTest {
     @Autowired private EntityManager entityManager;
 
     @Before
-    public void setup() throws URISyntaxException {
+    public void setup() {
         final URL bagRoot = ClassLoader.getSystemClassLoader().getResource("bags");
 
         MockitoAnnotations.initMocks(this);
@@ -88,7 +90,7 @@ public class LocalIngestTest extends IngestTest {
     public void scanRegisterFiles() {
         // setup
         BagFileDao dao = new BagFileDao(entityManager);
-        Bag toScan = new Bag(BAG_NAME, USERNAME, depositor, 3, 189, BagStatus.DEPOSITED);
+        Bag toScan = new Bag(BAG_NAME, USERNAME, depositor, BAG_SIZE, BAG_TOTAL_FILES, DEPOSITED);
         dao.save(toScan);
 
         localIngest.scan();
@@ -105,7 +107,7 @@ public class LocalIngestTest extends IngestTest {
 
         all.forEach(bf -> {
             Assert.assertTrue(bf.getFilename().startsWith("/"));
-            long size = sizes.getOrDefault(bf.getFilename(), -1L);
+            Long size = sizes.getOrDefault(bf.getFilename(), -1L);
             Assert.assertEquals(size, bf.getSize());
             Assert.assertTrue(!bf.getFixities().isEmpty());
             bf.getFixities().forEach(fixity ->
@@ -121,7 +123,7 @@ public class LocalIngestTest extends IngestTest {
         // setup
         String algorithm = SHA_256.getCanonical();
         BagFileDao dao = new BagFileDao(entityManager);
-        Bag toScan = new Bag(BAG_NAME, USERNAME, depositor, 189, 3, BagStatus.DEPOSITED);
+        Bag toScan = new Bag(BAG_NAME, USERNAME, depositor, BAG_SIZE, BAG_TOTAL_FILES, DEPOSITED);
         BagFile hw = new BagFile();
         hw.setBag(toScan);
         hw.setSize(HW_SIZE);
@@ -147,11 +149,12 @@ public class LocalIngestTest extends IngestTest {
         StagingStorage staging = dao.findOne(QStagingStorage.stagingStorage,
                 QStagingStorage.stagingStorage.bag.eq(toScan));
 
+        Long totalSize = HW_SIZE + MANIFEST_SIZE + TAGMANIFEST_SIZE;
 
         Assert.assertNotNull(staging);
         Assert.assertTrue(staging.isActive());
-        Assert.assertEquals(HW_SIZE + MANIFEST_SIZE + TAGMANIFEST_SIZE, staging.getSize());
-        Assert.assertEquals(3, staging.getTotalFiles());
+        Assert.assertEquals(totalSize, staging.getSize());
+        Assert.assertEquals(Long.valueOf(3), staging.getTotalFiles());
         Assert.assertEquals(tagmanifest, staging.getFile());
         Assert.assertEquals(path, staging.getPath());
     }

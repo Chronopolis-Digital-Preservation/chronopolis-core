@@ -104,8 +104,8 @@ public class TokenStoreWriterTest extends IngestTest {
         // path assert
         Path tokens = Paths.get(stage, tokenStorage.getPath());
         Assert.assertTrue(java.nio.file.Files.exists(tokens));
-        Assert.assertEquals(tokens.toFile().length(), tokenStorage.getSize());
-        Assert.assertEquals(1, tokenStorage.getTotalFiles());
+        Assert.assertEquals(Long.valueOf(tokens.toFile().length()), tokenStorage.getSize());
+        Assert.assertEquals(Long.valueOf(1), tokenStorage.getTotalFiles());
 
         // combination fixity + path (check that it was recorded correctly)
         Set<Fixity> fixities = tokenStorage.getFile().getFixities();
