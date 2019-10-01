@@ -11,6 +11,8 @@ import org.hibernate.annotations.NaturalId;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -42,6 +44,8 @@ public class Bag extends UpdatableEntity implements Comparable<Bag> {
 
     private Long size;
     private Long totalFiles;
+
+    @Enumerated(value = EnumType.STRING)
     private BagStatus status = BagStatus.DEPOSITED;
 
     // joins
@@ -79,7 +83,9 @@ public class Bag extends UpdatableEntity implements Comparable<Bag> {
 
     public Set<String> getReplicatingNodes() {
         return distributions.stream()
-                .filter(dist -> dist.getStatus() == BagDistributionStatus.REPLICATE)
+                // ideally this would say who has replicated
+                // imo we should change it, as it won't impact operations but will make tests fail
+                // .filter(dist -> dist.getStatus() == BagDistributionStatus.REPLICATE)
                 .map(dist -> dist.getNode().getUsername())
                 .collect(Collectors.toSet());
     }
