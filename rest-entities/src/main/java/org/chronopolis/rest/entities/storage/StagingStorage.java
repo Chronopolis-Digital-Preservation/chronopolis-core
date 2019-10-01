@@ -1,5 +1,6 @@
 package org.chronopolis.rest.entities.storage;
 
+import com.google.common.base.MoreObjects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -45,6 +46,17 @@ public class StagingStorage extends UpdatableEntity {
 
     public Boolean isActive() {
         return getActive();
+    }
+
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", getId())
+                .add("bagId", getBag().getId())
+                .add("fileId", getFile().getId())
+                .add("regionId", getRegion().getId())
+                .add("path", getPath())
+                .add("active", getActive())
+                .toString();
     }
 
 }

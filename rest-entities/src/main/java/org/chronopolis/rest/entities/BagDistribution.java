@@ -1,5 +1,6 @@
 package org.chronopolis.rest.entities;
 
+import com.google.common.base.MoreObjects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -35,5 +36,13 @@ public class BagDistribution extends PersistableEntity {
     @NonNull
     @Enumerated(value = EnumType.STRING)
     private BagDistributionStatus status;
+
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("bagId", getBag().getId())
+                .add("nodeId", getNode().getId())
+                .add("status", getStatus())
+                .toString();
+    }
 
 }

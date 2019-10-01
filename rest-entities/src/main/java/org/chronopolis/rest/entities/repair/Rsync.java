@@ -1,10 +1,9 @@
 package org.chronopolis.rest.entities.repair;
 
+import com.google.common.base.MoreObjects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.chronopolis.rest.models.FulfillmentStrategy;
 import org.chronopolis.rest.models.RsyncStrategy;
 
@@ -17,17 +16,31 @@ import javax.persistence.OneToOne;
  */
 @Data
 @Entity
-@DiscriminatorValue("RSYNC")
 @NoArgsConstructor
-@RequiredArgsConstructor
+@DiscriminatorValue("RSYNC")
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Rsync extends Strategy {
 
-    @NonNull private String link;
-    @OneToOne(mappedBy = "strategy") private Repair repair;
+    private String link;
+
+    @OneToOne(mappedBy = "strategy")
+    private Repair repair;
+
+    public Rsync(String link) {
+        this.link = link;
+    }
 
     @Override
     public FulfillmentStrategy model() {
         return new RsyncStrategy(link);
     }
+
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", getId())
+                .add("repairId", getRepair().getId())
+                .add("link", getLink())
+                .toString();
+    }
+
 }

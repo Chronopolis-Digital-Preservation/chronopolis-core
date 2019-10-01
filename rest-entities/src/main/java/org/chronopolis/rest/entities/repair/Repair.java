@@ -1,5 +1,6 @@
 package org.chronopolis.rest.entities.repair;
 
+import com.google.common.base.MoreObjects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.EAGER;
 
 /**
+ *
  * @author shake
  */
 @Data
@@ -37,15 +39,23 @@ public class Repair extends UpdatableEntity {
     private Boolean replaced = false;
     private Boolean validated = false;
 
-    @ManyToOne private Bag bag;
-    @ManyToOne @JoinColumn(name = "to_node") private Node to;
-    @ManyToOne @JoinColumn(name = "from_node") private Node from;
-    @OneToOne(cascade = MERGE, fetch = EAGER) private Strategy strategy;
-    @OneToMany(mappedBy = "repair", cascade = ALL, fetch = EAGER) private Set<RepairFile> files;
-
     @Enumerated(value = STRING) private FulfillmentType type;
     @Enumerated(value = STRING) private AuditStatus audit = AuditStatus.PRE;
     @Enumerated(value = STRING) private RepairStatus status = RepairStatus.REQUESTED;
+
+    @ManyToOne private Bag bag;
+    @OneToOne(cascade = MERGE, fetch = EAGER) private Strategy strategy;
+    @OneToMany(mappedBy = "repair", cascade = ALL, fetch = EAGER) private Set<RepairFile> files;
+
+    @ManyToOne
+    @JoinColumn(name = "to_node")
+    private Node to;
+
+    @ManyToOne
+    @JoinColumn(name = "from_node")
+    private Node from;
+
+    // Constructor for compatibility
 
     public Repair(Bag bag,
                   Node to,
@@ -73,6 +83,13 @@ public class Repair extends UpdatableEntity {
 
     public void addFilesFromRequest(Set<String> filesToAdd) {
         filesToAdd.forEach(file -> files.add(new RepairFile(this, file)));
+    }
+
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", getId())
+                .add("bagId", getBag().getId())
+                .toString();
     }
 
 }

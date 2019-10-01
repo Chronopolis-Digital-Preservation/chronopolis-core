@@ -1,9 +1,9 @@
 package org.chronopolis.rest.entities.storage;
 
+import com.google.common.base.MoreObjects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.chronopolis.rest.entities.DataFile;
 import org.chronopolis.rest.entities.PersistableEntity;
 import org.chronopolis.rest.entities.converters.ZonedDateTimeConverter;
@@ -20,15 +20,12 @@ import java.time.ZonedDateTime;
 @Data
 @Entity
 @NoArgsConstructor
-@ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public class Fixity extends PersistableEntity {
 
-    @ToString.Include
     @EqualsAndHashCode.Include
     private String value;
 
-    @ToString.Include
     private String algorithm;
 
     @Convert(converter =  ZonedDateTimeConverter.class)
@@ -43,6 +40,15 @@ public class Fixity extends PersistableEntity {
         this.file = file;
         this.value = value;
         this.algorithm = algorithm;
+    }
+
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", getId())
+                .add("fileId", getFile().getId())
+                .add("value", getValue())
+                .add("algorithm", getAlgorithm())
+                .toString();
     }
 
 }

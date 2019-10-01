@@ -1,5 +1,6 @@
 package org.chronopolis.rest.entities;
 
+import com.google.common.base.MoreObjects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -58,4 +59,11 @@ public class AceToken extends PersistableEntity {
         return createDate.toInstant().atZone(ZoneOffset.UTC);
     }
 
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", getId())
+                .add("bagId", getBag().getId())
+                .add("fileId", getFile().getId())
+                .toString();
+    }
 }

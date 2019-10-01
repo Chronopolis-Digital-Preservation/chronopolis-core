@@ -1,5 +1,6 @@
 package org.chronopolis.rest.entities.storage;
 
+import com.google.common.base.MoreObjects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -29,5 +30,15 @@ public class ReplicationConfig extends PersistableEntity {
     @NonNull private String path;
     @NonNull private String server;
     @NonNull private String username;
+
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", getId())
+                .add("regionId", getRegion().getId())
+                .add("path", getPath())
+                .add("server", getServer())
+                .add("username", getUsername())
+                .toString();
+    }
 
 }

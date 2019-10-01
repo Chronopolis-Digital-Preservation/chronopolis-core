@@ -1,10 +1,9 @@
 package org.chronopolis.rest.entities.depositor;
 
+import com.google.common.base.MoreObjects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.chronopolis.rest.entities.Node;
 import org.chronopolis.rest.entities.UpdatableEntity;
 import org.hibernate.annotations.NaturalId;
@@ -20,22 +19,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ *
  * @author shake
  */
 @Data
 @Entity
 @NoArgsConstructor
-@RequiredArgsConstructor
-@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public class Depositor extends UpdatableEntity implements Comparable<Depositor> {
 
-    @NonNull
     @NaturalId
     @EqualsAndHashCode.Include
     private String namespace;
 
-    @NonNull private String sourceOrganization;
-    @NonNull private String organizationAddress;
+    private String sourceOrganization;
+    private String organizationAddress;
 
     @OneToMany(mappedBy = "depositor", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DepositorContact> contacts = new HashSet<>();
@@ -45,6 +43,12 @@ public class Depositor extends UpdatableEntity implements Comparable<Depositor> 
             joinColumns = @JoinColumn(name = "depositor_id"),
             inverseJoinColumns = @JoinColumn(name = "node_id"))
     private Set<Node> nodeDistributions = new HashSet<>();
+
+    public Depositor(String namespace, String sourceOrganization, String organizationAddress) {
+        this.namespace = namespace;
+        this.sourceOrganization = sourceOrganization;
+        this.organizationAddress = organizationAddress;
+    }
 
     public void addContact(DepositorContact contact) {
         if (contact.getDepositor() == null) {
@@ -71,6 +75,13 @@ public class Depositor extends UpdatableEntity implements Comparable<Depositor> 
     @Override
     public int compareTo(@NotNull Depositor depositor) {
         return namespace.compareTo(depositor.namespace);
+    }
+
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", getId())
+                .add("namespace", getNamespace())
+                .toString();
     }
 
 }

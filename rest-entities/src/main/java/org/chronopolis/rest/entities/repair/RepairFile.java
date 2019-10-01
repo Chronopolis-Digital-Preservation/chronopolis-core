@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
 /**
+ *
  * @author shake
  */
 @Data
@@ -18,7 +19,9 @@ import javax.persistence.ManyToOne;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class RepairFile extends PersistableEntity {
 
-    @ManyToOne private Repair repair;
+    @ManyToOne
+    @ToString.Exclude
+    private Repair repair;
 
     @ToString.Include
     @EqualsAndHashCode.Include

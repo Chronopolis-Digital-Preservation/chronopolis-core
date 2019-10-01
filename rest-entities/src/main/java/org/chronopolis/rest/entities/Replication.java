@@ -1,5 +1,6 @@
 package org.chronopolis.rest.entities;
 
+import com.google.common.base.MoreObjects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -75,6 +76,15 @@ public class Replication extends UpdatableEntity {
 
             bag.onUpdate();
         }
+    }
+
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", getId())
+                .add("bagId", getBag().getId())
+                .add("nodeId", getNode().getId())
+                .add("status", getStatus())
+                .toString();
     }
 
 }

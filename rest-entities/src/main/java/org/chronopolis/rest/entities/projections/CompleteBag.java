@@ -13,7 +13,7 @@ import java.util.Set;
  * @author shake
  */
 @Getter
-@ToString
+@ToString(callSuper = true)
 public class CompleteBag extends PartialBag {
 
     private final Map<String, StagingView> storage;

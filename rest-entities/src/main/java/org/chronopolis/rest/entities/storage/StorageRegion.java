@@ -1,5 +1,6 @@
 package org.chronopolis.rest.entities.storage;
 
+import com.google.common.base.MoreObjects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.chronopolis.rest.entities.Node;
@@ -38,5 +39,13 @@ public class StorageRegion extends UpdatableEntity {
     @OneToMany(mappedBy = "region", fetch = LAZY) private Set<StagingStorage> storage;
     @OneToOne(mappedBy = "region", cascade = ALL) private ReplicationConfig replicationConfig;
 
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", getId())
+                .add("nodeId", getNode().getId())
+                .add("dataType", getDataType())
+                .add("storageType", getStorageType())
+                .toString();
+    }
 
 }

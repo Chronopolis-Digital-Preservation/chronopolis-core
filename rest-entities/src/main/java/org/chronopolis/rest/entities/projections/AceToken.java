@@ -10,7 +10,7 @@ import java.util.Date;
  * @author shake
  */
 @Getter
-@ToString
+@ToString(onlyExplicitlyIncluded = true)
 public class AceToken {
     @ToString.Include private final Long id;
     @ToString.Include private final Long bagId;

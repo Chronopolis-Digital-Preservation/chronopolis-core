@@ -9,4 +9,9 @@ import javax.persistence.Entity;
 @Entity
 @DiscriminatorValue("TOKEN_STORE")
 public class TokenStore extends DataFile {
+
+    public String toString() {
+        return super.toString();
+    }
+
 }
