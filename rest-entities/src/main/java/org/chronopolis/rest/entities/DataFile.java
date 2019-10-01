@@ -21,6 +21,7 @@ import static javax.persistence.FetchType.EAGER;
 import static javax.persistence.FetchType.LAZY;
 
 /**
+ *
  * @author shake
  */
 @Data
@@ -32,6 +33,7 @@ import static javax.persistence.FetchType.LAZY;
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public abstract class DataFile extends UpdatableEntity {
 
+    @ToString.Include
     private Long size;
 
     @ToString.Include

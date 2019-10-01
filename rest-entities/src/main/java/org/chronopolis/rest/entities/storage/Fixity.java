@@ -14,22 +14,28 @@ import javax.persistence.ManyToOne;
 import java.time.ZonedDateTime;
 
 /**
+ *
  * @author shake
  */
 @Data
 @Entity
 @NoArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
-@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public class Fixity extends PersistableEntity {
 
-    @ToString.Include private String value;
-    @ToString.Include private String algorithm;
+    @ToString.Include
+    @EqualsAndHashCode.Include
+    private String value;
+
+    @ToString.Include
+    private String algorithm;
 
     @Convert(converter =  ZonedDateTimeConverter.class)
     private ZonedDateTime createdAt = ZonedDateTime.now();
 
     @ManyToOne
+    @EqualsAndHashCode.Include
     private DataFile file;
 
     public Fixity(ZonedDateTime createdAt, DataFile file, String value, String algorithm) {

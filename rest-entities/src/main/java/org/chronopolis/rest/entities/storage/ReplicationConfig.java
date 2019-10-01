@@ -11,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
 /**
+ * tbd: determine how equality checks should be handled. currently just on the primary key.
+ *
  * @author shake
  */
 @Data

@@ -4,6 +4,7 @@ import com.google.common.collect.ComparisonChain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.chronopolis.rest.entities.depositor.Depositor;
 import org.chronopolis.rest.entities.storage.StagingStorage;
 import org.chronopolis.rest.models.enums.BagStatus;
@@ -54,12 +55,15 @@ public class Bag extends UpdatableEntity implements Comparable<Bag> {
     @JoinColumn(name = "depositor_id")
     private Depositor depositor;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "bag", cascade = {MERGE, PERSIST}, fetch = LAZY, orphanRemoval = true)
     private Set<DataFile> files = new HashSet<>();
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "bag", cascade = {MERGE, PERSIST}, fetch = LAZY, orphanRemoval = true)
     private Set<BagDistribution> distributions = new HashSet<>();
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "bag", cascade = {MERGE, PERSIST}, fetch = EAGER, orphanRemoval = true)
     private Set<StagingStorage> storage = new HashSet<>();
 
@@ -126,6 +130,5 @@ public class Bag extends UpdatableEntity implements Comparable<Bag> {
                 .compare(name, bag.name)
                 .result();
     }
-
 
 }

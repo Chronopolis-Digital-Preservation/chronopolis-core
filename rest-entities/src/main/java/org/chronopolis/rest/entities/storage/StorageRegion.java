@@ -19,6 +19,8 @@ import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
 
 /**
+ * tbd determine equality
+ *
  * @author shake
  */
 @Data
