@@ -28,7 +28,7 @@ public class DepositorContact extends PersistableEntity implements Comparable<De
     private String contactEmail;
 
     @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "depositor_id")
     private Depositor depositor;
 
