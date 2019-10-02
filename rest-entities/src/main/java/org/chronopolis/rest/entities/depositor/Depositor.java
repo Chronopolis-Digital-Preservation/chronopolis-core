@@ -59,6 +59,7 @@ public class Depositor extends UpdatableEntity implements Comparable<Depositor> 
 
     public void removeContact(DepositorContact contact) {
         if (contact != null &&
+                // Make sure we are removing for our contact
                 (contact.getDepositor() == null || contact.getDepositor().equals(this))) {
             contact.setDepositor(null);
             contacts.remove(contact);

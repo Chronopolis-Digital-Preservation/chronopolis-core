@@ -59,11 +59,10 @@ public class Bag extends UpdatableEntity implements Comparable<Bag> {
     private Set<DataFile> files = new HashSet<>();
 
     @OneToMany(mappedBy = "bag", cascade = {MERGE, PERSIST}, fetch = LAZY, orphanRemoval = true)
-    private Set<BagDistribution> distributions = new HashSet<>();
-
-    @OneToMany(mappedBy = "bag", cascade = {MERGE, PERSIST}, fetch = EAGER, orphanRemoval = true)
     private Set<StagingStorage> storage = new HashSet<>();
 
+    @OneToMany(mappedBy = "bag", cascade = {MERGE, PERSIST}, fetch = EAGER, orphanRemoval = true)
+    private Set<BagDistribution> distributions = new HashSet<>();
 
     public Bag(String name,
                String creator,
@@ -92,19 +91,32 @@ public class Bag extends UpdatableEntity implements Comparable<Bag> {
     }
 
     public void addFile(DataFile file) {
-        files.add(file);
+        if (file != null && file.getBag() == null) {
+            file.setBag(this);
+            files.add(file);
+        }
     }
 
     public void addFiles(Set<DataFile> toAdd) {
-        files.addAll(toAdd);
+        if (toAdd != null) {
+            files.addAll(toAdd);
+        }
     }
 
     public void addStagingStorage(StagingStorage staging) {
-        storage.add(staging);
+        if (staging != null && staging.getBag() == null) {
+            staging.setBag(this);
+            storage.add(staging);
+        }
     }
 
     public void addDistribution(BagDistribution distribution) {
-        distributions.add(distribution);
+        if (distribution != null) {
+            if (distribution.getBag() == null) {
+                distribution.setBag(this);
+            }
+            distributions.add(distribution);
+        }
     }
 
     public void addDistribution(Node node, BagDistributionStatus status) {
