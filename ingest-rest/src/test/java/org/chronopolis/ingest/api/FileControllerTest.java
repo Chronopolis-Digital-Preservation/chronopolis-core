@@ -46,6 +46,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = FileController.class)
 public class FileControllerTest extends ControllerTest {
 
+    private final Bag THE_BAG = new Bag();
+
     @MockBean
     BagFileDao dao;
 
@@ -57,14 +59,10 @@ public class FileControllerTest extends ControllerTest {
 
     @Test
     public void getFiles() throws Exception {
-        // todo: retrieve token stores as well
-        TokenStore ts = new TokenStore();
-        ts.setId(2L);
-        ts.setFilename("/tokens");
-        ts.setDtype("TOKEN_STORE");
-
         BagFile bf = new BagFile();
         bf.setId(1L);
+        bf.setSize(1L);
+        bf.setBag(THE_BAG);
         bf.setDtype("BAG");
         bf.setFilename("/bag-file");
         bf.setFixities(ImmutableSet.of());
@@ -83,6 +81,9 @@ public class FileControllerTest extends ControllerTest {
     @Test
     public void getBagFiles() throws Exception {
         BagFile bf = new BagFile();
+        bf.setId(1L);
+        bf.setSize(1L);
+        bf.setBag(THE_BAG);
         bf.setDtype("BAG");
         bf.setFilename("/bag-file");
 
@@ -99,6 +100,8 @@ public class FileControllerTest extends ControllerTest {
     public void getFile() throws Exception {
         TokenStore ts = new TokenStore();
         ts.setId(2L);
+        ts.setSize(1L);
+        ts.setBag(THE_BAG);
         ts.setFilename("/tokens");
 
         when(dao.findOne(eq(QDataFile.dataFile), any(Predicate.class))).thenReturn(ts);
@@ -124,9 +127,11 @@ public class FileControllerTest extends ControllerTest {
 
     @Test
     public void getBagFile() throws Exception {
-        Bag bag = new Bag();
         BagFile bf = new BagFile();
-        when(dao.findOne(eq(QBag.bag), any(Predicate.class))).thenReturn(bag);
+        bf.setSize(1L);
+        bf.setBag(THE_BAG);
+        bf.setFilename("/bag-file");
+        when(dao.findOne(eq(QBag.bag), any(Predicate.class))).thenReturn(THE_BAG);
         when(dao.findOne(eq(QBagFile.bagFile), any(Predicate.class))).thenReturn(bf);
 
         mvc.perform(get("/api/bags/{bag_id}/files/{file_id}", 1L, 2L)
@@ -153,7 +158,7 @@ public class FileControllerTest extends ControllerTest {
 
     @Test
     public void getBagFileNotFound() throws Exception {
-        when(dao.findOne(eq(QBag.bag), any(Predicate.class))).thenReturn(new Bag());
+        when(dao.findOne(eq(QBag.bag), any(Predicate.class))).thenReturn(THE_BAG);
         when(dao.findOne(eq(QBagFile.bagFile), any(Predicate.class))).thenReturn(null);
 
         mvc.perform(get("/api/bags/{bag_id}/files/{file_id}", 1L, 2L)
@@ -174,7 +179,7 @@ public class FileControllerTest extends ControllerTest {
         BagFile bagFile = new BagFile();
         bagFile.setFixities(ImmutableSet.of(fixity));
 
-        when(dao.findOne(eq(QBag.bag), any(Predicate.class))).thenReturn(new Bag());
+        when(dao.findOne(eq(QBag.bag), any(Predicate.class))).thenReturn(THE_BAG);
         when(dao.findOne(eq(QBagFile.bagFile), any(Predicate.class))).thenReturn(bagFile);
 
         mvc.perform(get("/api/bags/{bag_id}/files/{file_id}/fixity", 1L, 2L)
@@ -203,7 +208,7 @@ public class FileControllerTest extends ControllerTest {
 
     @Test
     public void getBagFileFixitiesFileIsNull() throws Exception {
-        when(dao.findOne(eq(QBag.bag), any(Predicate.class))).thenReturn(new Bag());
+        when(dao.findOne(eq(QBag.bag), any(Predicate.class))).thenReturn(THE_BAG);
         when(dao.findOne(eq(QBagFile.bagFile), any(Predicate.class))).thenReturn(null);
 
         mvc.perform(get("/api/bags/{bag_id}/files/{file_id}/fixity", 1L, 2L)
