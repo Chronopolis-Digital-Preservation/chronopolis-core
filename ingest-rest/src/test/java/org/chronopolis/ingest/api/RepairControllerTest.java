@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Tests for our repair controller
- *
+ * <p>
  * Created by shake on 1/26/17.
  */
 @RunWith(SpringRunner.class)
@@ -49,7 +49,8 @@ public class RepairControllerTest extends ControllerTest {
 
     private final Logger log = LoggerFactory.getLogger(RepairControllerTest.class);
 
-    private final Depositor depositor = new Depositor();
+    private final String NAME = "repair-controller-depositor";
+    private final Depositor depositor = new Depositor(NAME, NAME, NAME);
 
     // Beans for the RepairController
     @MockBean private PagedDao dao;
@@ -76,7 +77,7 @@ public class RepairControllerTest extends ControllerTest {
         when(dao.findOne(any(), any(Predicate.class))).thenReturn(null);
         mvc.perform(
                 get("/api/repairs/{id}", 100L)
-                    .principal(authorizedPrincipal))
+                        .principal(authorizedPrincipal))
                 // .andDo(print())
                 .andExpect(status().is(404));
     }
@@ -123,7 +124,10 @@ public class RepairControllerTest extends ControllerTest {
         when(dao.findOne(eq(QNode.node), any(Predicate.class))).thenReturn(node);
         when(dao.findOne(eq(QBag.bag), any(Predicate.class))).thenReturn(bag);
 
-        String json = "{\"to\":\"requester\",\"depositor\":\"test-depositor\",\"collection\":\"bag-0\",\"files\":[\"test-file-1\"]}";
+        String json = "{\"to\":\"requester\"," +
+                "\"depositor\":\"test-depositor\"," +
+                "\"collection\":\"bag-0\"," +
+                "\"files\":[\"test-file-1\"]}";
 
         // Need to inject Mock SecurityContext here
         mvc.perform(
@@ -172,7 +176,8 @@ public class RepairControllerTest extends ControllerTest {
         when(dao.findOne(eq(QNode.node), any(Predicate.class))).thenReturn(node);
         when(dao.findOne(eq(QRepair.repair), any(Predicate.class))).thenReturn(unfulfilled);
 
-        mvc.perform(post("/api/repairs/{id}/fulfill", unfulfilled.getId()).principal(requesterPrincipal))
+        mvc.perform(post("/api/repairs/{id}/fulfill", unfulfilled.getId())
+                .principal(requesterPrincipal))
                 // .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -184,7 +189,8 @@ public class RepairControllerTest extends ControllerTest {
         when(dao.findOne(eq(QNode.node), any(Predicate.class))).thenReturn(node);
         when(dao.findOne(eq(QRepair.repair), any(Predicate.class))).thenReturn(fulfilling);
 
-        mvc.perform(post("/api/repairs/{id}/fulfill", fulfilling.getId()).principal(unauthorizedPrincipal))
+        mvc.perform(post("/api/repairs/{id}/fulfill", fulfilling.getId())
+                .principal(unauthorizedPrincipal))
                 // .andDo(print())
                 .andExpect(status().isConflict());
     }
@@ -234,7 +240,8 @@ public class RepairControllerTest extends ControllerTest {
         Repair fulfilling = fulfilling();
         when(dao.findOne(eq(QRepair.repair), any(Predicate.class))).thenReturn(fulfilling);
         authenticateUser();
-        mvc.perform(put("/api/repairs/{id}/complete", fulfilling.getId()).principal(requesterPrincipal))
+        mvc.perform(put("/api/repairs/{id}/complete", fulfilling.getId())
+                .principal(requesterPrincipal))
                 // .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -246,7 +253,8 @@ public class RepairControllerTest extends ControllerTest {
         when(dao.findOne(eq(QRepair.repair), any(Predicate.class))).thenReturn(completing);
         authenticateUser();
 
-        mvc.perform(put("/api/repairs/{id}/complete", completing.getId()).principal(requesterPrincipal))
+        mvc.perform(put("/api/repairs/{id}/complete", completing.getId())
+                .principal(requesterPrincipal))
                 // .andDo(print())
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.status").value(RepairStatus.REPAIRED.name()));
@@ -258,7 +266,8 @@ public class RepairControllerTest extends ControllerTest {
         when(dao.findOne(eq(QRepair.repair), any(Predicate.class))).thenReturn(completing);
         authenticateUser();
 
-        mvc.perform(put("/api/repairs/{id}/complete", completing.getId()).principal(unauthorizedPrincipal))
+        mvc.perform(put("/api/repairs/{id}/complete", completing.getId())
+                .principal(unauthorizedPrincipal))
                 // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -299,8 +308,10 @@ public class RepairControllerTest extends ControllerTest {
         authenticateUser();
 
         mvc.perform(
-                put("/api/repairs/{id}/audit",auditing.getId())
-                        .principal(unauthorizedPrincipal).contentType(MediaType.APPLICATION_JSON).content(asJson(AuditStatus.AUDITING)))
+                put("/api/repairs/{id}/audit", auditing.getId())
+                        .principal(unauthorizedPrincipal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJson(AuditStatus.AUDITING)))
                 // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -321,7 +332,8 @@ public class RepairControllerTest extends ControllerTest {
     @Test
     public void repairCleanNotFound() throws Exception {
         when(dao.findOne(eq(QRepair.repair), any(Predicate.class))).thenReturn(null);
-        mvc.perform(put("/api/repairs/{id}/cleaned", cleaning().getId()).principal(requesterPrincipal))
+        mvc.perform(put("/api/repairs/{id}/cleaned", cleaning().getId())
+                .principal(requesterPrincipal))
                 // .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -332,7 +344,8 @@ public class RepairControllerTest extends ControllerTest {
         when(dao.findOne(eq(QRepair.repair), any(Predicate.class))).thenReturn(cleaning);
         authenticateUser();
 
-        mvc.perform(put("/api/repairs/{id}/cleaned", cleaning.getId()).principal(unauthorizedPrincipal))
+        mvc.perform(put("/api/repairs/{id}/cleaned", cleaning.getId())
+                .principal(unauthorizedPrincipal))
                 // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -343,7 +356,8 @@ public class RepairControllerTest extends ControllerTest {
         when(dao.findOne(eq(QRepair.repair), any(Predicate.class))).thenReturn(replacing);
         authenticateUser();
 
-        mvc.perform(put("/api/repairs/{id}/replaced", replacing.getId()).principal(requesterPrincipal))
+        mvc.perform(put("/api/repairs/{id}/replaced", replacing.getId())
+                .principal(requesterPrincipal))
                 // .andDo(print())
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.replaced").value(true));
@@ -352,7 +366,8 @@ public class RepairControllerTest extends ControllerTest {
     @Test
     public void repairReplacedNotFound() throws Exception {
         when(dao.findOne(eq(QRepair.repair), any(Predicate.class))).thenReturn(null);
-        mvc.perform(put("/api/repairs/{id}/replaced", replacing().getId()).principal(requesterPrincipal))
+        mvc.perform(put("/api/repairs/{id}/replaced", replacing().getId())
+                .principal(requesterPrincipal))
                 // .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -363,7 +378,8 @@ public class RepairControllerTest extends ControllerTest {
         when(dao.findOne(eq(QRepair.repair), any(Predicate.class))).thenReturn(replacing);
         authenticateUser();
 
-        mvc.perform(put("/api/repairs/{id}/replaced", replacing.getId()).principal(unauthorizedPrincipal))
+        mvc.perform(put("/api/repairs/{id}/replaced", replacing.getId())
+                .principal(unauthorizedPrincipal))
                 // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -375,7 +391,9 @@ public class RepairControllerTest extends ControllerTest {
         authenticateUser();
         mvc.perform(
                 put("/api/repairs/{id}/status", fulfilling.getId())
-                    .principal(authorizedPrincipal).contentType(MediaType.APPLICATION_JSON).content(asJson(RepairStatus.READY)))
+                        .principal(authorizedPrincipal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJson(RepairStatus.READY)))
                 // .andDo(print())
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.status").value(RepairStatus.READY.name()));
@@ -386,8 +404,11 @@ public class RepairControllerTest extends ControllerTest {
         Repair transferred = transferred();
         when(dao.findOne(eq(QRepair.repair), any(Predicate.class))).thenReturn(transferred);
         authenticateUser();
-        mvc.perform(put("/api/repairs/{id}/status", transferred.getId())
-                .principal(requesterPrincipal).contentType(MediaType.APPLICATION_JSON).content(asJson(RepairStatus.TRANSFERRED)))
+        mvc.perform(
+                put("/api/repairs/{id}/status", transferred.getId())
+                        .principal(requesterPrincipal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJson(RepairStatus.TRANSFERRED)))
                 // .andDo(print())
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.status").value(RepairStatus.TRANSFERRED.name()));
@@ -396,8 +417,11 @@ public class RepairControllerTest extends ControllerTest {
     @Test
     public void fulfillmentUpdateNotFound() throws Exception {
         when(dao.findOne(eq(QRepair.repair), any(Predicate.class))).thenReturn(null);
-        mvc.perform(put("/api/repairs/{id}/status", baseRepair().getId())
-                .principal(authorizedPrincipal).contentType(MediaType.APPLICATION_JSON).content(asJson(RepairStatus.TRANSFERRED)))
+        mvc.perform(
+                put("/api/repairs/{id}/status", baseRepair().getId())
+                        .principal(authorizedPrincipal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJson(RepairStatus.TRANSFERRED)))
                 // .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -409,7 +433,9 @@ public class RepairControllerTest extends ControllerTest {
         authenticateUser();
         mvc.perform(
                 put("/api/repairs/{id}/status", transferred.getId())
-                        .principal(unauthorizedPrincipal).contentType(MediaType.APPLICATION_JSON).content(asJson(RepairStatus.TRANSFERRED)))
+                        .principal(unauthorizedPrincipal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJson(RepairStatus.TRANSFERRED)))
                 // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -421,7 +447,9 @@ public class RepairControllerTest extends ControllerTest {
         authenticateUser();
         mvc.perform(
                 put("/api/repairs/{id}/status", transferred.getId())
-                        .principal(unauthorizedPrincipal).contentType(MediaType.APPLICATION_JSON).content(asJson(RepairStatus.FAILED)))
+                        .principal(unauthorizedPrincipal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJson(RepairStatus.FAILED)))
                 // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -457,7 +485,7 @@ public class RepairControllerTest extends ControllerTest {
         return repair;
     }
 
-    private Repair auditing () {
+    private Repair auditing() {
         Repair repair = transferred();
         repair.setValidated(true);
         return repair;
