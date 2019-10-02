@@ -51,25 +51,30 @@ public class Depositor extends UpdatableEntity implements Comparable<Depositor> 
     }
 
     public void addContact(DepositorContact contact) {
-        if (contact.getDepositor() == null) {
+        if (contact != null && contact.getDepositor() == null) {
             contact.setDepositor(this);
             contacts.add(contact);
         }
     }
 
     public void removeContact(DepositorContact contact) {
-        if (contact != null && contact.getDepositor().equals(this)) {
+        if (contact != null &&
+                (contact.getDepositor() == null || contact.getDepositor().equals(this))) {
             contact.setDepositor(null);
             contacts.remove(contact);
         }
     }
 
     public void addNodeDistribution(Node node) {
-        nodeDistributions.add(node);
+        if (node != null) {
+            nodeDistributions.add(node);
+        }
     }
 
     public void removeNodeDistribution(Node node) {
-        nodeDistributions.remove(node);
+        if (node != null) {
+            nodeDistributions.remove(node);
+        }
     }
 
     @Override
