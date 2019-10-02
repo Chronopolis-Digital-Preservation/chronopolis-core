@@ -62,6 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ReplicationControllerTest extends ControllerTest {
 
     private final Long ID = 4L;
+    private final String NAME = "replication-controller-test";
     private static final String PUT_STATUS = "/api/replications/{id}/status";
     private static final String PUT_TAG_FIXITY = "/api/replications/{id}/tagmanifest";
     private static final String GET_REPLICATION = "/api/replications/{id}";
@@ -70,7 +71,8 @@ public class ReplicationControllerTest extends ControllerTest {
     private final String CORRECT_TAG_FIXITY = "tag-fixity";
     private final String CORRECT_TOKEN_FIXITY = "token-fixity";
     private final String INVALID_FIXITY = "invalid-fixity";
-    private final Depositor depositor = new Depositor();
+    private final Depositor depositor = new Depositor(NAME, NAME, NAME);
+    private final StorageRegion THE_REGION = new StorageRegion();
 
     @MockBean private StagingDao staging;
     @MockBean private ReplicationDao replicationDao;
@@ -194,19 +196,28 @@ public class ReplicationControllerTest extends ControllerTest {
     // not sure if we need to bother with id, filenames, etc on the Files
     private BagFile bagFile() {
         BagFile bagFile = new BagFile();
+        bagFile.setFilename("bag-filename");
+        bagFile.setSize(1L);
         bagFile.addFixity(new Fixity(now(), bagFile, CORRECT_TAG_FIXITY, SHA_256.getCanonical()));
         return bagFile;
     }
 
     private TokenStore tokenStore() {
         TokenStore store = new TokenStore();
+        store.setFilename("token-filename");
+        store.setSize(1L);
         store.addFixity(new Fixity(now(), store, CORRECT_TOKEN_FIXITY, SHA_256.getCanonical()));
         return store;
     }
 
     private StagingStorage stagingStorage(DataFile file) {
         StagingStorage storage = new StagingStorage();
+        storage.setSize(1L);
         storage.setFile(file);
+        storage.setActive(true);
+        storage.setTotalFiles(1L);
+        storage.setRegion(THE_REGION);
+        storage.setPath(file.getFilename());
         return storage;
     }
 
