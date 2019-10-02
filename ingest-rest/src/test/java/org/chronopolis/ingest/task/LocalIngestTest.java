@@ -139,9 +139,9 @@ public class LocalIngestTest extends IngestTest {
         tagmanifest.setSize(TAGMANIFEST_SIZE);
         tagmanifest.setFilename(TAGMANIFEST_FILE);
         tagmanifest.addFixity(new Fixity(ZonedDateTime.now(), tagmanifest, TAGMANIFEST_HASH, algorithm));
-        toScan.addFile(hw);
-        toScan.addFile(manifest);
-        toScan.addFile(tagmanifest);
+        toScan.getFiles().add(hw);
+        toScan.getFiles().add(manifest);
+        toScan.getFiles().add(tagmanifest);
         dao.save(toScan);
 
         localIngest.scan();

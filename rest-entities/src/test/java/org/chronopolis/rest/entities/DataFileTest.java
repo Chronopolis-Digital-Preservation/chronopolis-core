@@ -97,7 +97,7 @@ public class DataFileTest {
         AceToken token = new AceToken(PROOF, LONG_VALUE,
                 IMS_SERVICE, FIXITY_ALGORITHM, IMS_HOST, date, bag, file);
         file.setToken(token);
-        bag.addFile(file);
+        bag.getFiles().add(file);
 
         entityManager.persist(bag);
 
@@ -126,7 +126,7 @@ public class DataFileTest {
         file.setBag(bag);
         file.setSize(LONG_VALUE);
         file.setFilename(TEST_PATH);
-        bag.addFile(file);
+        bag.getFiles().add(file);
 
         entityManager.persist(bag);
 

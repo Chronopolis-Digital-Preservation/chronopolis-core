@@ -187,8 +187,8 @@ public class ReplicationControllerTest extends ControllerTest {
 
         Bag bag = new Bag("test-bag", "test-creator", depositor, 1L, 1L, BagStatus.REPLICATING);
         bag.setId(1L);
-        bag.addStagingStorage(stagingStorage(bagFile()));
-        bag.addStagingStorage(stagingStorage(tokenStore()));
+        bag.getStorage().add(stagingStorage(bagFile()));
+        bag.getStorage().add(stagingStorage(tokenStore()));
         bag.setDistributions(new HashSet<>());
         return bag;
     }

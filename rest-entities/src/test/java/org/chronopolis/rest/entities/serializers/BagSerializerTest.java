@@ -70,7 +70,7 @@ public class BagSerializerTest {
         ZonedDateTime dateTime = ZonedDateTime.from(fmt.parse(dateTimeString));
         Bag bag = new Bag("bag", "creator", depositor, 1L, 1L, BagStatus.REPLICATING);
         bag.setId(1L);
-        bag.addStagingStorage(createStorage());
+        bag.getStorage().add(createStorage());
         bag.setDistributions(of(new BagDistribution(bag, node, BagDistributionStatus.REPLICATE)));
         bag.setCreatedAt(dateTime);
         bag.setUpdatedAt(dateTime);

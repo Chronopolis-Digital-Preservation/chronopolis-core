@@ -90,35 +90,6 @@ public class Bag extends UpdatableEntity implements Comparable<Bag> {
                 .collect(Collectors.toSet());
     }
 
-    public void addFile(DataFile file) {
-        if (file != null && file.getBag() == null) {
-            file.setBag(this);
-            files.add(file);
-        }
-    }
-
-    public void addFiles(Set<DataFile> toAdd) {
-        if (toAdd != null) {
-            files.addAll(toAdd);
-        }
-    }
-
-    public void addStagingStorage(StagingStorage staging) {
-        if (staging != null && staging.getBag() == null) {
-            staging.setBag(this);
-            storage.add(staging);
-        }
-    }
-
-    public void addDistribution(BagDistribution distribution) {
-        if (distribution != null) {
-            if (distribution.getBag() == null) {
-                distribution.setBag(this);
-            }
-            distributions.add(distribution);
-        }
-    }
-
     public void addDistribution(Node node, BagDistributionStatus status) {
         distributions.add(new BagDistribution(this, node, status));
     }

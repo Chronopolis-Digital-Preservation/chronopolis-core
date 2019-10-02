@@ -108,7 +108,7 @@ public class BagEntityTest {
         ts.setSize(LONG_VALUE);
         ts.setBag(persist);
 
-        persist.addFiles(ImmutableSet.of(bf, ts));
+        persist.getFiles().addAll(ImmutableSet.of(bf, ts));
 
         StagingStorage bagStore =
                 new StagingStorage(storageRegion, persist, LONG_VALUE, LONG_VALUE, TEST_PATH, true);

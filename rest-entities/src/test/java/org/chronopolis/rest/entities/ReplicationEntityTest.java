@@ -125,8 +125,8 @@ public class ReplicationEntityTest {
 
         Bag bag = new Bag();
         bag.setDistributions(new HashSet<>());
-        bag.addDistribution(new BagDistribution(bag, ncar, DISTRIBUTE));
-        bag.addDistribution(new BagDistribution(bag, umiacs, REPLICATE));
+        bag.addDistribution(ncar, DISTRIBUTE);
+        bag.addDistribution(umiacs, REPLICATE);
         bag.setStatus(BagStatus.REPLICATING);
         bag.setName(BAG_NAME);
         bag.setSize(LONG_VALUE);
