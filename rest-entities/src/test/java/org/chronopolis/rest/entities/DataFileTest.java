@@ -8,8 +8,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -76,15 +74,12 @@ public class DataFileTest {
 
             Assert.assertTrue(df instanceof BagFile);
             BagFile bf = (BagFile) df;
-            log.info("token id {}, bf id {}", token.getId(), bf.getToken().getId());
             Assert.assertNotNull(bf.getToken());
             Assert.assertEquals(token, bf.getToken());
             Assert.assertEquals(bag, bf.getToken().getBag());
             Assert.assertEquals(bag, df.getBag());
         }
     }
-
-    private final Logger log = LoggerFactory.getLogger(DataFileTest.class);
 
     @Test
     public void persistWithFileAndToken() {
