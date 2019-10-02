@@ -122,21 +122,25 @@ public class RepairController {
         // Get the bag
         // This can be updated since all we need is the bag id
         // todo: validate that depositor and collection exist in the request
-        Bag b = dao.findOne(QBag.bag, QBag.bag.depositor.namespace.eq(request.getDepositor()).and(QBag.bag.name.eq(request.getCollection())));
-        check(b, "Bag must exist");
-        log.info("Creating repair request from user {} for bag {}", principal.getName(), b.getName());
+        Bag bag = dao.findOne(QBag.bag,
+                QBag.bag.depositor.namespace.eq(request.getDepositor())
+                        .and(QBag.bag.name.eq(request.getCollection())));
+        check(bag, "Bag must exist");
+        log.info("Creating repair request from user {} for bag {}",
+                principal.getName(),
+                bag.getName());
 
         // Create the repair object
-        Repair r = new Repair(b, node, null, // from_node -> null at first
+        Repair repair = new Repair(bag, node, null, // from_node -> null at first
                 RepairStatus.REQUESTED, AuditStatus.PRE,
                 null, null,  // vars set by from_node
                 principal.getName(),
                 false, false, false);
-        r.setFiles(new HashSet<>());
-        r.addFilesFromRequest(request.getFiles());
-        dao.save(r);
+        repair.setFiles(new HashSet<>());
+        repair.addFilesFromRequest(request.getFiles());
+        dao.save(repair);
 
-        return r;
+        return repair;
     }
 
     /**
@@ -430,7 +434,7 @@ public class RepairController {
      * {@link Optional}, otherwise wrap the created {@link Strategy}.
      *
      * @param strategy the {@link FulfillmentStrategy} to persist
-     * @param repair the {@link Repair} receiving the fulfillment
+     * @param repair   the {@link Repair} receiving the fulfillment
      * @return an {@link Optional} holding the created {@link Strategy}
      */
     private Optional<Strategy> toEntity(FulfillmentStrategy strategy, Repair repair) {
