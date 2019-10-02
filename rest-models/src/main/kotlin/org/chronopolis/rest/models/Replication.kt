@@ -11,8 +11,8 @@ data class Replication(val id: Long,
                        val bagLink: String,
                        val tokenLink: String,
                        val protocol: String,
-                       val receivedTagFixity: String,
-                       val receivedTokenFixity: String,
+                       val receivedTagFixity: String?,
+                       val receivedTokenFixity: String?,
                        val node: String,
                        val bag: Bag) : Comparable<Replication> {
 
