@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class CompleteBagSerializer extends JsonSerializer<CompleteBag> {
+    private final String BAG_FILE = "BAG";
+    private final String TOKEN_FILE = "TOKEN_STORE";
 
     @Override
     public void serialize(CompleteBag completeBag,
@@ -34,9 +36,9 @@ public class CompleteBagSerializer extends JsonSerializer<CompleteBag> {
                     new HashSet<>()
             );
 
-            if (entry.getKey().equalsIgnoreCase("BAG")) {
+            if (BAG_FILE.equalsIgnoreCase(entry.getKey())) {
                 bagStorage = storage;
-            } else {
+            } else if (TOKEN_FILE.equalsIgnoreCase(entry.getKey())) {
                 tokenStorage = storage;
             }
         }
