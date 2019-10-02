@@ -54,13 +54,6 @@ public abstract class DataFile extends UpdatableEntity {
         }
     }
 
-    public void rmFixity(Fixity fixity) {
-        if (fixity != null && fixity.getFile().equals(this)) {
-            fixities.remove(fixity);
-            fixity.setFile(null);
-        }
-    }
-
     @PrePersist
     protected void checkLeading() {
         if (!filename.startsWith("/")) {
