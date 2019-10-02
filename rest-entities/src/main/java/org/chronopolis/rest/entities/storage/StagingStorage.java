@@ -9,6 +9,7 @@ import org.chronopolis.rest.entities.DataFile;
 import org.chronopolis.rest.entities.UpdatableEntity;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 /**
@@ -28,7 +29,11 @@ public class StagingStorage extends UpdatableEntity {
 
     @ManyToOne private Bag bag;
     @ManyToOne private StorageRegion region;
-    @ManyToOne @EqualsAndHashCode.Include private DataFile file;
+
+    @ManyToOne
+    @JoinColumn(name = "file_id")
+    @EqualsAndHashCode.Include
+    private DataFile file;
 
     public StagingStorage(StorageRegion region,
                           Bag bag,
