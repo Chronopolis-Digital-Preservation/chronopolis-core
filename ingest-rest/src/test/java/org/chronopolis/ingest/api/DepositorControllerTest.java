@@ -72,7 +72,7 @@ public class DepositorControllerTest extends ControllerTest {
     // Fields we set up
     private Bag bag;
     private Node node;
-    private final DepositorContact contact = new DepositorContact();
+    private final DepositorContact contact = new DepositorContact(EMAIL, EMAIL, EMAIL);
     private final BooleanExpression namespaceEq = Q_DEPOSITOR.namespace.eq(NAMESPACE);
     private final BooleanExpression contactEq = Q_CONTACT.depositor.namespace.eq(NAMESPACE)
             .and(Q_CONTACT.contactEmail.eq(EMAIL));
@@ -297,7 +297,8 @@ public class DepositorControllerTest extends ControllerTest {
 
         when(dao.findOne(eq(Q_DEPOSITOR), eq(namespaceEq)))
                 .thenReturn(DEPOSITOR);
-        when(dao.findOne(eq(Q_CONTACT), eq(contactEq))).thenReturn(contact);
+        when(dao.findOne(eq(Q_CONTACT), eq(contactEq)))
+                .thenReturn(contact);
 
         authenticateAdmin();
         mvc.perform(
