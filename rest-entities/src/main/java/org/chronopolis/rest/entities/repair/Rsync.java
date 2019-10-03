@@ -12,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
 /**
+ * {@link Strategy} which uses rsync as the primary mechanism for transferring files
+ *
  * @author shake
  */
 @Data
@@ -21,6 +23,9 @@ import javax.persistence.OneToOne;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Rsync extends Strategy {
 
+    /**
+     * The uri for the rsync
+     */
     private String link;
 
     @OneToOne(mappedBy = "strategy")

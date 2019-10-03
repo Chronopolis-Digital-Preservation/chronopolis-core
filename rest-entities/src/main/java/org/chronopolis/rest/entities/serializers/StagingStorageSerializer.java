@@ -20,6 +20,7 @@ public class StagingStorageSerializer extends JsonSerializer<StagingStorage> {
     }
 
     public org.chronopolis.rest.models.StagingStorage modelOf(StagingStorage storage) {
+        // todo: null checks on storage fields?
         return new org.chronopolis.rest.models.StagingStorage(
                 storage.getActive(),
                 storage.getSize(),

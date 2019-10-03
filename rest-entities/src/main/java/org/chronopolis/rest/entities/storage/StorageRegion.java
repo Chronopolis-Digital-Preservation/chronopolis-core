@@ -20,6 +20,12 @@ import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
 
 /**
+ * A {@link StorageRegion} is a filesystem at a {@link Node} where data can be staged for
+ * replication. Currently only {@link StorageType#LOCAL} filesystems are supported.
+ *
+ * As there are two types of data which Chronopolis knows about, there are two types offered:
+ * {@link DataType#BAG} and {@link DataType#TOKEN}.
+ *
  * tbd determine equality
  *
  * @author shake
@@ -29,9 +35,19 @@ import static javax.persistence.FetchType.LAZY;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class StorageRegion extends UpdatableEntity {
 
+    /**
+     * Extra information provided for the {@link StorageRegion}
+     */
     private String note;
+
+    /**
+     * The total capacity of the {@link StorageRegion} in bytes
+     */
     private Long capacity;
 
+    /**
+     * The {@link DataType} of the data expected in the {@link StorageRegion}
+     */
     @Enumerated(value = STRING) private DataType dataType = DataType.BAG;
     @Enumerated(value = STRING) private StorageType storageType = StorageType.LOCAL;
 

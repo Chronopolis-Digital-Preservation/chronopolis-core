@@ -10,6 +10,10 @@ import javax.persistence.Inheritance;
 import javax.persistence.Table;
 
 /**
+ * The {@link Strategy} class represents the strategy table which is used for fulfilling
+ * {@link Repair}s. The underlying table uses single table inheritance and has a discriminator
+ * column which currently can have two values: RSYNC or ACE.
+ *
  * @author shake
  */
 @Entity

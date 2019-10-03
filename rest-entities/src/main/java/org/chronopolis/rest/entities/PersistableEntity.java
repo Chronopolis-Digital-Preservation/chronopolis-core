@@ -21,6 +21,9 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public class PersistableEntity {
 
+    /**
+     * The identifier of the {@link PersistableEntity}
+     */
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id = 0L;
 

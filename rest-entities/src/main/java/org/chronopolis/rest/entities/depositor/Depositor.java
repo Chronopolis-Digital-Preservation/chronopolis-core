@@ -4,6 +4,7 @@ import com.google.common.base.MoreObjects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.chronopolis.rest.entities.Bag;
 import org.chronopolis.rest.entities.Node;
 import org.chronopolis.rest.entities.UpdatableEntity;
 import org.hibernate.annotations.NaturalId;
@@ -19,6 +20,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * A {@link Depositor} is an actor who is the primary source for {@link Bag}s in Chronopolis
+ *
+ * They have a {@link Depositor#namespace} which acts as a unique identifier and is used when
+ * checking equality
  *
  * @author shake
  */
@@ -28,16 +33,32 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public class Depositor extends UpdatableEntity implements Comparable<Depositor> {
 
+    /**
+     * The name of the {@link} Depositor; must be unique
+     */
     @NaturalId
     @EqualsAndHashCode.Include
     private String namespace;
 
+    /**
+     * The source organization the {@link Depositor} belongs to; can be null
+     */
     private String sourceOrganization;
+
+    /**
+     * The address of the source organization; can be null
+     */
     private String organizationAddress;
 
+    /**
+     * The {@link DepositorContact}s who can be used to contact the {@link Depositor}
+     */
     @OneToMany(mappedBy = "depositor", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DepositorContact> contacts = new HashSet<>();
 
+    /**
+     * The {@link Node}s which will receive data for this {@link Depositor}
+     */
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "depositor_distribution",
             joinColumns = @JoinColumn(name = "depositor_id"),

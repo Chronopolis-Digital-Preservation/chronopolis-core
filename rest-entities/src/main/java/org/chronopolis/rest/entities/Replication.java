@@ -6,6 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.chronopolis.rest.entities.storage.Fixity;
+import org.chronopolis.rest.entities.storage.StagingStorage;
 import org.chronopolis.rest.models.enums.ReplicationStatus;
 
 import javax.persistence.CascadeType;
@@ -16,6 +18,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PreUpdate;
 
 /**
+ * A resource which tracks distribution of a {@link Bag} to a {@link Node}
+ *
+ * If the {@link Replication#receivedTagFixity} does not match the {@link Fixity} from the
+ * {@link StagingStorage#file} (on the BAG {@link StagingStorage}), the {@link Replication#status}
+ * should be set to {@link ReplicationStatus#FAILURE_TAG_MANIFEST}.
+ *
+ * Likewise if the {@link Replication#receivedTokenFixity} does not match on the TOKEN_STORE
+ * {@link StagingStorage}, the {@link Replication#status} should be set to
+ * {@link ReplicationStatus#FAILURE_TOKEN_STORE}.
+ *
  * @author shake
  */
 @Data
@@ -25,23 +37,51 @@ import javax.persistence.PreUpdate;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Replication extends UpdatableEntity {
 
+    /**
+     * The {@link ReplicationStatus} showing the current state of the {@link Replication}
+     */
     @NonNull
     @Enumerated(EnumType.STRING)
     private ReplicationStatus status = ReplicationStatus.PENDING;
 
+    /**
+     * The {@link Node} which is receiving the {@link Bag}
+     */
     @NonNull
     @ManyToOne
     private Node node;
 
+    /**
+     * The {@link Bag} which is being distributed
+     */
     @NonNull
     @ManyToOne(cascade = CascadeType.MERGE)
     private Bag bag;
 
+    /**
+     * The uri used to transfer the contents of the {@link Bag}
+     */
     @NonNull private String bagLink;
+
+    /**
+     * The uri used to transfer the contents of the {@link TokenStore}
+     */
     @NonNull private String tokenLink;
+
+    /**
+     * The protocol used for transferring data.
+     * Note: currently this is only rsync
+     */
     @NonNull private String protocol;
 
+    /**
+     * The computed fixity (hash) of the tagmanifest associated with the {@link Bag}
+     */
     private String receivedTagFixity;
+
+    /**
+     * The computed fixity (hash) of the {@link TokenStore} associated with the {@link Bag}
+     */
     private String receivedTokenFixity;
 
     public Replication(ReplicationStatus status,

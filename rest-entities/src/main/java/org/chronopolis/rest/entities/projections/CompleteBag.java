@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * QueryProjection for the full view of a Bag. Includes the active StagingStorage for the Bag.
+ *
  * @author shake
  */
 @Getter

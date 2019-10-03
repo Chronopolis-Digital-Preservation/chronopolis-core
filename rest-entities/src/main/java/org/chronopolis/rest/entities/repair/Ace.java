@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
 /**
+ * Information for fulfilling a {@link Repair} through the ACE Audit Manager
  *
  * @author shake
  */
@@ -22,7 +23,14 @@ import javax.persistence.OneToOne;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Ace extends Strategy {
 
+    /**
+     * The URL of the ACE-AM to connect to
+     */
     private String url;
+
+    /**
+     * The api key to connect with
+     */
     private String apiKey;
 
     @OneToOne(mappedBy = "strategy")

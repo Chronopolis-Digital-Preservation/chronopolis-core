@@ -11,6 +11,9 @@ import static javax.persistence.CascadeType.MERGE;
 import static javax.persistence.CascadeType.PERSIST;
 
 /**
+ * A file belonging to a {@link Bag}. Both payload and metadata files are included in this
+ * representation.
+ *
  * @author shake
  */
 @Data
@@ -19,6 +22,9 @@ import static javax.persistence.CascadeType.PERSIST;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class BagFile extends DataFile {
 
+    /**
+     * The {@link AceToken} created for this {@link BagFile}
+     */
     @OneToOne(mappedBy = "file", cascade = {MERGE, PERSIST}, orphanRemoval = true)
     private AceToken token;
 

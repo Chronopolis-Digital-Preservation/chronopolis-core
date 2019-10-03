@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 /**
+ * Contact information for a {@link Depositor}
  *
  * @author shake
  */
@@ -23,10 +24,24 @@ import javax.persistence.ManyToOne;
 @EqualsAndHashCode(callSuper = false)
 public class DepositorContact extends PersistableEntity implements Comparable<DepositorContact> {
 
+    /**
+     * The name of the contact
+     */
     private String contactName;
+
+    /**
+     * A phone number for the contact, previously validated (hopefully)
+     */
     private String contactPhone;
+
+    /**
+     * An email address; unique on ({@link Depositor}, {@link DepositorContact})
+     */
     private String contactEmail;
 
+    /**
+     * The {@link Depositor}
+     */
     @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "depositor_id")

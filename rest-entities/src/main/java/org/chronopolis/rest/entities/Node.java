@@ -11,6 +11,12 @@ import javax.persistence.OneToMany;
 import java.util.Set;
 
 /**
+ * Representation of a {@link Node} in Chronopolis
+ *
+ * The {@link Node#username} acts as a unique identifier and is used for equality checks
+ *
+ * todo: remove password and link to users
+ *
  * @author shake
  */
 @Data
@@ -19,13 +25,28 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Node extends PersistableEntity {
 
+    /**
+     * The name of the {@link Node}
+     */
     @NaturalId
     @EqualsAndHashCode.Include
     private String username;
 
+    /**
+     * Vestigial column; no longer used as users log in instead of nodes
+     */
     private String password;
+
+    /**
+     * Flag to mark if the {@link Node} should receive {@link Replication}s
+     */
     private Boolean enabled;
 
+    /**
+     * The {@link Replication}s for a given {@link Node}
+     *
+     * todo: this probably isn't needed here
+     */
     @OneToMany(mappedBy = "node")
     private Set<Replication> replications;
 
