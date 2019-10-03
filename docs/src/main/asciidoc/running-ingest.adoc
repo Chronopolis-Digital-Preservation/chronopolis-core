@@ -12,47 +12,39 @@ Optional::
 * Separate ACE IMS for testing
 
 ==== Database Init
-To initialize the database two files need to be sourced: the schema and the indexes. These
-are both located in the `rest-entities` module under `src/main/resources/db/schema/` and are
-`{schema}` and `{indexes}`. There is some small amount of test data available under `{data}` which
-will create a default set of users, nodes, authorities, storage_regions, and a depositor.
 
-After the database tables and indexes have been sourced you will need to use Flyway in order to
-create the schema migration table and set the baseline version:
-. Determine the current version of Flyway from the `pom.xml`
+Database initialization can be done through the flyway-maven-plugin provided that you have a
+PostgresQL database which you can connect to and create/drop tables for. The flyway plugin will
+create load the first version of the schema and baseline the database at 1.0 so that all migrations
+can be applied.
 
-. Download the current Flyway CLI tool from https://flywaydb.org/
-. Configure the `flyway.conf` with your database settings
-.. flyway.url, flyway.user, flyway.password are all standard
-.. flyway.baselineVersion will be equal to the current running version of the application
+To run the flyway plugin, use `flyway:baseline` and provide configuration for the `flyway.user`,
+`flyway.password`, and `flyway.url` configuration parameters.
 
-Example setup:
 ----
-$ psql -h 172.17.0.2 -U postgres -d ingest_blank
-Password for user postgres:
-psql (9.2.24, server 11.3 (Debian 11.3-1.pgdg90+1))
-WARNING: psql version 9.2, server version 11.0.
-         Some psql features might not work.
-Type "help" for help.
-ingest_blank=# \i src/main/resources/db/schema/V0_0_00__schema.sql
-...
-ingest_blank=# \i src/main/resources/db/schema/V0_0_01__indices.sql
-...
-ingest_blank=# \q
-$ cd flyway/flyway-5.2.4
-$ ./flyway baseline
-Flyway Community Edition 5.2.4 by Boxfuse
-Database: jdbc:postgresql://172.17.0.2/ingest_blank (PostgreSQL 11.3)
-WARNING: Flyway upgrade recommended: PostgreSQL 11.3 is newer than this version of Flyway and support has not been tested.
-Creating Schema History table: "public"."flyway_schema_history"
-Successfully baselined schema with version: 3.1
+[chronopolis/inget-rest] $ ../mvnw
+-Dflyway.user=postgres
+-Dflyway.password=mysecretpassword
+-Dflyway.url=jdbc:postgresql://172.17.0.2/ingest
+flyway:baseline
 ----
 
-===== Init Through Maven
+==== Database Cleaning
 
-Stub
+Cleaning the database can be done in a similar manner to the baseline, except using the
+`flyway:clean` task instead of `flyway:baseline`.
 
-==== Database Configuration
+----
+[chronopolis/ingest-rest] $ ../mvnw
+-Dflyway.user=postgres
+-Dflyway.password=dbpass
+-Dflyway.url=jdbc:postgresql://172.17.0.2/ingest_fresh
+flyway:clean
+----
+
+==== Application Configuration
+
+===== Database Connection
 In your `application.yml`, the following fields correspond to your database configuration. The
 `database_ip`, `database_username`, and `database_password` all need to be filled according to what
 was set up above.
@@ -66,7 +58,7 @@ spring.datasource:
   initialize: false
 ----
 
-==== Storage Configuration
+===== Storage Configuration
 The Ingest Server also relies on storage for Bags and ACE Token Stores which are configured in its
 `application.yml` and should point to directories on local disk. In this example there are two
 directories made, `/tmp/chronopolis-ingest/tokens/` and `/tmp/chronopolis-ingest/bags`.
@@ -100,7 +92,7 @@ ingest.tokenizer:
   staging.path: /tmp/chronopolis-ingest/bags
 ----
 
-==== Cron Timers
+===== Cron Timers
 There are various timers which trigger tasks to be run in the Ingest Server. These use a format
 based on `cron`, but is not a one to one mapping. An overview of the format can be found on the
 http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html[Quartz
@@ -121,7 +113,7 @@ Replication Task `ingest.cron.request`:: Creates Replications for Bags which hav
 created and the Token Store written to disk). To set the timer set the `ingest.cron.request`
 property.
 
-==== Spring Properties
+===== Spring Properties
 There is a set of common application properties which we make use of and is provided by the Spring
 Boot project. These can be found under Appendix A of their
 https://spring.io/projects/spring-boot#learn[Reference documentation].
