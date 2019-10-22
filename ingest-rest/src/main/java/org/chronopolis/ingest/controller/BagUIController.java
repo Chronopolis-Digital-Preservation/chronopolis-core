@@ -98,7 +98,7 @@ public class BagUIController extends IngestController {
         model.addAttribute("pages", pages);
         model.addAttribute("statuses", BagStatus.Companion.statusByGroup());
 
-        return "bags/bags";
+        return "collections/collections";
     }
 
     /**
@@ -129,7 +129,7 @@ public class BagUIController extends IngestController {
         activeBagStorage.ifPresent(s -> model.addAttribute("activeBagStorage", s));
         activeTokenStorage.ifPresent(s -> model.addAttribute("activeTokenStorage", s));
 
-        return "bags/bag";
+        return "collections/collection";
     }
 
     /**
@@ -156,7 +156,7 @@ public class BagUIController extends IngestController {
         model.addAttribute("statuses", Arrays.asList(BagStatus.values()));
         model.addAttribute("tokens", tokenCount(id));
 
-        return "bags/bag";
+        return "collections/collection";
     }
 
     /**
@@ -169,7 +169,7 @@ public class BagUIController extends IngestController {
     public String addBag(Model model, Principal principal) {
         model.addAttribute("nodes", dao.findAll(QNode.node));
         model.addAttribute("regions", replicationDao.findAll(QStorageRegion.storageRegion));
-        return "bags/add";
+        return "collections/add";
     }
 
     /**

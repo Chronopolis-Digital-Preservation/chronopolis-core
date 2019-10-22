@@ -197,7 +197,7 @@ public class SiteController extends IngestController {
         // model.addAttribute("depositorSummaries", depositorSummaries);
         model.addAttribute("formatter", new FileSizeFormatter());
 
-        return "bags/index";
+        return "collections/index";
     }
 
     private Long replications(JPAQueryFactory factory, Predicate... predicates) {

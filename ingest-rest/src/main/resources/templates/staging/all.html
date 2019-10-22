@@ -8,7 +8,7 @@
 <div class="d-flex flex-column align-items-center m-3">
     <!--/*@thymesVar id="bag" type="org.chronopolis.rest.entities.Bag"*/-->
     <div class="card w-75 filterable">
-        <nav th:replace="fragments/crumbs/bag :: storage"></nav>
+        <nav th:replace="fragments/crumbs/collection :: storage"></nav>
 
         <!--/*@thymesVar id="storage" type="org.chronopolis.rest.entities.storage.StagingStorage"*/-->
         <div th:each="storage: ${bag.storage}">

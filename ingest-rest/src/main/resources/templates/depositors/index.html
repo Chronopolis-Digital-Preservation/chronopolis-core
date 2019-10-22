@@ -22,13 +22,13 @@
                     <!--/*@thymesVar id="countAvg" type="java.lang.Double"*/-->
                     <h3 style="margin-bottom: 0"
                         th:text="${#numbers.formatDecimal(countAvg, 0, 'DEFAULT', 2, 'DEFAULT')}"></h3>
-                    <span class="subheading">Average Bags Per Depositor</span>
+                    <span class="subheading">Average Collections Per Depositor</span>
                 </div>
 
                 <div class="p-1">
                     <!--/*@thymesVar id="sizeAvg" type="java.math.BigDecimal"*/-->
                     <h3 style="margin-bottom: 0" th:text="${formatter.format(sizeAvg)}"></h3>
-                    <span class="subheading">Average Deposited Bag Size</span>
+                    <span class="subheading">Average Deposited Collection Size</span>
                 </div>
             </div>
         </div>
@@ -37,7 +37,7 @@
             <table class="table" style="width: 45%">
                 <thead class="bg-dark">
                 <tr>
-                    <th class="text-center text-white" colspan="2">Depositors By Bag Count</th>
+                    <th class="text-center text-white" colspan="2">Depositors By Collection Count</th>
                 </tr>
                 </thead>
                 <tbody>

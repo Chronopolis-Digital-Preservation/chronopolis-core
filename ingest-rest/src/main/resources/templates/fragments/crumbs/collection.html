@@ -9,42 +9,42 @@
 
 <nav th:fragment="index" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Bags</li>
+        <li class="breadcrumb-item active">Collections</li>
 
         <li class="ml-auto">
-            <a class="btn btn-primary text-white" th:href="@{/bags/add}">Deposit Bag</a>
+            <a class="btn btn-primary text-white" th:href="@{/bags/add}">Deposit Collection</a>
         </li>
     </ol>
 </nav>
 
 <nav th:fragment="deposit" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Bags</a></li>
-        <li class="breadcrumb-item active">Deposit Bag</li>
+        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Collections</a></li>
+        <li class="breadcrumb-item active">Deposit Collection</li>
     </ol>
 </nav>
 
 <!--/*@thymesVar id="bag" type="org.chronopolis.rest.entities.Bag"*/-->
 <nav th:fragment="single" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Bags</a></li>
+        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Collections</a></li>
         <li class="breadcrumb-item"><a th:href="@{/bags}">All</a></li>
         <li class="breadcrumb-item"><a th:href="@{/bags(depositor=${bag.depositor.namespace})}"
                                        th:text="${bag.depositor.namespace}">Depositor</a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page" th:text="${bag.name}">Bag Name</li>
+        <li class="breadcrumb-item active" aria-current="page" th:text="${bag.name}">Collection Name</li>
     </ol>
 </nav>
 
 <nav th:fragment="storage" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Bags</a></li>
+        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Collections</a></li>
         <li class="breadcrumb-item"><a th:href="@{/bags}">All</a></li>
         <li class="breadcrumb-item"><a th:href="@{/bags(depositor=${bag.depositor.namespace})}"
                                        th:text="${bag.depositor.namespace}">Depositor</a>
         </li>
         <li class="breadcrumb-item"><a th:href="@{|/bags/${bag.id}|}"
-                                       th:text="${bag.name}">Bag</a>
+                                       th:text="${bag.name}">Collection</a>
         </li>
         <li class="breadcrumb-item active" aria-current="page">Storage</li>
     </ol>
@@ -52,7 +52,7 @@
 
 <nav th:fragment="list" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb" style="margin-bottom: 0 !important;">
-        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Bags</a></li>
+        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Collections</a></li>
         <li class="breadcrumb-item active">All</li>
 
         <!-- kind of janky but it works -->
@@ -72,7 +72,7 @@
                        placeholder="Search Depositor"/>
             </div>
             <div class="form-group row">
-                <label for="name-table-filter" class="col-form-label col-2">Bag Name</label>
+                <label for="name-table-filter" class="col-form-label col-2">Collection Name</label>
                 <input class="form-control col-9" id="name-table-filter" name="name"
                        placeholder="Search Name"/>
             </div>
