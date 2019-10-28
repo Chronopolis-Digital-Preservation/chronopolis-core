@@ -1,6 +1,7 @@
 package org.chronopolis.ingest.task;
 
 import com.querydsl.jpa.JPAExpressions;
+
 import org.chronopolis.common.concurrent.TrackingThreadPoolExecutor;
 import org.chronopolis.common.storage.TokenStagingProperties;
 import org.chronopolis.ingest.repository.dao.TokenDao;
@@ -12,6 +13,8 @@ import org.chronopolis.rest.entities.storage.QStagingStorage;
 import org.chronopolis.rest.entities.storage.QStorageRegion;
 import org.chronopolis.rest.entities.storage.StorageRegion;
 import org.chronopolis.rest.models.enums.BagStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,6 +30,7 @@ import java.util.List;
 @Component
 @EnableScheduling
 public class TokenWriteTask {
+    private final Logger log = LoggerFactory.getLogger(TokenWriteTask.class);
 
     private final TokenDao dao;
     private final TokenStagingProperties properties;
@@ -46,7 +50,16 @@ public class TokenWriteTask {
         StorageRegion region = dao.findOne(QStorageRegion.storageRegion,
                 QStorageRegion.storageRegion.id.eq(properties.getPosix().getId()));
 
+        if (region == null) {
+            log.error("Unable to write tokens to staging area! Storage region (id={}) does not exist.",
+                    properties.getPosix().getId());
+            return;
+        }
+
         getBagsWithAllTokens().forEach(bag -> {
+            log.debug("Writing tokens to storage region (id={}) for Bag {} (id={}).",
+                    region.getId(), bag.getName(), bag.getId());
+
             TokenStoreWriter writer = new TokenStoreWriter(bag, region, properties, dao);
             tokenExecutor.submitIfAvailable(writer, bag);
         });
