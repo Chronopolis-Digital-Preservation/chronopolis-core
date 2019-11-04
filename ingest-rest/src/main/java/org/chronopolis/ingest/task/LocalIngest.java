@@ -85,8 +85,10 @@ public class LocalIngest {
      * scanned for on disk and have its manifests read in order to register files. Otherwise, it
      * will have a {@link StagingStorage} created when it has all {@link BagFile}s registered.
      */
-    @Scheduled(cron = "0 0/1 * * * *")
+    @Scheduled(cron = "${ingest.scan.cron: 0 0/1 * * * *}")
     public void scan() {
+        log.debug("LocalIngest scheduled scan is process running.");
+
         IngestProperties.Scan scanProperties = properties.getScan();
         if (!scanProperties.getEnabled()) {
             return;
