@@ -9,6 +9,7 @@
     <div class="card w-75">
         <nav th:replace="fragments/crumbs/repl :: create"></nav>
         <div class="card-body p2">
+            <div align="center" class="error" th:text="${message}"></div>
             <h6>Distribute a Collection to a Chronopolis Node</h6>
             <div style="border: 0.2rem solid #f7f7f9; padding: 1.5rem;">
                 <form method="post" name="replication">
@@ -21,7 +22,7 @@
                                 <!--/*@thymesVar id="id" type="java.lang.Long"*/-->
                                 <!--/*@thymesVar id="depositor" type="org.chronopolis.rest.entities.depositor.Depositor"*/-->
                                 <option th:each="bag: ${bags}"
-                                        th:value="${bag.id}">
+                                        th:value="${bag.id}" th:selected="${bag.id==bagId}">
                                     [[${bag.depositor.namespace}]]/[[${bag.name}]]
                                 </option>
                             </select>
@@ -36,7 +37,8 @@
                         <div class="col-8">
                             <select class="form-control" name="nodeId" id="nodeId">
                                 <option th:each="node: ${nodes}"
-                                        th:value="${node.id}" th:text="${node.username}">
+                                        th:value="${node.id}" th:text="${node.username}"
+                                         th:selected="${node.id==nodeId}">
                                 </option>
                             </select>
                         </div>

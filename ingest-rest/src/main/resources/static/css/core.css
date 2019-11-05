@@ -98,3 +98,7 @@ ul.pagination li {
     text-transform: uppercase;
     color: #828a9f;
 }
+
+.error {
+    color: red;
+}

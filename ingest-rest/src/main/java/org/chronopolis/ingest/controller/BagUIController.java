@@ -328,14 +328,24 @@ public class BagUIController extends IngestController {
      * @return redirect to all replications
      */
     @RequestMapping(value = "/replications/add", method = RequestMethod.POST)
-    public String addReplication(Principal principal,
+    public String addReplication(Model model, Principal principal,
                                  org.chronopolis.rest.models.create.ReplicationCreate request) {
         ReplicationCreateResult result = replicationDao.create(request);
 
-        // todo: display errors if ReplicationRequest is not valid
-        return result.getResult()
-                .map(repl -> "redirect:/replications/" + repl.getId())
-                .orElse("redirect:/replications/create");
+        Optional<Replication> repl = result.getResult();
+        if (repl.isPresent() && result.getErrors().isEmpty()) {
+            return "redirect:/replications/" + repl.get().getId();
+        } else {
+            String errorMessage = String.join("; ", result.getErrors());
+            log.error("Replication create error: {}.", errorMessage);
+
+            model.addAttribute("bagId", request.getBagId());
+            model.addAttribute("nodeId", request.getNodeId());
+            model.addAttribute("bags", dao.findPage(QBag.bag, new BagFilter()));
+            model.addAttribute("nodes", dao.findAll(QNode.node));
+            model.addAttribute("message", "Replication create error: " + errorMessage);
+            return "/replications/add";
+        }
     }
 
     // sup
