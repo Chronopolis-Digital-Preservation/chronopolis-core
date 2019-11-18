@@ -78,7 +78,7 @@
 
 <tr th:fragment="set-inactive" th:if="${rw}">
     <td class="bg-danger text-white text-center w-25" data-toggle="modal" style="cursor: pointer;"
-        th:data-href="@{|${bag.id}/storage/${storage.id}/activate|}"
+        th:data-href="@{|${bag.id}/storage/${storageName}/activate|}"
         th:data-message="|Warning: Proceeding will remove the active storage object|"
         data-target="#rm-modal">
         Set Inactive
