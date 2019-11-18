@@ -104,6 +104,15 @@ public class BagFilter extends Paged {
             case "updatedAt":
                 orderSpecifier = new OrderSpecifier<>(dir, bag.updatedAt);
                 break;
+            case "status":
+                orderSpecifier = new OrderSpecifier<>(dir, bag.status);
+                break;
+            case "depositor":
+                orderSpecifier = new OrderSpecifier<>(dir, bag.depositor.namespace);
+                break;
+            case "name":
+                orderSpecifier = new OrderSpecifier<>(dir, bag.name);
+                break;
             case "size":
                 orderSpecifier = new OrderSpecifier<>(dir, bag.size);
                 break;

@@ -68,12 +68,12 @@
         <form th:action="@{/bags}" method="GET">
             <div class="form-group row">
                 <label for="depositor-table-filter" class="col-form-label col-2">Depositor</label>
-                <input class="form-control col-9" id="depositor-table-filter" name="depositor"
+                <input class="form-control col-9" id="depositor-table-filter" name="depositor" th:value="${param.depositor}"
                        placeholder="Search Depositor"/>
             </div>
             <div class="form-group row">
                 <label for="name-table-filter" class="col-form-label col-2">Collection Name</label>
-                <input class="form-control col-9" id="name-table-filter" name="name"
+                <input class="form-control col-9" id="name-table-filter" name="name" th:value="${param.name}"
                        placeholder="Search Name"/>
             </div>
             <div class="form-group row">
@@ -84,30 +84,27 @@
                     <optgroup th:each="group : ${statuses.keySet()}" th:label="${group}"
                               label="group">
                         <option th:each="status : ${statuses.get(group)}" th:value="${status}"
-                                th:text="${status}"></option>
+                                th:text="${status}"
+                                th:selected="${param.status != null AND #arrays.contains(param.status, status.toString())}"></option>
                     </optgroup>
                 </select>
             </div>
             <div class="form-group row">
                 <label class="col-form-label col-2" for="direction-filter">Order By</label>
                 <div class="form-check col-2 align-self-center">
-                    <label class="form-check-label">
-                        <input class="form-check-input" type="radio" name="orderBy"
-                               id="optionUpdatedAt"
-                               value="updatedAt"/> Updated At
-                    </label>
-                </div>
-                <div class="form-check col-2 align-self-center">
-                    <label class="form-check-label">
-                        <input class="form-check-input" type="radio" name="orderBy"
-                               id="optionCreatedAt"
-                               value="createdAt"/> Created At
-                    </label>
+                    <select name="orderBy" class="form-control">
+                        <option value="updatedAt" th:selected="${param.orderBy != null AND 'updatedAt'==param.orderBy[0]}">Update At</option>
+                        <option value="createdAt" th:selected="${param.orderBy != null AND 'createdAt'==param.orderBy[0]}">Created At</option>
+                        <option value="status" th:selected="${param.orderBy != null AND 'status'==param.orderBy[0]}">Status</option>
+                        <option value="depositor" th:selected="${param.orderBy != null AND 'depositor'==param.orderBy[0]}">Depositor</option>
+                        <option value="name" th:selected="${param.orderBy != null AND 'name'==param.orderBy[0]}">Collection</option>
+                        <option value="size" th:selected="${param.orderBy != null AND 'size'==param.orderBy[0]}">size</option>
+                    </select>
                 </div>
                 <div class="col-3">
                     <select name="dir" id="direction-filter" class="form-control">
-                        <option value="ASC">Ascending</option>
-                        <option value="DESC">Descending</option>
+                        <option value="ASC" th:selected="${param.dir != null AND 'ASC'==param.dir[0]}">Ascending</option>
+                        <option value="DESC" th:selected="${param.dir != null AND 'DESC'==param.dir[0]}">Descending</option>
                     </select>
                 </div>
             </div>
