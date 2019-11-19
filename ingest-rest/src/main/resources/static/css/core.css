@@ -2,6 +2,15 @@
     cursor: pointer;
 }
 
+td.table-clickable:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+td.table-clickable {
+   color: #007bff;
+}
+
 ul.pagination {
     display: block;
     text-align: center;

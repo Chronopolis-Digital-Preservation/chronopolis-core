@@ -76,6 +76,14 @@
     <td th:text="${content}" class="bg-light"></td>
 </tr>
 
+<tr th:fragment="list-link-item (head, content, href)">
+    <td th:text="${head}" scope="row"
+        class="text-white text-center bg-secondary w-25"></td>
+    <td class="table-clickable">
+        <a th:href="@{|/bags/${replication.bag.id}|}" th:text="${content}"></a>
+    </td>
+</tr>
+
 <tr th:fragment="set-inactive" th:if="${rw}">
     <td class="bg-danger text-white text-center w-25" data-toggle="modal" style="cursor: pointer;"
         th:data-href="@{|${bag.id}/storage/${storageName}/activate|}"
