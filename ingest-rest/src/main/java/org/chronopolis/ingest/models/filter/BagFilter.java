@@ -6,10 +6,12 @@ import com.google.common.collect.Multimaps;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+
 import org.chronopolis.ingest.models.Paged;
 import org.chronopolis.rest.entities.QBag;
 import org.chronopolis.rest.models.enums.BagStatus;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -26,6 +28,7 @@ public class BagFilter extends Paged {
     private String creator;
     private String depositor;
     private List<BagStatus> status;
+    private ZonedDateTime updatedBefore;
 
     private final LinkedListMultimap<String, String> parameters = LinkedListMultimap.create();
 
@@ -85,6 +88,27 @@ public class BagFilter extends Paged {
     public Multimap<String, String> getParameters() {
         parameters.putAll(super.getParameters());
         return Multimaps.filterValues(parameters, (value) -> (value != null && !value.isEmpty()));
+    }
+
+    /**
+     * Get updateBefore
+     * @return ZonedDateTime
+     */
+    public ZonedDateTime getUpdateBefore() {
+        return updatedBefore;
+    }
+
+    /**
+     * Set filter query for update before searching
+     * @param updatedBefore
+     * @return BagFilter
+     */
+    public BagFilter setUpdateBefore(ZonedDateTime updatedBefore) {
+        if (updatedBefore != null) {
+            this.updatedBefore = updatedBefore;
+            builder.and(bag.updatedAt.before(updatedBefore));
+        }
+        return this;
     }
 
     @Override

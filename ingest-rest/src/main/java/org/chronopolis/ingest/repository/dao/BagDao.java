@@ -2,12 +2,16 @@ package org.chronopolis.ingest.repository.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.EntityPath;
 import com.querydsl.jpa.impl.JPAQuery;
+
+import org.chronopolis.ingest.models.Paged;
 import org.chronopolis.ingest.models.filter.BagFilter;
 import org.chronopolis.ingest.support.BagCreateResult;
 import org.chronopolis.rest.entities.Bag;
 import org.chronopolis.rest.entities.BagDistributionStatus;
 import org.chronopolis.rest.entities.Node;
+import org.chronopolis.rest.entities.PersistableEntity;
 import org.chronopolis.rest.entities.QBag;
 import org.chronopolis.rest.entities.QBagDistribution;
 import org.chronopolis.rest.entities.QDataFile;
@@ -25,6 +29,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -206,4 +216,19 @@ public class BagDao extends PagedDao {
         return transform.get(id);
     }
 
+    /**
+     * Retrieve a {@link Page} of {@link Bag}
+     *
+     * @param filter the {@link BagFilter} containing the query parameters
+     * @return the result of the database query
+     */
+    public Page<Bag> findStuckBags(QBag path, Paged filter) {
+        ZonedDateTime beforeDateTime = ZonedDateTime.now().minusWeeks(1);
+
+        BagFilter bagFilter = (BagFilter)filter;
+        bagFilter.setUpdateBefore(beforeDateTime);
+        bagFilter.setStatus(new ArrayList<BagStatus>(BagStatus.Companion.processingStates()));
+
+        return findPage(path, (Paged)bagFilter);
+    }
 }

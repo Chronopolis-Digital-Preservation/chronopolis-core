@@ -224,6 +224,25 @@ public class BagUIController extends IngestController {
                 .body(stream);
     }
 
+    /**
+     * Get the stuck collections
+     *
+     * @return the collections page
+     */
+    @GetMapping("/bags/stuck")
+    public String getStuckBags(Model model, @ModelAttribute(value = "filter") BagFilter filter) {
+        Page<Bag> stuckBags = dao.findStuckBags(QBag.bag, filter);
+
+        PageWrapper<Bag> pages = new PageWrapper<>(stuckBags, "/bags/stuck", filter.getParameters());
+
+        model.addAttribute("stuck", true);
+        model.addAttribute("bags", stuckBags);
+        model.addAttribute("pages", pages);
+        model.addAttribute("statuses", BagStatus.Companion.statusByGroup());
+
+        return "collections/collections";
+    }
+
     //
     // Replication stuff
     //

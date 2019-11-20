@@ -28,6 +28,7 @@
 <nav th:fragment="single" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Collections</a></li>
+        <li class="breadcrumb-item" th:if="${stuck}"><a th:href="@{/bags/stuck}">Stuck</a></li>
         <li class="breadcrumb-item"><a th:href="@{/bags}">All</a></li>
         <li class="breadcrumb-item"><a th:href="@{/bags(depositor=${bag.depositor.namespace})}"
                                        th:text="${bag.depositor.namespace}">Depositor</a>
@@ -39,6 +40,7 @@
 <nav th:fragment="storage" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Collections</a></li>
+        <li class="breadcrumb-item" th:if="${stuck}"><a th:href="@{/bags/stuck}">Stuck</a></li>
         <li class="breadcrumb-item"><a th:href="@{/bags}">All</a></li>
         <li class="breadcrumb-item"><a th:href="@{/bags(depositor=${bag.depositor.namespace})}"
                                        th:text="${bag.depositor.namespace}">Depositor</a>
@@ -53,6 +55,7 @@
 <nav th:fragment="list" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb" style="margin-bottom: 0 !important;">
         <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Collections</a></li>
+        <li class="breadcrumb-item" th:if="${stuck}"><a th:href="@{/bags/stuck}">Stuck</a></li>
         <li class="breadcrumb-item active">All</li>
 
         <!-- kind of janky but it works -->
