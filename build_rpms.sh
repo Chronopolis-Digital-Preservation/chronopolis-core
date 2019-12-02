@@ -37,15 +37,11 @@ release_type=`echo ${full_version} | sed 's/.*-//'`
 ingest_jarfile=ingest-rest/target/ingest-rest-${version}-${release_type}.jar
 replication_jarfile=replication-shell/target/replication-shell-${version}-${release_type}.jar
 
-./mvnw -q -Dmaven.test.redirectTestOutputToFile=true -Dspring.profiles.active=gitlab -pl ingest-rest clean package # > /dev/null
+# todo: see if we need to pass the profile
+echo "cli opts ${MAVEN_CLI_OPTS}"
+./mvnw ${MAVEN_CLI_OPTS} clean package
 if [ $? -ne 0 ]; then
-  echo "Error building ingest-server"
-  exit 99
-fi
-
-./mvnw -q -Dmaven.test.redirectTestOutputToFile=true -Dspring.profiles.active=gitlab -pl replication-shell clean package # > /dev/null
-if [ $? -ne 0 ]; then
-  echo "Error building replication-shell"
+  echo "Error building"
   exit 99
 fi
 
