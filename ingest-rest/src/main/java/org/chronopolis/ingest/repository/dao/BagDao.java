@@ -222,13 +222,12 @@ public class BagDao extends PagedDao {
      * @param filter the {@link BagFilter} containing the query parameters
      * @return the result of the database query
      */
-    public Page<Bag> findStuckBags(QBag path, Paged filter) {
+    public Page<Bag> findStuckBags(QBag path, BagFilter filter) {
         ZonedDateTime beforeDateTime = ZonedDateTime.now().minusWeeks(1);
 
-        BagFilter bagFilter = (BagFilter)filter;
-        bagFilter.setUpdateBefore(beforeDateTime);
-        bagFilter.setStatus(new ArrayList<BagStatus>(BagStatus.Companion.processingStates()));
+        filter.setUpdateBefore(beforeDateTime);
+        filter.setStatus(new ArrayList<>(BagStatus.Companion.processingStates()));
 
-        return findPage(path, (Paged)bagFilter);
+        return findPage(path, filter);
     }
 }
