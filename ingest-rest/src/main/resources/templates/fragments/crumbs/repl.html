@@ -20,7 +20,7 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a th:href="@{/replications}">Replications</a></li>
         <li class="breadcrumb-item"><a th:href="@{/replications(bag=${replication.bag.name})}"
-                                       th:text="${replication.bag.name}">Bag</a>
+                                       th:text="${replication.bag.name}">Collection</a>
         </li>
         <li class="breadcrumb-item active" aria-current="page" th:text="${replication.id}">
             Replication Id
@@ -43,9 +43,9 @@
     <div class="collapse p-2" id="filter-body">
         <form class="form-horizontal" role="form" method="GET" th:action="@{/replications}">
             <div class="form-group row">
-                <label for="bag-table-filter" class="col-form-label col-2">Bag</label>
+                <label for="bag-table-filter" class="col-form-label col-2">Collection</label>
                 <input type="text" class="form-control col-9" id="bag-table-filter" name="bag"
-                       placeholder="Search Bag"/>
+                       placeholder="Search Collection"/>
             </div>
             <div class="form-group row">
                 <label for="node-table-filter" class="col-form-label col-2">Node</label>

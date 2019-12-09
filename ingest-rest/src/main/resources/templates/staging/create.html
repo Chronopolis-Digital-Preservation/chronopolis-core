@@ -11,18 +11,18 @@
         <!--/*@thymesVar id="bag" type="org.chronopolis.rest.entities.Bag"*/-->
         <th:block th:if="${bag} == null">
             <p class="card-body p-2">
-                No bag with supplied id exists
+                No collection with supplied id exists
             </p>
         </th:block>
 
         <th:block th:if="${bag} != null">
-            <nav th:replace="fragments/crumbs/bag :: storage"></nav>
+            <nav th:replace="fragments/crumbs/collection :: storage"></nav>
             <div class="card-body p-2">
-                <h4>New Bag Staging</h4>
+                <h4>New Collection Staging</h4>
                 <div style="border: 0.2rem solid #f7f7f9; padding: 1.5rem;">
                     <!--/*@thymesVar id="conflict" type="java.lang.Boolean"*/-->
                     <th:block th:if="${conflict}">
-                        <h5>Active Storage already exists for Bag</h5>
+                        <h5>Active Storage already exists for Collection</h5>
                     </th:block>
 
                     <th:block th:if="!${conflict}">
@@ -98,7 +98,7 @@
                             </div>
 
                             <input class="btn btn-primary" type="submit"
-                                   value="Create Staging For Bag"/>
+                                   value="Create Staging For Collection"/>
                         </form>
                     </th:block>
                 </div>

@@ -6,10 +6,12 @@ import com.google.common.collect.Multimaps;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+
 import org.chronopolis.ingest.models.Paged;
 import org.chronopolis.rest.entities.QBag;
 import org.chronopolis.rest.models.enums.BagStatus;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -26,6 +28,7 @@ public class BagFilter extends Paged {
     private String creator;
     private String depositor;
     private List<BagStatus> status;
+    private ZonedDateTime updatedBefore;
 
     private final LinkedListMultimap<String, String> parameters = LinkedListMultimap.create();
 
@@ -87,6 +90,27 @@ public class BagFilter extends Paged {
         return Multimaps.filterValues(parameters, (value) -> (value != null && !value.isEmpty()));
     }
 
+    /**
+     * Get updateBefore
+     * @return ZonedDateTime
+     */
+    public ZonedDateTime getUpdateBefore() {
+        return updatedBefore;
+    }
+
+    /**
+     * Set filter query for update before searching
+     * @param updatedBefore
+     * @return BagFilter
+     */
+    public BagFilter setUpdateBefore(ZonedDateTime updatedBefore) {
+        if (updatedBefore != null) {
+            this.updatedBefore = updatedBefore;
+            builder.and(bag.updatedAt.before(updatedBefore));
+        }
+        return this;
+    }
+
     @Override
     public BooleanBuilder getQuery() {
         return builder;
@@ -103,6 +127,15 @@ public class BagFilter extends Paged {
                 break;
             case "updatedAt":
                 orderSpecifier = new OrderSpecifier<>(dir, bag.updatedAt);
+                break;
+            case "status":
+                orderSpecifier = new OrderSpecifier<>(dir, bag.status);
+                break;
+            case "depositor":
+                orderSpecifier = new OrderSpecifier<>(dir, bag.depositor.namespace);
+                break;
+            case "name":
+                orderSpecifier = new OrderSpecifier<>(dir, bag.name);
                 break;
             case "size":
                 orderSpecifier = new OrderSpecifier<>(dir, bag.size);

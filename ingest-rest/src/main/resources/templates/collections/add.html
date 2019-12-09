@@ -7,13 +7,13 @@
 <nav th:replace="layout :: navbar"></nav>
 <div class="d-flex flex-column align-items-center m-3">
     <div class="card w-75">
-        <nav th:replace="fragments/crumbs/bag :: deposit"></nav>
+        <nav th:replace="fragments/crumbs/collection :: deposit"></nav>
         <div class="card-body p-2">
-            <h6>Deposit a Bag into Chronopolis</h6>
+            <h6>Deposit a Collection into Chronopolis</h6>
             <div style="border: 0.2rem solid #f7f7f9; padding: 1.5rem">
                 <form method="post" name="ingest">
                     <div class="form-group row">
-                        <label for="bag-name" class="col-4 col-form-label">Bag Name</label>
+                        <label for="bag-name" class="col-4 col-form-label">Collection Name</label>
                         <div class="col-8">
                             <input class="form-control" type="text" name="name"
                                    placeholder="bag-name" id="bag-name"/>
@@ -77,7 +77,7 @@
                         </div>
                     </div>
 
-                    <input class="btn btn-primary" type="submit" value="Deposit Bag"/>
+                    <input class="btn btn-primary" type="submit" value="Deposit Collection"/>
                     <!-- onclick="submit()"/> -->
                 </form>
             </div>

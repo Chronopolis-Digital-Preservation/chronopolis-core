@@ -28,46 +28,62 @@
         <module>rest-common</module>
         <module>tokenizer</module>
         <module>tokenizer-mq</module>
+        <module>ingest-rest</module>
+        <module>replication-shell</module>
     </modules>
 
     <profiles>
         <profile>
-            <!-- Core services -->
-            <id>jenkins-main</id>
-            <modules>
-                <module>ingest-rest</module>
-                <module>replication-shell</module>
-            </modules>
-        </profile>
-        <profile>
             <!-- All Modules -->
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
+            <id>docs</id>
             <modules>
-                <module>ingest-rest</module>
-                <module>replication-shell</module>
+                <module>docs</module>
             </modules>
         </profile>
     </profiles>
 
     <distributionManagement>
         <repository>
-            <id>adapt-releases</id>
-            <name>ADAPT Internal Releases</name>
-            <url>https://scm.umiacs.umd.edu/adapt/repository/maven-releases/</url>
+            <id>ucsd.artifactory</id>
+            <name>lib-artifacts-releases</name>
+            <url>https://lib-artifacts.ucsd.edu/artifactory/maven-release-local</url>
         </repository>
-        <snapshotRepository>
-            <id>adapt-snapshots</id>
-            <name>ADAPT Snapshots</name>
-            <url>https://scm.umiacs.umd.edu/adapt/repository/maven-snapshots/</url>
-        </snapshotRepository>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>ucsd.artifactory</id>
+            <name>lib-artifacts.releases</name>
+            <url>https://lib-artifacts.ucsd.edu/artifactory/maven-release-local</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-snapshots</id>
+            <url>http://repo.spring.io/snapshot</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <url>http://repo.spring.io/milestone</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <scm>
-        <connection>scm:git:git@gitlab.umiacs.umd.edu:chronopolis/chronopolis-core.git</connection>
+        <connection>scm:git:git@gitlab.com:chronopolis/chronopolis-core.git</connection>
     </scm>
+
+    <properties>
+        <ace.version>1.14.1-RELEASE</ace.version>
+        <artemis.version>2.6.0</artemis.version>
+        <kotlin.version>1.3.41</kotlin.version>
+        <jackson.version>2.9.6</jackson.version>
+        <project.license>BSD 3</project.license>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <build>
         <pluginManagement>
@@ -103,47 +119,6 @@
             </plugins>
         </pluginManagement>
     </build>
-
-    <properties>
-        <ace.version>1.14.1-RELEASE</ace.version>
-        <artemis.version>2.6.0</artemis.version>
-        <kotlin.version>1.3.41</kotlin.version>
-        <jackson.version>2.9.6</jackson.version>
-        <project.license>BSD 3</project.license>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-    <repositories>
-        <repository>
-            <url>https://scm.umiacs.umd.edu/adapt/repository/maven-releases/</url>
-            <id>adapt-sonatype</id>
-            <name>ADAPT Project Repository</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <url>https://scm.umiacs.umd.edu/adapt/repository/maven-public/</url>
-            <id>adapt-sonatype-public</id>
-            <name>ADAPT Project Public Repository</name>
-        </repository>
-        <repository>
-            <url>https://scm.umiacs.umd.edu/adapt/repository/maven-snapshots/</url>
-            <id>adapt-snapshots</id>
-            <name>ADAPT Snapshot Repository</name>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>spring-snapshots</id>
-            <url>http://repo.spring.io/snapshot</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>spring-milestones</id>
-            <url>http://repo.spring.io/milestone</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencyManagement>
         <dependencies>

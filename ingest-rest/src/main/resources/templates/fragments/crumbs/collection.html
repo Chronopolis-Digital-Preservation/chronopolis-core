@@ -9,42 +9,44 @@
 
 <nav th:fragment="index" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Bags</li>
+        <li class="breadcrumb-item active">Collections</li>
 
         <li class="ml-auto">
-            <a class="btn btn-primary text-white" th:href="@{/bags/add}">Deposit Bag</a>
+            <a class="btn btn-primary text-white" th:href="@{/bags/add}">Deposit Collection</a>
         </li>
     </ol>
 </nav>
 
 <nav th:fragment="deposit" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Bags</a></li>
-        <li class="breadcrumb-item active">Deposit Bag</li>
+        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Collections</a></li>
+        <li class="breadcrumb-item active">Deposit Collection</li>
     </ol>
 </nav>
 
 <!--/*@thymesVar id="bag" type="org.chronopolis.rest.entities.Bag"*/-->
 <nav th:fragment="single" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Bags</a></li>
+        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Collections</a></li>
+        <li class="breadcrumb-item" th:if="${stuck}"><a th:href="@{/bags/stuck}">Stuck</a></li>
         <li class="breadcrumb-item"><a th:href="@{/bags}">All</a></li>
         <li class="breadcrumb-item"><a th:href="@{/bags(depositor=${bag.depositor.namespace})}"
                                        th:text="${bag.depositor.namespace}">Depositor</a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page" th:text="${bag.name}">Bag Name</li>
+        <li class="breadcrumb-item active" aria-current="page" th:text="${bag.name}">Collection Name</li>
     </ol>
 </nav>
 
 <nav th:fragment="storage" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Bags</a></li>
+        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Collections</a></li>
+        <li class="breadcrumb-item" th:if="${stuck}"><a th:href="@{/bags/stuck}">Stuck</a></li>
         <li class="breadcrumb-item"><a th:href="@{/bags}">All</a></li>
         <li class="breadcrumb-item"><a th:href="@{/bags(depositor=${bag.depositor.namespace})}"
                                        th:text="${bag.depositor.namespace}">Depositor</a>
         </li>
         <li class="breadcrumb-item"><a th:href="@{|/bags/${bag.id}|}"
-                                       th:text="${bag.name}">Bag</a>
+                                       th:text="${bag.name}">Collection</a>
         </li>
         <li class="breadcrumb-item active" aria-current="page">Storage</li>
     </ol>
@@ -52,7 +54,8 @@
 
 <nav th:fragment="list" aria-label="breadcrumb" role="navigation">
     <ol class="breadcrumb" style="margin-bottom: 0 !important;">
-        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Bags</a></li>
+        <li class="breadcrumb-item"><a th:href="@{/bags/overview}">Collections</a></li>
+        <li class="breadcrumb-item" th:if="${stuck}"><a th:href="@{/bags/stuck}">Stuck</a></li>
         <li class="breadcrumb-item active">All</li>
 
         <!-- kind of janky but it works -->
@@ -68,12 +71,12 @@
         <form th:action="@{/bags}" method="GET">
             <div class="form-group row">
                 <label for="depositor-table-filter" class="col-form-label col-2">Depositor</label>
-                <input class="form-control col-9" id="depositor-table-filter" name="depositor"
+                <input class="form-control col-9" id="depositor-table-filter" name="depositor" th:value="${param.depositor}"
                        placeholder="Search Depositor"/>
             </div>
             <div class="form-group row">
-                <label for="name-table-filter" class="col-form-label col-2">Bag Name</label>
-                <input class="form-control col-9" id="name-table-filter" name="name"
+                <label for="name-table-filter" class="col-form-label col-2">Collection Name</label>
+                <input class="form-control col-9" id="name-table-filter" name="name" th:value="${param.name}"
                        placeholder="Search Name"/>
             </div>
             <div class="form-group row">
@@ -84,30 +87,27 @@
                     <optgroup th:each="group : ${statuses.keySet()}" th:label="${group}"
                               label="group">
                         <option th:each="status : ${statuses.get(group)}" th:value="${status}"
-                                th:text="${status}"></option>
+                                th:text="${status}"
+                                th:selected="${param.status != null AND #arrays.contains(param.status, status.toString())}"></option>
                     </optgroup>
                 </select>
             </div>
             <div class="form-group row">
                 <label class="col-form-label col-2" for="direction-filter">Order By</label>
                 <div class="form-check col-2 align-self-center">
-                    <label class="form-check-label">
-                        <input class="form-check-input" type="radio" name="orderBy"
-                               id="optionUpdatedAt"
-                               value="updatedAt"/> Updated At
-                    </label>
-                </div>
-                <div class="form-check col-2 align-self-center">
-                    <label class="form-check-label">
-                        <input class="form-check-input" type="radio" name="orderBy"
-                               id="optionCreatedAt"
-                               value="createdAt"/> Created At
-                    </label>
+                    <select name="orderBy" class="form-control">
+                        <option value="updatedAt" th:selected="${param.orderBy != null AND 'updatedAt'==param.orderBy[0]}">Update At</option>
+                        <option value="createdAt" th:selected="${param.orderBy != null AND 'createdAt'==param.orderBy[0]}">Created At</option>
+                        <option value="status" th:selected="${param.orderBy != null AND 'status'==param.orderBy[0]}">Status</option>
+                        <option value="depositor" th:selected="${param.orderBy != null AND 'depositor'==param.orderBy[0]}">Depositor</option>
+                        <option value="name" th:selected="${param.orderBy != null AND 'name'==param.orderBy[0]}">Collection</option>
+                        <option value="size" th:selected="${param.orderBy != null AND 'size'==param.orderBy[0]}">size</option>
+                    </select>
                 </div>
                 <div class="col-3">
                     <select name="dir" id="direction-filter" class="form-control">
-                        <option value="ASC">Ascending</option>
-                        <option value="DESC">Descending</option>
+                        <option value="ASC" th:selected="${param.dir != null AND 'ASC'==param.dir[0]}">Ascending</option>
+                        <option value="DESC" th:selected="${param.dir != null AND 'DESC'==param.dir[0]}">Descending</option>
                     </select>
                 </div>
             </div>

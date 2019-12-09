@@ -25,27 +25,24 @@ fi
 
 # Get the version of the build and trim off the -SNAPSHOT
 echo "Getting version from maven..."
-full_version=`./mvnw -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec`
+full_version=$(./mvnw -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
 if [ $? -ne 0 ]; then
     echo "Error getting version from maven exec plugin"
     exit -1
 fi
 
-version=`echo ${full_version} | sed 's/-.*//'`
-release_type=`echo ${full_version} | sed 's/.*-//'`
+version=$(echo ${full_version} | sed 's/-.*//')
+release_type=$(echo ${full_version} | sed 's/.*-//')
 
 ingest_jarfile=ingest-rest/target/ingest-rest-${version}-${release_type}.jar
 replication_jarfile=replication-shell/target/replication-shell-${version}-${release_type}.jar
 
-./mvnw -q -Dmaven.test.redirectTestOutputToFile=true -Dspring.profiles.active=gitlab -pl ingest-rest clean package # > /dev/null
-if [ $? -ne 0 ]; then
-  echo "Error building ingest-server"
-  exit 99
-fi
+echo "ingest jarfile: ${ingest_jarfile}"
+echo "replication jarfile: ${replication_jarfile}"
 
-./mvnw -q -Dmaven.test.redirectTestOutputToFile=true -Dspring.profiles.active=gitlab -pl replication-shell clean package # > /dev/null
+./mvnw ${MAVEN_CLI_OPTS} clean package
 if [ $? -ne 0 ]; then
-  echo "Error building replication-shell"
+  echo "Error building"
   exit 99
 fi
 

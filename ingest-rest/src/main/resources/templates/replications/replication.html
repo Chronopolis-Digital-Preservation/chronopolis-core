@@ -11,7 +11,9 @@
         <nav th:replace="fragments/crumbs/repl :: single"></nav>
         <div class="card-body p-2">
             <table class="table table-hover">
-                <div th:replace="fragments/storage :: list-item(head='Bag DL Link', content=${replication.bagLink})"></div>
+                <div th:replace="fragments/storage :: list-item(head='Node', content=${replication.node.username})"></div>
+                <div th:replace="fragments/storage :: list-link-item(head='Collection', content=${replication.bag.name}, href=@{|/bags/${replication.bag.id}|})"></div>
+                <div th:replace="fragments/storage :: list-item(head='Collection DL Link', content=${replication.bagLink})"></div>
                 <div th:replace="fragments/storage :: list-item(head='Tagmanifest Fixity', content=${replication.receivedTagFixity})"></div>
                 <div th:replace="fragments/storage :: list-item(head='Token DL Link', content=${replication.tokenLink})"></div>
                 <div th:replace="fragments/storage :: list-item(head='Token Fixity', content=${replication.receivedTokenFixity})"></div>

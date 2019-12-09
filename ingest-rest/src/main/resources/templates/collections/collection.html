@@ -7,7 +7,7 @@
 <nav th:replace="layout :: navbar"></nav>
 <div class="d-flex flex-column align-items-center m-3">
     <div class="card w-75" th:fragment="info">
-        <nav th:replace="fragments/crumbs/bag :: single"></nav>
+        <nav th:replace="fragments/crumbs/collection :: single"></nav>
 
         <!--/*@thymesVar id="tokens" type="Long"*/-->
         <!--/*@thymesVar id="bag" type="org.chronopolis.rest.entities.Bag"*/-->
@@ -42,7 +42,7 @@
             <!--/*@thymesVar id="activeTokenStorage" type="org.chronopolis.rest.entities.storage.StagingStorage"*/-->
             <!-- add pill for link to all? -->
             <div class="card-body p-2">
-                <div class="hr-sect mx-auto">Bag Staging</div>
+                <div class="hr-sect mx-auto">Collection Staging</div>
                 <th:block th:if="${activeBagStorage} != null">
                     <div th:replace="fragments/storage :: card-display (storage=${activeBagStorage}, storageName='bag', rw=true)"></div>
                 </th:block>
@@ -50,7 +50,7 @@
                     <div class="btn-group p-2" role="group">
                         <a class="btn btn-outline-primary"
                            th:href="@{|${bag.id}/storage/add|}">
-                            Add Bag Staging
+                            Add Collection Staging
                         </a>
                     </div>
                 </th:block>

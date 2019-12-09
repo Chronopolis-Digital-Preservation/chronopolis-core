@@ -207,6 +207,12 @@ public class DepositorUIController extends IngestController {
                                 DepositorUpdate depositorEdit) {
         Depositor existing = getOrThrowNotFound(namespace);
 
+        DepositorUpdate depositorUpdate = depositorEdit;
+        if (depositorUpdate.getSourceOrganization() == null || depositorUpdate.getSourceOrganization().length() == 0) {
+            List<String> nodes = existing.getNodeDistributions().stream().map(n -> n.getUsername()).collect(Collectors.toList());
+            depositorUpdate = depositorEdit.copy(existing.getSourceOrganization(), existing.getOrganizationAddress(), nodes);
+        }
+
         BooleanExpression availableNodes = QNode.node.notIn(
                 JPAExpressions.select(QNode.node)
                     .from(QDepositor.depositor)
@@ -215,7 +221,7 @@ public class DepositorUIController extends IngestController {
 
         model.addAttribute("nodes", dao.findAll(QNode.node, availableNodes));
         model.addAttribute("depositor", existing);
-        model.addAttribute("depositorEdit", depositorEdit);
+        model.addAttribute("depositorEdit", depositorUpdate);
         return "depositors/edit";
     }
 
