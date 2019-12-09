@@ -25,6 +25,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.thymeleaf.util.StringUtils;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -64,20 +65,28 @@ public class StagingUIController {
      * @param storageId the id of the stagingStorage
      * @return a redirect to the "/bags/:id" template
      */
-    @GetMapping("/bags/{id}/storage/{storageId}/activate")
+    @GetMapping("/bags/{id}/storage/{storageName}/activate")
     public String updateBagStorage(Principal principal,
                                    @PathVariable("id") Long id,
-                                   @PathVariable("storageId") Long storageId)
+                                   @PathVariable("storageName") String storageName)
             throws ForbiddenException {
-        Optional<StagingStorage> opt = dao.activeStorageForBag(id, StagingDao.DISCRIMINATOR_BAG);
+
+        Optional<StagingStorage> opt = Optional.empty();
+
+        if (StagingDao.DISCRIMINATOR_BAG.contains(storageName.toUpperCase())) {
+            opt = dao.activeStorageForBag(id, StagingDao.DISCRIMINATOR_BAG);
+        } else if (StagingDao.DISCRIMINATOR_TOKEN.contains(storageName.toUpperCase())) {
+            opt = dao.activeStorageForBag(id, StagingDao.DISCRIMINATOR_TOKEN);
+        }
+
         StagingStorage staging = opt.orElseThrow(() ->
-                new NotFoundException("How about you request the proper resource"));
+                new NotFoundException(StringUtils.capitalize(storageName ) + " storage for collection (id=" + id + ") doesn't exists."));
 
         StorageRegion region = staging.getRegion();
         String owner = region.getNode().getUsername();
 
         if (!hasRoleAdmin() && !owner.equalsIgnoreCase(principal.getName())) {
-            throw new ForbiddenException("You shall not pass");
+            throw new ForbiddenException("You don't have permission to deactive the staging storage for bag (id=" + id + ").");
         }
 
         staging.setActive(!staging.isActive());

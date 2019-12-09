@@ -13,7 +13,7 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Bag</th> <!-- Name instead? -->
+                <th>Collection</th> <!-- Name instead? -->
                 <th>Replicating Node</th>
                 <th>Status</th>
                 <th>Created At</th>
@@ -23,10 +23,9 @@
             <tbody>
             <!--@thymesVar id="replications" type="Set<Bag>"-->
             <!--@thymesVar id="replication" type="org.chronopolis.rest.entities.Replication"-->
-            <tr th:each="replication: ${replications}" th:attr="data-href=@{|/replications/${replication.id}|}"
-                class="table-clickable">
-                <td th:text="${replication.id}"></td>
-                <td th:text="${replication.bag.name}"></td>
+            <tr th:each="replication: ${replications}">
+                <td th:text="${replication.id}" th:attr="data-href=@{|/replications/${replication.id}|}" class="table-clickable"></td>
+                <td th:text="${replication.bag.name}" th:attr="data-href=@{|/bags/${replication.bag.id}|}" class="table-clickable"></td>
                 <td th:text="${replication.node.username}"></td>
                 <td th:text="${replication.status}"></td>
                 <td th:if="${replication.createdAt} != null" th:text="${replication.createdAt.toLocalDate()}"></td>

@@ -17,7 +17,7 @@
                       style="font-size: 12px; vertical-align: middle">0 B
                 </span>
             </h3>
-            <span class="subheading">preserved bags</span>
+            <span class="subheading">preserved collections</span>
         </div>
         <div>
             <!--/*@thymesVar id="replicating" type="org.chronopolis.ingest.models.BagSummary"*/-->
@@ -27,7 +27,7 @@
                       class="badge badge-info"
                       style="font-size: 12px; vertical-align: middle">55 GB
                 </span></h3>
-            <span class="subheading">replicating bags</span>
+            <span class="subheading">replicating collections</span>
         </div>
         <div>
             <!--/*@thymesVar id="activeReplications" type="java.lang.Long"*/-->
@@ -47,7 +47,7 @@
                 [[${twoWeekReplications}]]
                 <small class="badge badge-danger" style="font-size: 12px; vertical-align: middle">&ge; 2 weeks</small>
             </h3>
-            <span class="subheading">stuck replications</span>
+            <a class="subheading table-clickable" th:href="@{/bags/stuck}">stuck replications</a>
         </div>
     </div>
 </div>
