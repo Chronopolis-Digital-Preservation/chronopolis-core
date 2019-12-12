@@ -129,6 +129,20 @@ public class BagUIController extends IngestController {
     }
 
     /**
+     * Retrieve the page for updating bags
+     *
+     * @param model the view model
+     * @return page to add a bag
+     */
+    @RequestMapping(value = "/bags/{id}/edit", method = RequestMethod.GET)
+    public String editBag(Model model, Principal principal, @PathVariable("id") Long id) {
+        Bag bag = dao.findOne(QBag.bag, QBag.bag.id.eq(id));
+        model.addAttribute("statuses", BagStatus.values());
+        model.addAttribute("bag", bag);
+        return "collections/edit";
+    }
+
+    /**
      * Handler for updating a bag
      * <p>
      * todo: constraint on updating the bag as a non-admin
@@ -139,20 +153,24 @@ public class BagUIController extends IngestController {
      * @param update the updated information
      * @return page showing the individual bag
      */
-    @PostMapping("/bags/{id}")
+    @PostMapping("/bags/{id}/edit")
     public String updateBag(Model model,
                             Principal principal,
                             @PathVariable("id") Long id,
                             BagUpdate update) {
         Bag bag = dao.findOne(QBag.bag, QBag.bag.id.eq(id));
         bag.setStatus(update.getStatus());
-        dao.save(bag);
 
-        model.addAttribute("bags", bag);
-        model.addAttribute("statuses", Arrays.asList(BagStatus.values()));
-        model.addAttribute("tokens", tokenCount(id));
+        try {
+            dao.save(bag);
+            return "redirect:/bags/" + id;
+        } catch (Exception ex) {
+            model.addAttribute("message", ex.getMessage());
+            model.addAttribute("statuses", BagStatus.values());
+            model.addAttribute("bag", bag);
 
-        return "collections/collection";
+            return "collections/edit";
+        }
     }
 
     /**

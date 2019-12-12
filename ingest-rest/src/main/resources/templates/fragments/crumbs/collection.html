@@ -34,6 +34,12 @@
                                        th:text="${bag.depositor.namespace}">Depositor</a>
         </li>
         <li class="breadcrumb-item active" aria-current="page" th:text="${bag.name}">Collection Name</li>
+
+        <li sec:authorize="${hasRole('ROLE_ADMIN')}" class="ml-auto">
+            <a th:href="@{|/bags/${bag.id}/edit|}">
+                <i class="fa fa-pencil"></i>
+            </a>
+        </li>
     </ol>
 </nav>
 

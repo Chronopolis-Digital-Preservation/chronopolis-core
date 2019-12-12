@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head">
+    <title>Chronopolis Ingestion Service</title>
+</head>
+<body>
+<nav th:replace="layout :: navbar"></nav>
+<div class="d-flex flex-column align-items-center m-3">
+    <div class="w-50">
+    <h4>Update Collection Status</h4>
+    <div style="border: 0.2rem solid #f7f7f9; padding: 1.5rem;">
+        <div align="center" class="error" th:text="${message}"></div>
+        <form method="post" name="collectionStatus">
+           <div class="form-group row">
+             <label for="nodes" class="col-4 col-form-label">Collection name: </label>
+             <div th:replace="fragments/storage :: list-item(head='Name', content=${bag.name})"></div>
+           </div>
+           <div class="form-group row">
+             <label for="nodes" class="col-4 col-form-label">Collection Status: </label>
+             <div class="col-8">
+               <!--@thymesVar id="status" type="List<String>"-->
+               <select name="status" id="status">
+                 <option th:each="status: ${statuses}"
+                         th:value="${status}" th:text="${status}"
+                         th:selected="${bag.status==status}">
+                 </option>
+               </select>
+             </div>
+           </div>
+
+           <input class="form-control" type="hidden" name="path"
+                                   placeholder="collection-path" id="collection-path"/>
+            <input class="btn btn-primary" type="submit" value="Submit"/> <!-- onclick="submit()"/> -->
+        </form>
+    </div>
+    </div>
+    <div th:replace="layout :: foot"></div>
+</div>
+</body>
+</html>
