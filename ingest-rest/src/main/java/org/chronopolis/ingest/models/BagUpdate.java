@@ -17,6 +17,11 @@ public class BagUpdate {
     public BagUpdate() {
     }
 
+    public BagUpdate(String location, BagStatus status) {
+        this.location = location;
+        this.status = status;
+    }
+
     public BagStatus getStatus() {
         return status;
     }

@@ -2,6 +2,8 @@ package org.chronopolis.ingest.api;
 
 import com.google.common.collect.ImmutableList;
 import com.querydsl.core.types.Predicate;
+
+import org.chronopolis.ingest.models.BagUpdate;
 import org.chronopolis.ingest.repository.dao.BagDao;
 import org.chronopolis.ingest.support.BagCreateResult;
 import org.chronopolis.rest.entities.Bag;
@@ -17,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.ZonedDateTime;
 
@@ -24,11 +27,14 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -123,10 +129,33 @@ public class BagControllerTest extends ControllerTest {
         verify(dao, times(1)).processRequest(eq("user"), eq(request));
     }
 
+    @Test
+    public void testBagStatusUpdate() throws Exception {
+        setupPutBag("/api/bags/{id}", 1L, new BagUpdate("depositor/location", BagStatus.DEPRECATED))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$.status").value("DEPRECATED"));
+    }
+
     private Bag bag() {
         Bag bag = new Bag(BAG, "namespace", DEPOSITOR, 1L, 1L, BagStatus.DEPOSITED);
         bag.setId(1L);
         return bag;
     }
 
+    private <T> ResultActions setupPutBag(String uri,
+            Long id,
+            T obj) throws Exception {
+        Bag bag = bag();
+
+        when(dao.findOne(any(), any(Predicate.class))).thenReturn(bag);
+        doNothing().when(dao).save(bag);
+
+        authenticateUser();
+
+        return mvc.perform(put(uri, id)
+                  .with(user(user))
+                  .principal(authorizedPrincipal)
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(asJson(obj)));
+    }
 }

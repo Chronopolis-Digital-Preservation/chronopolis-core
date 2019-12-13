@@ -3,19 +3,23 @@ package org.chronopolis.ingest.api;
 import org.chronopolis.ingest.IngestController;
 import org.chronopolis.ingest.exception.NotFoundException;
 import org.chronopolis.ingest.models.Paged;
+import org.chronopolis.ingest.models.BagUpdate;
 import org.chronopolis.ingest.models.filter.BagFilter;
 import org.chronopolis.ingest.repository.dao.BagDao;
 import org.chronopolis.ingest.support.BagCreateResult;
 import org.chronopolis.rest.entities.Bag;
+import org.chronopolis.rest.entities.QBag;
 import org.chronopolis.rest.entities.projections.CompleteBag;
 import org.chronopolis.rest.entities.projections.PartialBag;
 import org.chronopolis.rest.models.create.BagCreate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -88,4 +92,27 @@ public class BagController extends IngestController {
         return result.getResponseEntity();
     }
 
+    /**
+     * Handler for updating a bag
+     * <p>
+     * todo: constraint on updating the bag as a non-admin
+     *
+     * @param id     id of the bag to update
+     * @param update the updated information
+     * @return page showing the individual bag
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<Bag> updateBag(Principal principal,
+                            @PathVariable("id") Long id,
+                            @RequestBody BagUpdate update) {
+        Bag bag = dao.findOne(QBag.bag, QBag.bag.id.eq(id));
+
+        if (bag == null) {
+            throw new NotFoundException("Bag " + id);
+        }
+
+        bag.setStatus(update.getStatus());
+        dao.save(bag);
+        return ResponseEntity.ok(bag);
+    }
 }
