@@ -9,6 +9,7 @@
     <div class="card w-75" th:fragment="info">
         <nav th:replace="fragments/crumbs/collection :: single"></nav>
 
+        <div align="center" class="message" th:text="${message}"></div>
         <!--/*@thymesVar id="tokens" type="Long"*/-->
         <!--/*@thymesVar id="bag" type="org.chronopolis.rest.entities.Bag"*/-->
         <!--/*@thymesVar id="formatter" type="org.chronopolis.ingest.support.FileSizeFormatter"*/-->

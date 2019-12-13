@@ -112,6 +112,10 @@ ul.pagination li {
     width: 100%;
 }
 
+.message {
+    color: #336699;
+}
+
 .error {
     color: red;
 }

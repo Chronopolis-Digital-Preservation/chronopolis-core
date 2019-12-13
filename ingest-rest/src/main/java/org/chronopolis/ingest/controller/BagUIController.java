@@ -1,8 +1,10 @@
 package org.chronopolis.ingest.controller;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
 import org.chronopolis.ingest.IngestController;
 import org.chronopolis.ingest.PageWrapper;
+import org.chronopolis.ingest.exception.NotFoundException;
 import org.chronopolis.ingest.models.BagUpdate;
 import org.chronopolis.ingest.models.filter.BagFilter;
 import org.chronopolis.ingest.repository.dao.BagDao;
@@ -39,8 +41,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.validation.Valid;
+
 import java.nio.charset.Charset;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -157,20 +162,33 @@ public class BagUIController extends IngestController {
     public String updateBag(Model model,
                             Principal principal,
                             @PathVariable("id") Long id,
-                            BagUpdate update) {
+                            BagUpdate update,
+                            RedirectAttributes redirectAttributes) {
+        String message = "";
         Bag bag = dao.findOne(QBag.bag, QBag.bag.id.eq(id));
-        bag.setStatus(update.getStatus());
 
         try {
-            dao.save(bag);
-            return "redirect:/bags/" + id;
-        } catch (Exception ex) {
-            model.addAttribute("message", ex.getMessage());
-            model.addAttribute("statuses", BagStatus.values());
-            model.addAttribute("bag", bag);
+            if (bag != null) {
+                bag.setStatus(update.getStatus());
+                dao.save(bag);
 
-            return "collections/edit";
+                message = "Collection status updated successfully!";
+                redirectAttributes.addFlashAttribute("message", message);
+
+                return "redirect:/bags/" + id;
+            }
+
+            message = "Bag " + id + " is not found.";
+        } catch (Exception ex) {
+            message = "Error update collection: " + ex.getMessage();
+            log.error(message, ex);
         }
+
+        model.addAttribute("message", message);
+        model.addAttribute("statuses", BagStatus.values());
+        model.addAttribute("bag", bag);
+
+        return "collections/edit";
     }
 
     /**
