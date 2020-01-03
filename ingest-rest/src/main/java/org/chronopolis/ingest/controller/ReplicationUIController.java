@@ -278,4 +278,60 @@ public class ReplicationUIController extends IngestController {
 
         return "replications/edit";
     }
+
+    /**
+     * Handle a request to cancel/delete a replication from the Bag.id page
+     *
+     * @param model the model of the response
+     * @param bag   the bag id to create replications for
+     * @return the create replication form
+     */
+    @GetMapping("/replications/{id}/delete")
+    public String deleteReplication(Model model,
+                                    Principal principal,
+                                    @PathVariable("id") Long id,
+                                    RedirectAttributes redirectAttributes) {
+        String message = "";
+        Replication replication = dao.findOne(QReplication.replication, QReplication.replication.id.eq(id));
+
+        try {
+            // only allow deleting replication with pending status?
+            if (replication.getStatus().equals(ReplicationStatus.PENDING)) {
+                dao.delete(replication);
+
+                message = "Replication for collection " + replication.getBag().getName() + " deleted!";
+                redirectAttributes.addFlashAttribute("message", message);
+                return "redirect:/replications";
+            } else {
+                message = "Cancel operation is not allowed for replication status " + replication.getStatus() + ".";
+            }
+        } catch(Exception ex) {
+            message = ex.getMessage();
+            log.error("Error deletion: " + message, ex);
+        }
+
+        model.addAttribute("message", message);
+        model.addAttribute("replication", replication);
+        model.addAttribute("statuses", ReplicationStatus.values());
+
+        if (hasRoleAdmin()) {
+            model.addAttribute("nodes", dao.findAll(QNode.node));
+        } else {
+            model.addAttribute("replication", replication);
+            model.addAttribute("statuses", ReplicationStatus.values());
+
+            if (hasRoleAdmin()) {
+                model.addAttribute("nodes", dao.findAll(QNode.node));
+            } else {
+                List<Node> nodes = new ArrayList<>();
+                Node n = dao.findOne(QNode.node, QNode.node.username.eq(principal.getName()));
+                if (n != null) {
+                    nodes.add(n);
+                }
+                model.addAttribute("nodes", nodes);
+            }
+        }
+
+        return "replications/edit";
+    }
 }

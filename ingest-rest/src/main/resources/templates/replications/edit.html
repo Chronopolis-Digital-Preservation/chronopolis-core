@@ -48,6 +48,11 @@
                     </dl>
 
                     <div class="modal-footer">
+                        <a class="btn btn-primary pull-left"
+                            th:if="${replication.status == statusDelete}"
+                            th:data-href="@{|/replications/${replication.id}/delete|}"
+                            th:data-message="|Are you sure you want to delete the replication for collection ${replication.bag.name}?|"
+                            data-toggle="modal" data-target="#rm-modal">Delete Replication</a>
                         <input class="btn btn-primary" type="submit" value="Update Replication"/>
                     </div>
                 </form>
@@ -57,6 +62,22 @@
     <div th:replace="layout :: foot"></div>
 </div>
 
+<div class="modal fade" id="rm-modal" tabindex="-1" role="dialog" aria-labelledby="rm-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rm-modal-label">Confirmation</h5>
+            </div>
+            <div class="modal-body text-dark"></div>
+            <div class="modal-footer">
+                <button th:type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Dismiss
+                </button>
+                <a role="button" class="btn btn-danger text-white">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     $('#rm-modal').on('show.bs.modal', function (event) {
         var target = $(event.relatedTarget);
