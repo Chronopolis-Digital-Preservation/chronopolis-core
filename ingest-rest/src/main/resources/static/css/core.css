@@ -108,6 +108,10 @@ ul.pagination li {
     color: #828a9f;
 }
 
+.form-control {
+    width: 100%;
+}
+
 .error {
     color: red;
 }

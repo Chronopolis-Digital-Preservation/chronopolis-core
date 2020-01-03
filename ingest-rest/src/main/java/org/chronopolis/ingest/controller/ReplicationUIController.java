@@ -2,7 +2,9 @@ package org.chronopolis.ingest.controller;
 
 import org.chronopolis.ingest.IngestController;
 import org.chronopolis.ingest.PageWrapper;
+import org.chronopolis.ingest.exception.NotFoundException;
 import org.chronopolis.ingest.models.ReplicationCreate;
+import org.chronopolis.ingest.models.ReplicationUpdate;
 import org.chronopolis.ingest.models.filter.BagFilter;
 import org.chronopolis.ingest.models.filter.ReplicationFilter;
 import org.chronopolis.ingest.repository.dao.ReplicationDao;
@@ -19,11 +21,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.querydsl.core.types.dsl.BooleanExpression;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -165,5 +173,109 @@ public class ReplicationUIController extends IngestController {
             model.addAttribute("message", "Replication create error: " + errorMessage);
             return "/replications/add";
         }
+    }
+
+   /**
+     * Handle a request to edit a replication from the Bag.id page
+     *
+     * @param model the model of the response
+     * @param bag   the bag id to create replications for
+     * @return the create replication form
+     */
+    @RequestMapping(value = "/replications/{id}/edit", method = RequestMethod.GET)
+    public String editReplicationForm(Model model,
+                                      Principal principal,
+                                      @PathVariable("id") Long id) {
+        Replication replication = dao.findOne(QReplication.replication, QReplication.replication.id.eq(id));
+
+        model.addAttribute("replication", replication);
+        model.addAttribute("statuses", ReplicationStatus.values());
+        model.addAttribute("statusDelete", ReplicationStatus.PENDING);
+
+        if (hasRoleAdmin()) {
+            model.addAttribute("nodes", dao.findAll(QNode.node));
+        } else {
+            List<Node> nodes = new ArrayList<>();
+            Node node = dao.findOne(QNode.node, QNode.node.username.eq(principal.getName()));
+            if (node != null) {
+                nodes.add(node);
+            }
+            model.addAttribute("nodes", nodes);
+        }
+
+        return "replications/edit";
+    }
+
+    /**
+     * Handle a request to edit a replication from the Bag.id page
+     *
+     * @param model the model of the response
+     * @param bag   the bag id to create replications for
+     * @return the create replication form
+     */
+    @PostMapping("/replications/{id}/edit")
+    public String updateReplication(Model model,
+                                    Principal principal,
+                                    @PathVariable("id") Long id,
+                                    ReplicationUpdate replicationEdit,
+                                    RedirectAttributes redirectAttributes) {
+        BooleanExpression query = QReplication.replication.id.eq(id);
+
+        // If a user is not an admin, make sure we only search for THEIR replications
+        if (!hasRoleAdmin()) {
+            query = query.and(QReplication.replication.node.username.eq(principal.getName()));
+        }
+
+        Replication update = dao.findOne(QReplication.replication, query);
+
+        if (update == null) {
+            throw new NotFoundException("Replication not found: " + id + ".");
+        }
+
+        String message = "";
+        try {
+
+            if (replicationEdit.getStatus().isClientStatus()) {
+                update.setStatus(replicationEdit.getStatus());
+
+                dao.save(update);
+
+                message = "Replication for collection " + update.getBag().getName() + " updated successfully!";
+                redirectAttributes.addFlashAttribute("message", message);
+
+                return "redirect:/replications/" + id;
+            } else {
+                message = "Replication status " + replicationEdit.getStatus() + " update is not allowed. "
+                        + "The following client status will be allowed: "
+                        + "STARTED, SUCCESS, FAILURE, ACE_AUDITING, ACE_TOKEN_LOADED, ACE_REGISTERED.";
+            }
+        } catch(Exception ex) {
+            message = "Error replication update: " + ex.getMessage();
+            log.error(message, ex);
+        }
+
+        model.addAttribute("message", message);
+        model.addAttribute("replication", update);
+        model.addAttribute("statuses", ReplicationStatus.values());
+
+        if (hasRoleAdmin()) {
+            model.addAttribute("nodes", dao.findAll(QNode.node));
+        } else {
+            model.addAttribute("replication", update);
+            model.addAttribute("statuses", ReplicationStatus.values());
+
+            if (hasRoleAdmin()) {
+                model.addAttribute("nodes", dao.findAll(QNode.node));
+            } else {
+                List<Node> nodes = new ArrayList<>();
+                Node n = dao.findOne(QNode.node, QNode.node.username.eq(principal.getName()));
+                if (n != null) {
+                    nodes.add(n);
+                }
+                model.addAttribute("nodes", nodes);
+            }
+        }
+
+        return "replications/edit";
     }
 }

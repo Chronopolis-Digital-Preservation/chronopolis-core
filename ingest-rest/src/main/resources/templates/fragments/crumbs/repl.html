@@ -25,6 +25,29 @@
         <li class="breadcrumb-item active" aria-current="page" th:text="${replication.id}">
             Replication Id
         </li>
+
+        <li sec:authorize="${hasRole('ROLE_ADMIN')}" class="ml-auto">
+            <a th:href="@{|/replications/${replication.id}/edit|}">
+                <i class="fa fa-pencil"></i>
+            </a>
+        </li>
+    </ol>
+</nav>
+
+<!--/*@thymesVar id="replication" type="org.chronopolis.rest.entities.Replication"*/-->
+<nav th:fragment="edit" aria-label="breadcrumb" role="navigation">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a th:href="@{/replications}">Replications</a></li>
+        <li class="breadcrumb-item"><a th:href="@{/replications(bag=${replication.bag.name})}"
+                                       th:text="${replication.bag.name}">Collection</a>
+        </li>
+        <li class="breadcrumb-item"><a th:href="@{|/replications/${replication.id}|}"
+                                       th:text="${replication.id}">Replication Id</a>
+            
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            Edit
+        </li>
     </ol>
 </nav>
 
