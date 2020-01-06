@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -203,4 +205,46 @@ public class ReplicationController extends IngestController {
         return entity;
     }
 
+    /**
+     * Handle a request to cancel/delete a replication from the Bag.id page.
+     * TODO: Status allowed: PENDING?
+     *
+     * @param model the model of the response
+     * @param bag   the bag id to create replications for
+     * @return the create replication form
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteReplication(Model model,
+                                    Principal principal,
+                                    @PathVariable("id") Long id) {
+        BooleanExpression query = QReplication.replication.id.eq(id);
+
+        // If a user is not an admin, make sure we only search for THEIR replications
+        if (!hasRoleAdmin()) {
+            query = query.and(QReplication.replication.node.username.eq(principal.getName()));
+        }
+
+        Replication replication = replicationDao.findOne(QReplication.replication, query);
+
+        if (replication == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        log.info("Deleting replication {}", replication.getId());
+
+        try {
+            // Allow deleting replications with pending status only?
+            if (replication.getStatus().equals(ReplicationStatus.PENDING)) {
+                replicationDao.delete(replication);
+
+                return ResponseEntity.noContent().build();
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+        } catch(Exception ex) {
+            log.error("Error deletion: {}", ex.getMessage());
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
 }

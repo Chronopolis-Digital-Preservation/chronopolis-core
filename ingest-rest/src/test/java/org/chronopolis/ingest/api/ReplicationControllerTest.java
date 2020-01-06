@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import static org.mockito.Mockito.doNothing;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -45,6 +46,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,6 +64,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ReplicationControllerTest extends ControllerTest {
 
     private final Long ID = 4L;
+    private static final String REPLICATION_URL = "/api/replications/{id}";
     private static final String PUT_STATUS = "/api/replications/{id}/status";
     private static final String PUT_TAG_FIXITY = "/api/replications/{id}/tagmanifest";
     private static final String GET_REPLICATION = "/api/replications/{id}";
@@ -214,4 +217,31 @@ public class ReplicationControllerTest extends ControllerTest {
         return new Node(of(), AUTHORIZED, AUTHORIZED, true);
     }
 
+    @Test
+    public void testDeleteReplication() throws Exception {
+        setupDelete(REPLICATION_URL, ID, null, null)
+                .andExpect(status().is(204));
+    }
+
+    /*
+     * Setup the delete method to delete a replication.
+     * @param uri
+     * @param id
+     * @param tagFixity
+     * @param tokenFixity
+     * @return
+     * @throws Exception
+     */
+    private <T> ResultActions setupDelete(String uri,
+            Long id,
+            @Nullable String tagFixity,
+            @Nullable String tokenFixity) throws Exception {
+        Replication replication = replication(tagFixity, tokenFixity);
+        when(replicationDao.findOne(any(), any(Predicate.class))).thenReturn(replication);
+        doNothing().when(replicationDao).delete(replication);
+        authenticateUser();
+        return mvc.perform(delete(uri, id)
+                  .with(user(user))
+                  .principal(authorizedPrincipal));
+    }
 }
