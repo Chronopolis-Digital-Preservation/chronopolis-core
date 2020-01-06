@@ -245,8 +245,8 @@ public class ReplicationUIController extends IngestController {
 
                 return "redirect:/replications/" + id;
             } else {
-                message = "Replication status " + replicationEdit.getStatus() + " update is not allowed. "
-                        + "The following client status will be allowed: "
+                message = "Replication status " + replicationEdit.getStatus() + " is not updatable. "
+                        + "Only the following status can be updated: "
                         + "STARTED, SUCCESS, FAILURE, ACE_AUDITING, ACE_TOKEN_LOADED, ACE_REGISTERED.";
             }
         } catch(Exception ex) {
