@@ -21,12 +21,11 @@ class PartialBag @QueryProjection constructor(
         val status: BagStatus,
         val createdAt: ZonedDateTime,
         val updatedAt: ZonedDateTime,
-        val depositor: String,
-        val replicatingNodes: Set<String>
+        val depositor: String
 ) {
     override fun toString(): String {
         return "PartialBag[id=$id;name=$name;creator=$creator;size=$size;" +
                 "totalFiles=$totalFiles;status=$status;createdAt=$createdAt;" +
-                "updatedAt=$updatedAt;depositor=$depositor;replicatingNodes=$replicatingNodes]"
+                "updatedAt=$updatedAt;depositor=$depositor]"
     }
 }

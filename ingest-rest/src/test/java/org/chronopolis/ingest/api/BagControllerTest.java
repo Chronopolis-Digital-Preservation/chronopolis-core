@@ -81,7 +81,7 @@ public class BagControllerTest extends ControllerTest {
 
     private PartialBag partialBag() {
         return new PartialBag(1L, BAG, NAMESPACE, 1L, 1L, BagStatus.DEPOSITED,
-                ZonedDateTime.now(), ZonedDateTime.now(), NAMESPACE, emptySet());
+                ZonedDateTime.now(), ZonedDateTime.now(), NAMESPACE);
     }
 
     private CompleteBag completeView() {

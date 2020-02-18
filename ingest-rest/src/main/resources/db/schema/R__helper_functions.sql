@@ -75,7 +75,7 @@ DECLARE
     region_id bigint;
 BEGIN
     -- this is equivalent to running sha-256 on an empty string
-    FOR i in 0..9 LOOP
+    FOR i in 0..20 LOOP
         bagname := concat('bag-', i);
         -- bag
         EXECUTE format('INSERT INTO bag (name, creator, depositor_id, status, size, total_files) VALUES ($1, $2, 1, $3, 1, 3) RETURNING id')
@@ -113,6 +113,10 @@ BEGIN
     -- and create a few more distribution objects
     SELECT id from bag where name = 'bag-0' INTO bag_id;
     PERFORM create_distributions(bag_id, 'DISTRIBUTE', 2);
+    SELECT id from bag where name = 'bag-4' INTO bag_id;
+    PERFORM create_distributions(bag_id, 'REPLICATE', 4);
+    SELECT id from bag where name = 'bag-5' INTO bag_id;
+    PERFORM create_distributions(bag_id, 'REPLICATE', 4);
 
     UPDATE bag SET status = 'INITIALIZED' WHERE name = 'bag-6';
 END;

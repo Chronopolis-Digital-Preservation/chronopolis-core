@@ -170,9 +170,6 @@ public class BagDao extends PagedDao {
         QBagDistribution distribution = QBagDistribution.bagDistribution;
         return getJPAQueryFactory().from(bag)
                 .innerJoin(bag.depositor, depositor)
-                .leftJoin(bag.distributions, distribution)
-                .on(distribution.status.eq(BagDistributionStatus.REPLICATE))
-                .leftJoin(distribution.node, node)
                 .where(filter.getQuery())
                 .orderBy(filter.getOrderSpecifier())
                 .restrict(filter.getRestriction());

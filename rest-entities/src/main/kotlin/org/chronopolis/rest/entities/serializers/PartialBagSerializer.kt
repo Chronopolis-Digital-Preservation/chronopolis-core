@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import org.chronopolis.rest.entities.projections.PartialBag
-import org.chronopolis.rest.models.Bag
+import org.chronopolis.rest.models.ProjectBag
 
 class PartialBagSerializer : JsonSerializer<PartialBag>() {
     override fun serialize(part: PartialBag, gen: JsonGenerator, provider: SerializerProvider?) {
@@ -12,19 +12,16 @@ class PartialBagSerializer : JsonSerializer<PartialBag>() {
     }
 }
 
-private fun PartialBag.toModel(): Bag {
-    return Bag(
+private fun PartialBag.toModel(): ProjectBag {
+    return ProjectBag(
             id,
-            size,
-            totalFiles,
-            null,
-            null,
-            createdAt,
-            createdAt,
             name,
             creator,
-            depositor,
+            size,
+            totalFiles,
             status,
-            replicatingNodes
+            createdAt,
+            updatedAt,
+            depositor
     )
 }

@@ -283,7 +283,6 @@ public class PagedDao {
     @SuppressWarnings("WeakerAccess")
     public ConstructorExpression<PartialBag> partialProjection() {
         QBag bag = QBag.bag;
-        QNode node = new QNode(DISTRIBUTION_IDENTIFIER);
         QDepositor depositor = QDepositor.depositor;
         return Projections.constructor(PartialBag.class,
                 bag.id,
@@ -294,8 +293,7 @@ public class PagedDao {
                 bag.status,
                 bag.createdAt,
                 bag.updatedAt,
-                depositor.namespace,
-                GroupBy.set(node.username));
+                depositor.namespace);
     }
 
     /**

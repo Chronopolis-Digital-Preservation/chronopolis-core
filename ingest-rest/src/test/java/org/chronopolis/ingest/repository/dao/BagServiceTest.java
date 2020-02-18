@@ -69,7 +69,7 @@ public class BagServiceTest extends IngestTest {
         List<PartialBag> partialBags = service.partialViews(new BagFilter());
         log.info("fetched size: {}", partialBags.size());
         partialBags.forEach(partial -> log.info("{}", partial));
-        Assert.assertEquals(10, partialBags.size());
+        Assert.assertEquals(21, partialBags.size());
     }
 
     @Test
