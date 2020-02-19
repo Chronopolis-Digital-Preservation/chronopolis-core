@@ -25,6 +25,7 @@ variables:
   POSTGRES_DB: ingest-test
   POSTGRES_USER: runner
   POSTGRES_PASSWORD: ""
+  POSTGRES_HOST_AUTH_METHOD: trust
 
 # Cache downloaded dependencies and plugins between builds.
 cache:
