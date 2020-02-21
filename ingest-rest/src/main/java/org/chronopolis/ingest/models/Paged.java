@@ -19,11 +19,13 @@ import org.springframework.data.domain.Sort;
  */
 public abstract class Paged {
 
-    private static final long DEFAULT_PAGE_SIZE = 25;
+    public static final long DEFAULT_PAGE_SIZE = 25;
 
     private String dir;
     private Integer page = 0;
     private String orderBy = "id";
+
+    private Long pageSize = DEFAULT_PAGE_SIZE;
 
     private final LinkedListMultimap<String, String> parameters = LinkedListMultimap.create();
 
@@ -34,6 +36,16 @@ public abstract class Paged {
     public Paged setDir(String dir) {
         this.dir = dir;
         parameters.put("dir", dir);
+        return this;
+    }
+
+    public Long getPageSize() {
+        return pageSize;
+    }
+
+    public Paged setPageSize(Long pageSize) {
+        this.pageSize = pageSize;
+        parameters.put("pageSize", String.valueOf(pageSize));
         return this;
     }
 
@@ -64,8 +76,8 @@ public abstract class Paged {
      * @return the QueryModifier with the limit and offset applied
      */
     public QueryModifiers getRestriction() {
-        long offset = page * DEFAULT_PAGE_SIZE;
-        return new QueryModifiers(DEFAULT_PAGE_SIZE, offset);
+        long offset = page * pageSize;
+        return new QueryModifiers(pageSize, offset);
     }
 
     /**
@@ -92,7 +104,7 @@ public abstract class Paged {
                 ? Sort.Direction.ASC
                 : Sort.Direction.fromString(dir);
         Sort s = new Sort(direction, orderBy);
-        return new PageRequest(page, (int) DEFAULT_PAGE_SIZE, s);
+        return PageRequest.of(page, (int)pageSize.longValue(), s);
     }
 
     /**

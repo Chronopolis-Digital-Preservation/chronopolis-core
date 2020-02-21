@@ -27,6 +27,7 @@ import org.chronopolis.rest.models.enums.ReplicationStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
@@ -290,10 +291,10 @@ public class ReplicationDao extends PagedDao {
         JPAQuery<Replication> count = getJPAQueryFactory()
                 .selectFrom(replication)
                 .where(filter.getQuery());
-        return PageableExecutionUtils.getPage(
+        return new PageImpl<ReplicationView>(
                 query.transform(GroupBy.groupBy(replication.id).list(replicationProjection())),
                 filter.createPageRequest(),
-                count::fetchCount);
+                count.fetchCount());
     }
 
     private JPAQuery<?> createViewQuery() {

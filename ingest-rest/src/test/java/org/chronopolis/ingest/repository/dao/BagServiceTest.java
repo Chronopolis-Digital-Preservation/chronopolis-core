@@ -77,6 +77,25 @@ public class BagServiceTest extends IngestTest {
             @Sql(executionPhase = BEFORE_TEST_METHOD, scripts = CREATE_SCRIPT),
             @Sql(executionPhase = AFTER_TEST_METHOD, scripts = DELETE_SCRIPT)
     })
+    public void bagPageSizeTest() {
+        BagFilter filter = new BagFilter();
+        filter.setPageSize(new Long(5));
+        List<PartialBag> partialBags = service.partialViews(filter);
+        log.info("fetched size: {}", partialBags.size());
+        Assert.assertEquals(5, partialBags.size());
+
+        filter.setPageSize(new Long(10));
+        partialBags = service.partialViews(filter);
+        log.info("fetched size: {}", partialBags.size());
+        Assert.assertEquals(10, partialBags.size());
+    }
+
+
+    @Test
+    @SqlGroup({
+            @Sql(executionPhase = BEFORE_TEST_METHOD, scripts = CREATE_SCRIPT),
+            @Sql(executionPhase = AFTER_TEST_METHOD, scripts = DELETE_SCRIPT)
+    })
     public void bagCompleteProjection() {
         String name = "bag-3";
         Bag one = service.findOne(QBag.bag, QBag.bag.name.eq(name));

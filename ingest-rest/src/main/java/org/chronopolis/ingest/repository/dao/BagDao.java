@@ -26,6 +26,7 @@ import org.chronopolis.rest.models.enums.BagStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
@@ -157,10 +158,10 @@ public class BagDao extends PagedDao {
      */
     public Page<PartialBag> findViewAsPage(BagFilter filter) {
         JPAQuery<Bag> count = getJPAQueryFactory().selectFrom(QBag.bag).where(filter.getQuery());
-        return PageableExecutionUtils.getPage(
-                partialViews(filter),
-                filter.createPageRequest(),
-                count::fetchCount);
+        return new PageImpl<PartialBag>(
+                    partialViews(filter),
+                    filter.createPageRequest(),
+                    count.fetchCount());
     }
 
     private JPAQuery<?> partialQuery(BagFilter filter) {
