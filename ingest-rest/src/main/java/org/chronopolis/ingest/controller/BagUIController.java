@@ -91,6 +91,7 @@ public class BagUIController extends IngestController {
         PageWrapper<Bag> pages = new PageWrapper<>(bags, "/bags", filter.getParameters());
         model.addAttribute("bags", bags);
         model.addAttribute("pages", pages);
+        model.addAttribute("pageSize", String.valueOf(filter.getPageSize()));
         model.addAttribute("statuses", BagStatus.Companion.statusByGroup());
 
         return "collections/collections";
