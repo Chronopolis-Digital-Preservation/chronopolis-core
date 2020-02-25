@@ -63,6 +63,7 @@ public class ReplicationUIController extends IngestController {
         model.addAttribute("pages", new PageWrapper<>(replications,
                 "/replications",
                 filter.getParameters()));
+        model.addAttribute("pageSize", String.valueOf(filter.getPageSize()));
 
         return "replications/replications";
     }

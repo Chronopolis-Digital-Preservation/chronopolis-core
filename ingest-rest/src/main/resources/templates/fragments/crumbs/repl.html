@@ -32,6 +32,18 @@
     <ol class="breadcrumb" style="margin-bottom: 0 !important;">
         <li class="breadcrumb-item active">Replications</li>
 
+        <!-- Page sizes: 10 15 20 25 50 -->
+        <li class="ml-auto">
+            <select name="pageSize" id="pageSize" onchange="pageSizeChanged(this.value);">
+                <option value="10" th:selected="${pageSize == '10'}">10</option>
+                <option value="15" th:selected="${pageSize == '15'}">15</option>
+                <option value="20" th:selected="${pageSize == '20'}">20</option>
+                <option value="25" th:selected="${pageSize == '25'}">25</option>
+                <option value="50" th:selected="${pageSize == '50'}">50</option>
+            </select>
+            <label for="pageSize"class="col-form-label">per page</label>
+        </li>
+
         <li class="ml-auto">
             <a id="dropdown" data-toggle="collapse" data-target="#filter-body"
                style="padding: 0 !important" aria-expanded="false" aria-controls="filter-body">
@@ -87,6 +99,7 @@
                     </select>
                 </div>
             </div>
+            <input type="hidden" id="page-size-filter" name="pageSize" th:value="${pageSize}"/>
             <button th:type="submit" class="btn btn-primary">Search</button>
         </form>
     </div>

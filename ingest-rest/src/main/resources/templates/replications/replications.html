@@ -42,6 +42,11 @@
     $(".table-clickable").click(function () {
         window.location = $(this).data("href");
     });
+
+    function pageSizeChanged(pageSize) {
+        $('#page-size-filter').val(pageSize);
+        $('button[type="submit"]').click();
+    }
 </script>
 </body>
 </html>
