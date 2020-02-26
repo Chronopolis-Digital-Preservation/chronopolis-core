@@ -119,7 +119,7 @@
                 <div class="col-3">
                     <select name="dir" id="direction-filter" class="form-control">
                         <option value="ASC" th:selected="${param.dir != null AND 'ASC'==param.dir[0]}">Ascending</option>
-                        <option value="DESC" th:selected="${param.dir != null AND 'DESC'==param.dir[0]}">Descending</option>
+                        <option value="DESC" th:selected="${param.dir != null AND 'DESC'==param.dir[0] OR param.dir == null}">Descending</option>
                     </select>
                 </div>
             </div>
