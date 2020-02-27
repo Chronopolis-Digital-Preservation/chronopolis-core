@@ -77,19 +77,29 @@ public class BagServiceTest extends IngestTest {
             @Sql(executionPhase = BEFORE_TEST_METHOD, scripts = CREATE_SCRIPT),
             @Sql(executionPhase = AFTER_TEST_METHOD, scripts = DELETE_SCRIPT)
     })
-    public void bagPageSizeTest() {
+    public void bagGetPageTest() {
         BagFilter filter = new BagFilter();
-        filter.setPageSize(new Long(5));
-        List<PartialBag> partialBags = service.partialViews(filter);
-        log.info("fetched size: {}", partialBags.size());
-        Assert.assertEquals(5, partialBags.size());
+        filter.setPageSize(new Long(25));
+        List<PartialBag> totalBags = service.partialViews(filter);
+        Assert.assertEquals(21, totalBags.size());
 
         filter.setPageSize(new Long(10));
-        partialBags = service.partialViews(filter);
-        log.info("fetched size: {}", partialBags.size());
+        filter.setPage(0);
+        List<PartialBag> partialBags = service.partialViews(filter);
+        log.info("fetched first page size: {} in {}", partialBags.size(), totalBags.size());
         Assert.assertEquals(10, partialBags.size());
-    }
 
+        filter.setPageSize(new Long(10));
+        filter.setPage(1);
+        partialBags = service.partialViews(filter);
+        log.info("fetched second page size: {} in {}", partialBags.size(), totalBags.size());
+        Assert.assertEquals(10, partialBags.size());
+
+        filter.setPage(2);
+        partialBags = service.partialViews(filter);
+        log.info("fetched last page size: {} in {}", partialBags.size(), totalBags.size());
+        Assert.assertEquals(1, partialBags.size());
+    }
 
     @Test
     @SqlGroup({
