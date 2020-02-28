@@ -2,6 +2,7 @@ package org.chronopolis.ingest.api;
 
 import org.chronopolis.ingest.IngestController;
 import org.chronopolis.ingest.exception.NotFoundException;
+import org.chronopolis.ingest.models.Paged;
 import org.chronopolis.ingest.models.filter.BagFilter;
 import org.chronopolis.ingest.repository.dao.BagDao;
 import org.chronopolis.ingest.support.BagCreateResult;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
@@ -44,7 +46,12 @@ public class BagController extends IngestController {
      * @return all bags matching the query parameters
      */
     @GetMapping
-    public Iterable<PartialBag> getBags(@ModelAttribute BagFilter filter) {
+    public Iterable<PartialBag> getBags(@ModelAttribute BagFilter filter,
+                                        @RequestParam(required=false, defaultValue = Paged.DEFAULT_PAGE_SIZE + "") Long pageSize,
+                                        @RequestParam(required=false, defaultValue = "0") Integer page) {
+        filter.setPageSize(pageSize);
+        filter.setPage(page);
+
         return dao.findViewAsPage(filter);
     }
 
