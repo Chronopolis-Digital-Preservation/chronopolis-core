@@ -3,6 +3,7 @@ package org.chronopolis.ingest.api;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.chronopolis.ingest.IngestController;
 import org.chronopolis.ingest.exception.NotFoundException;
+import org.chronopolis.ingest.models.Paged;
 import org.chronopolis.ingest.models.filter.ReplicationFilter;
 import org.chronopolis.ingest.repository.dao.FixityChecker;
 import org.chronopolis.ingest.repository.dao.ReplicationDao;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
@@ -173,7 +175,12 @@ public class ReplicationController extends IngestController {
      * @return all replication matching the request parameters
      */
     @RequestMapping(method = RequestMethod.GET)
-    public Iterable<ReplicationView> replications(@ModelAttribute ReplicationFilter filter) {
+    public Iterable<ReplicationView> replications(@ModelAttribute ReplicationFilter filter,
+                                                  @RequestParam(required=false, defaultValue = Paged.DEFAULT_PAGE_SIZE + "") Long pageSize,
+                                                  @RequestParam(required=false, defaultValue = "0") Integer page) {
+        filter.setPageSize(pageSize);
+        filter.setPage(page);
+
         return replicationDao.findViewsAsPage(filter);
     }
 
