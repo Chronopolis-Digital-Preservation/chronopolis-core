@@ -88,4 +88,28 @@ public class ReplicationServiceTest extends IngestTest {
         log.info("fetched second/last page size: {}", elemSize);
         Assert.assertEquals(1, elemSize);
     }
+
+    @Test
+    @SqlGroup({
+            @Sql(executionPhase = BEFORE_TEST_METHOD, scripts = CREATE_SCRIPT),
+            @Sql(executionPhase = AFTER_TEST_METHOD, scripts = DELETE_SCRIPT)
+    })
+    public void replicationAPIGetPageTest() {
+        ReplicationFilter filter = new ReplicationFilter();
+        filter.setPageSize(new Long(3));
+        filter.setPage(0);
+        Page<ReplicationView> page = service.findViewsAsPage(filter);
+
+        Assert.assertEquals(4, page.getTotalElements());
+
+        long elemSize = page.getNumberOfElements();
+        log.info("fetched first page size 3: {}", elemSize);
+        Assert.assertEquals(3, elemSize);
+
+        filter.setPage(1);
+        page = service.findViewsAsPage(filter);
+        elemSize = page.getNumberOfElements();
+        log.info("fetched second/last page size 3: {}", elemSize);
+        Assert.assertEquals(1, elemSize);
+    }
 }
