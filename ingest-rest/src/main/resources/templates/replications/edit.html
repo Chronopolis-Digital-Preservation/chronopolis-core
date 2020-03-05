@@ -48,6 +48,7 @@
                     </dl>
 
                     <div class="modal-footer">
+                        <input class="btn btn-primary" type="button" onClick="window.history.back();" value="Cancel"/>
                         <a class="btn btn-primary pull-left"
                             th:if="${replication.status == statusDelete}"
                             th:data-href="@{|/replications/${replication.id}/delete|}"
