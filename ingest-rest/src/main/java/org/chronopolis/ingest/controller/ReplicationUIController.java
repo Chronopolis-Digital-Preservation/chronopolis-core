@@ -261,19 +261,12 @@ public class ReplicationUIController extends IngestController {
         if (hasRoleAdmin()) {
             model.addAttribute("nodes", dao.findAll(QNode.node));
         } else {
-            model.addAttribute("replication", update);
-            model.addAttribute("statuses", ReplicationStatus.values());
-
-            if (hasRoleAdmin()) {
-                model.addAttribute("nodes", dao.findAll(QNode.node));
-            } else {
-                List<Node> nodes = new ArrayList<>();
-                Node n = dao.findOne(QNode.node, QNode.node.username.eq(principal.getName()));
-                if (n != null) {
-                    nodes.add(n);
-                }
-                model.addAttribute("nodes", nodes);
+            List<Node> nodes = new ArrayList<>();
+            Node n = dao.findOne(QNode.node, QNode.node.username.eq(principal.getName()));
+            if (n != null) {
+                nodes.add(n);
             }
+            model.addAttribute("nodes", nodes);
         }
 
         return "replications/edit";
@@ -317,19 +310,12 @@ public class ReplicationUIController extends IngestController {
         if (hasRoleAdmin()) {
             model.addAttribute("nodes", dao.findAll(QNode.node));
         } else {
-            model.addAttribute("replication", replication);
-            model.addAttribute("statuses", ReplicationStatus.values());
-
-            if (hasRoleAdmin()) {
-                model.addAttribute("nodes", dao.findAll(QNode.node));
-            } else {
-                List<Node> nodes = new ArrayList<>();
-                Node n = dao.findOne(QNode.node, QNode.node.username.eq(principal.getName()));
-                if (n != null) {
-                    nodes.add(n);
-                }
-                model.addAttribute("nodes", nodes);
+            List<Node> nodes = new ArrayList<>();
+            Node n = dao.findOne(QNode.node, QNode.node.username.eq(principal.getName()));
+            if (n != null) {
+                nodes.add(n);
             }
+            model.addAttribute("nodes", nodes);
         }
 
         return "replications/edit";
