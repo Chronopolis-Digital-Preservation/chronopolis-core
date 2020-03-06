@@ -8,6 +8,8 @@ replication_yaml=replication-application.yml
 replication_finaljar=${sources}/replication-shell.jar
 retval=0
 
+echo "global maven opts: ${MAVEN_OPTS}"
+
 if [ "$1" = "clean" ]; then
     echo "Cleaning"
     rm -rf ${rpmdir}/BUILD/
@@ -41,6 +43,7 @@ echo "ingest jarfile: ${ingest_jarfile}"
 echo "replication jarfile: ${replication_jarfile}"
 
 ./mvnw ${MAVEN_CLI_OPTS} clean package
+
 if [ $? -ne 0 ]; then
   echo "Error building"
   exit 99

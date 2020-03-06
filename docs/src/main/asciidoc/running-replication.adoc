@@ -1,5 +1,5 @@
 === Testing Replication
-The replication service has dependencies on other services as well as processes which it uses to
+The Replication Service has dependencies on other services as well as processes which it uses to
 transfer data between systems. Similar to the Ingest Service, it also requires a directory on disk
 which it can use to transfer data.
 
@@ -9,13 +9,16 @@ Services::
 
 Programs::
 * rsync - for the transfer of content
+* ssh - the protocol used for connecting to remote hosts
 
 Storage::
-* temp directory - for tracking transfers in progress
-* preservation directory - storing transferred content
+* temp directory - for tracking transfers in progress; for this example
+`/tmp/chronopolis-repl/work`
+* preservation directory - storing transferred content; for this example
+`/tmp/chronopolis-repl/preservation`
 
 ==== Configuration
-The replication service also uses an `application.yml` which it reads for its basic configuration.
+The Replication Service also uses an `application.yml` which it reads for its basic configuration.
 
 ===== Ingest Connection
 In order to connect to the Ingest Server, the replication service needs to known where the server is
@@ -25,8 +28,8 @@ located as well as credentials for connecting.
 ----
 ingest.api:
   endpoint: http://localhost:8000/
-  username: my-replication-user
-  password: super-secret-password
+  username: dev-node
+  password: dev-node
 ----
 
 ===== ACE AM Connection
@@ -37,14 +40,17 @@ because there are two components (ims and audit manager), the `endpoint` was rep
 ----
 ace:
   am: http://localhost:8080/ace-am/
-  username: ace-am-user
-  password: another-secret-password
+  username: admin
+  password: my-secret-password
 ----
 
 ===== Storage Configuration
 The storage configuration for the replication service has three components: an `id`, a `path`, and
 a path for `ace` which can be used in the event the ACE AM has a different mount point that the
-service replicating data. In addition, multiple paths can be given for replicating content. A single
+service replicating data. For example, if running ACE AM in docker, it is conceivable that external
+data is mounted on `/mnt/`, so you may want to pass `ace: /mnt` in as your configuration property.
+
+In addition, multiple paths can be given for replicating content. A single
 Bag will only replicate into one directory, and will not be split. This is partially due to how ACE
 AM handles how it scans for files.
 
@@ -57,10 +63,8 @@ is being shown for completeness.
 storage.preservation:
   posix:
     - id: 1
-      path: /fs/nfs-1/chronopolis/
-      ace: /fs/chronopolis-nfs/
-    - id: 2
-      path: /fs/nfs-2/chronopolis/
+      path: /tmp/chronopolis-repl/preservation
+      ace: /mnt/
 ----
 
 ===== Rsync configuration
@@ -77,6 +81,81 @@ chron:
       - "-aL"
       - "--stats"
       - "--no-human-readable"
+----
+
+===== Other Configuration
+
+There are a few miscellaneous configuration properties that fall under the `chron` namespace as well
+as a cron timer used for how frequently the Ingest Server is queried for replications.
+
+The properties are:
+
+[horizontal]
+`chron.node`:: The node name, used when sending smtp notifications
+`chron.workDirectory`:: A temp workspace used for tracking information about ongoing replications
+`chron.maxFileTransfers`:: The maximum number of rsyncs to run concurrently
+`chron.smtp.sendOnSuccess`:: A flag to determine if smtp notifications should be sent when
+replications succeed
+`replication.cron`:: The frequency at which to query the Ingest Server
+
+
+===== Sample Application.yml
+
+[source,yaml]
+----
+# The timer for querying the Ingest Server; default to once per minute
+replication.cron: 0 */1 * * * *
+
+# Configuration for connecting to the Ingest Server
+## ingest.api.endpoint: the endpoint of the Ingest Server
+## ingest.api.username: the username to connect as
+## ingest.api.password: the password to connect with
+ingest.api:
+  endpoint: http://localhost:8000/
+  username: dev-node
+  password: dev-node
+
+# Configuration for connecting to ACE AM
+## ace.am.endpoint: the endpoint of the ACE AM
+## ace.am.username: the username to connect as
+## ace.am.password: the password to connect with
+ace:
+  am: http://localhost:8080/ace-am/
+  username: admin
+  password: my-secret-password
+
+# Preservation Storage Configuration
+## storage.preservation.posix: A list of directories to store data in
+## id: the id of the directory; not used
+## path: the path to the directory used by rsync
+## ace: the path ACE AM uses to access the preservation storage
+storage.preservation:
+  posix:
+    - id: 1
+      path: /tmp/chronopolis-repl/preservation
+      ace: /mnt/
+
+# General Configuration Properties
+## chron.node: the name of the node
+## chron.workDirectory: a directory for storing temporary information while working on Replications
+## chron.maxFilesTransfers: the maximum number of rsyncs to run at once
+## chron.smtp.sendOnSuccess: flag to send smtp notifications on successful Replications
+## chron.rsync: Rsync Configuration Properties
+## chron.rsync.profiles: The transfer profile to use, "SINGLE" or "CHUNKED"
+## chron.rsync.arguments: A list of command line flags to pass to rsync
+chron:
+  node: dev-node
+  workDirectory: /tmp/chronopolis-repl/work
+  stmp.sendOnSuccess: false
+  rsync:
+    profile: "CHUNKED"
+    arguments:
+      - "-aL"
+      - "--stats"
+      - "--no-human-readable"
+
+spring.profiles.active: development
+logging.file: logs/replication.log
 ----
 
 ==== Running

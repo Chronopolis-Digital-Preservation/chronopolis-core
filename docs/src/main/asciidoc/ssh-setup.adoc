@@ -1,0 +1,58 @@
+==== SSH Configuration
+The Ingest Server and Replication Service use ssh and ssh-keys in order to connect to remote hosts
+and allow rsync to transfer content. It enforces passwordless ssh by passing
+`-o 'PasswordAuthentication no'` to ssh.
+
+===== Key Generation
+
+In order to generate an ssh-key, run the `ssh-keygen` program which is bundled with your ssh
+installation.
+
+===== Key Exchange
+
+To copy your ssh key, the `ssh-copy-id` program can be run which will connect to a remote host using
+your password authentication and write your ssh public key in the `$HOME/.ssh/authorized_keys` file
+on the host.
+
+```
+[replication-shell] $ ssh-copy-id localhost
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/homes/shake/.ssh/id_rsa.pub"
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+shake@localhost's password:
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh 'localhost'"
+and check to make sure that only the key(s) you wanted were added.
+```
+===== Fingerprint Identification
+
+SSH will validate that the fingerprint of a host matches what it has last seen, or if not found
+prompt for acknowledgement of the current fingerprint. It is good to connect via ssh again to make
+sure that this prompt has been acknowledged.
+
+```
+[replication-shell] $ ssh localhost
+The authenticity of host 'localhost (::1)' can't be established.
+ECDSA key fingerprint is SHA256:zSzGHQCbg/vtrifXlivCQp+0JbohC2yftMHXpX6zuvw.
+ECDSA key fingerprint is MD5:4d:04:1d:f7:ad:88:b8:f7:b6:2f:6f:84:7d:ed:60:2d.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'localhost' (ECDSA) to the list of known hosts.
+Last login: Thu Oct 10 12:54:38 2019 from localhost
+```
+
+===== Disabling Password Logins
+
+As a safety measure, password logins can be disabled in the `$HOME/.ssh/config` file so that ssh
+will not fallback to passwords. Although we specify this through the command line, it does not hurt
+to add it in the ssh configuration as well. If doing this, be sure your ssh key is in place and you
+can connect with it before applying the configuration as you will no longer be able to connect with
+your password.
+
+```
+Host localhost
+    HostName localhost
+    PasswordAuthentication no
+    ChallengeResponseAuthentication no
+```

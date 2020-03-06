@@ -3,13 +3,17 @@ In order to run the Ingest Server locally you will the following dependencies to
 
 Required::
 * PostgresQL 9+
-* Directory for writing ACE Token Stores
-
-Recommended::
-* Directory for staging Bags
 
 Optional::
 * Separate ACE IMS for testing
+
+==== Directory Setup
+
+The first step to take is to ensure that you have directories for your Bags and for your ACE Tokens.
+Throughout this example, two separate directories will be used:
+
+* Bag Storage : `/tmp/chronopolis-ingest/bags`
+* Token Storage : `/tmp/chronopolis-ingest/tokens`
 
 ==== Database Init
 
@@ -32,13 +36,14 @@ flyway:baseline
 ==== Database Cleaning
 
 Cleaning the database can be done in a similar manner to the baseline, except using the
-`flyway:clean` task instead of `flyway:baseline`.
+`flyway:clean` task instead of `flyway:baseline`. This removes all tables from the database, so a
+`flyway:baseline` will need to be run again before starting the Ingest Server.
 
 ----
 [chronopolis/ingest-rest] $ ../mvnw
 -Dflyway.user=postgres
--Dflyway.password=dbpass
--Dflyway.url=jdbc:postgresql://172.17.0.2/ingest_fresh
+-Dflyway.password=mysecretpassword
+-Dflyway.url=jdbc:postgresql://172.17.0.2/ingest
 flyway:clean
 ----
 
@@ -58,19 +63,27 @@ spring.datasource:
   initialize: false
 ----
 
-===== Storage Configuration
-The Ingest Server also relies on storage for Bags and ACE Token Stores which are configured in its
-`application.yml` and should point to directories on local disk. In this example there are two
-directories made, `/tmp/chronopolis-ingest/tokens/` and `/tmp/chronopolis-ingest/bags`.
+===== Task Configuration
+There are a series of tasks configured within the `application.yml` for the Ingest Server to perform
+various operations. These are found under the `org.chronopolis.ingest.task` package and have an
+associated property with configuration.
 
-.Configuration For ACE Token Stores (required)
+An overview of the cron format can be found on the
+http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html[Quartz
+Scheduler] documentation.
 
-[source,yaml]
-----
-chron.stage.tokens.posix.path: /tmp/chronopolis-ingest/tokens
-----
+====== Local Ingest
+Ingestion steps for Bags in a Bag staging area local to the ingest server. Registers Files + Fixity,
+and creates a `StagingStorage` entity.
 
-.Configuration For Local Ingest Task (recommended for dev)
+To enabled set `ingest.scan.enabled` to `true`, and to set the timer set the `ingest.scan.cron`
+property.
+
+The `staging.id` and `staging.path` are required in order to query for the correction
+`StorageRegion`. Passing the correct `id` ensures we use the correct `StorageRegion` is pulled, and
+the `path` will point to the path on disk (from <<directory-setup>>).
+
+.application.yml LocalIngest configuration
 [source,yaml]
 ----
 ingest.scan:
@@ -81,7 +94,17 @@ ingest.scan:
   staging.path: /tmp/chronopolis-ingest/bags
 ----
 
-.Configuration For Local Tokenization Task (recommended for dev)
+====== Local Tokenization
+Create ACE Tokens for Bags in a local Bag staging area.
+
+To enable set `ingest.tokenizer.enabled` to `true`, and to set the timer set the
+`ingest.tokenizer.cron` property.
+
+The `staging.id` and `staging.path` are required in order to query for the correction
+`StorageRegion`. Passing the correct `id` ensures we use the correct `StorageRegion` is pulled, and
+the `path` will point to the path on disk (from <<directory-setup>>).
+
+.application.yml LocalTokenization configuration
 [source,yaml]
 ----
 ingest.tokenizer:
@@ -92,31 +115,106 @@ ingest.tokenizer:
   staging.path: /tmp/chronopolis-ingest/bags
 ----
 
-===== Cron Timers
-There are various timers which trigger tasks to be run in the Ingest Server. These use a format
-based on `cron`, but is not a one to one mapping. An overview of the format can be found on the
-http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html[Quartz
-Scheduler] documentation.
+====== Token Write Task
+Writes an ACE Token Store for Bags in a local token staging area. Requires a Bag to have a status of
+`INITIALIZED` and to have all Files registered. When complete sets the Bag status to `TOKENIZED`.
 
-Local Ingest (`ingest.scan`):: Ingestion steps for Bags in a local Bag staging area. Registers Files + Fixity, and
-creates a `StagingStorage` entity. To enabled set `ingest.scan.enabled` to `true`, and to set the
-timer set the `ingest.scan.cron` property.
+To set the timer set the `ingest.cron.tokens` property.
 
-Local Tokenization `ingest.tokenizer`:: Create ACE Tokens for Bags in a local Bag staging area. To enable set
-`ingest.tokenizer.enabled` to `true`, and to set the timer set the `ingest.tokenizer.cron` property.
+To set the id and directory, the `chron.stage.tokens.posix.*` properties are used.
 
-Token Write Task `ingest.cron.tokens`:: Writes an ACE Token Store for Bags in a local token staging area. Requires a Bag
-to have a status of `INITIALIZED` and to have all Files registered. When complete sets the Bag
-status to `TOKENIZED`. To set the timer set the `ingest.cron.tokens` property.
+.application.yml token write task configuration
+[source, yaml]
+----
+ingest.cron.tokens: 0 0/1 * * * *
+chron.stage.tokens.posix.id: 2
+chron.stage.tokens.posix.path: /tmp/chronopolis-ingest/tokens
+----
 
-Replication Task `ingest.cron.request`:: Creates Replications for Bags which have a status of `TOKENIZED` (all ACE Tokens
-created and the Token Store written to disk). To set the timer set the `ingest.cron.request`
-property.
+====== Replication Create
+Creates Replications for Bags which have a status of `TOKENIZED` (all ACE Tokens created and the
+Token Store written to disk).
+
+To set the timer set the `ingest.cron.request` property.
+
+.application.yml
+[source, yaml]
+----
+ingest.cron.request: 0 0/1 * * * *
+----
 
 ===== Spring Properties
 There is a set of common application properties which we make use of and is provided by the Spring
 Boot project. These can be found under Appendix A of their
 https://spring.io/projects/spring-boot#learn[Reference documentation].
+
+There are a few properties to be aware of:
+
+* `spring.profiles.active`: comma separated list of active profiles
+* `server.port`: server http port
+* `logging.level.*`: the log level severity mapping, per package
+
+===== Sample Application.yml
+
+[source, yaml]
+----
+# Ingest Local FS Scan
+# org.chronopolis.ingest.task.LocalIngest
+## cron: the cron timer for running local fs scan
+## enabled: flag to enable local fs scan of bags
+## username: the 'creator' to check for when scanning bags
+## staging.path: the path to the filesystem on disk
+ingest.scan:
+  cron: 0 */1 * * * *
+  enabled: true
+  username: admin
+  staging.id: 1
+  staging.path: /tmp/chronopolis-ingest/bags
+​
+# Ingest Tokenizer Settings
+# org.chronopolis.ingest.task.LocalTokenization
+## cron: the cron timer for running local-tokenization
+## enabled: flag to enable Local tokenization of bags
+## username: the 'creator' to check for when depositing bags
+## staging.id: the ID of the StorageRegion to write tokens into
+## staging.path: the path to the filesystem on disk
+ingest.tokenizer:
+  cron: 0 */1 * * * *
+  enabled: true
+  username: admin
+  staging.id: 1
+  staging.path: /tmp/chronopolis-ingest/bags
+
+# cron timers for simple tasks
+# token - task which checks for bags that are ready to have token stores written
+#       - org.chronopolis.ingest.task.TokenWriteTask
+# request - task which checks for bags that are ready to have replication requests created
+#         - org.chronopolis.ingest.task.ReplicationTask
+ingest.cron:
+    tokens: 0 */1 * * * *
+    request: 0 */1 * * * *
+​
+# ACE Token Store filesystem - used by ingest for writing tokens
+# id: should match the id of the storage region for the token store
+# path: must exist on disk
+chron.stage.tokens.posix.id: 2
+chron.stage.tokens.posix.path: /tmp/chronopolis-ingest/tokens
+
+# datasource setup
+spring.datasource:
+    url: jdbc:postgresql://172.17.0.2/ingest
+    username: postgres
+    password: mysecretpassword
+    initialize: false
+​
+spring.profiles.active: development
+​
+logging.file: logs/ingest.log
+logging.level:
+    org.springframework: ERROR
+    org.hibernate: ERROR
+    org.chronopolis: DEBUG
+----
 
 ==== Running
 Running the project can be done in a few ways and should be done in the same directory as your
@@ -133,29 +231,74 @@ As a last step, there are several objects which need to be created in the databa
 Ingest Server to be able to have data registered with it, create replications, and function
 otherwise. A default user and password of `admin` should be available
 
-If the `{data}` sql was loaded, then you have a head start as it includes a default set of Users,
-Nodes, Authorities, Storage Regions, Replication Configuration, and Depositors.
-These will likely need to be updated depending on your setup:
-
-Users::
-The Users define access control to the application. They are created through `Admin > User Config
- > Add User`. When creating a user for replication, `Is a node` should be checked so that they are
- processed as a Chronopolis Node. A user only needs `ROLE_USER` when replicating content, and if
- they will also be pushing data into the Ingest Server, `ROLE_ADMIN` is needed.
+Users/Nodes::
+The Users define access control to the application. A Node is a User who can also receive data. On
+the first run of the Ingest Server, a Node needs to be created in order for Replications to be
+created.
++
+To create a Node, navigate to `Admin > User Config > Add User`. `Is a node` needs to be checked so
+that they user is processed as a Chronopolis Node. A user only needs `ROLE_USER` when replicating
+content. If they will also be pushing data into the Ingest Server, `ROLE_ADMIN` is needed.
++
+.User Create Form Example
+----
+Username: dev-node
+Password: mysecretpassword
+Role: ROLE_USER
+[x] Is a Node
+----
 
 Depositors::
 A Depositor is a resource which is associated with any data coming into Chronopolis. They also
-determine what Chronopolis Nodes incoming content will be distributed to. A Depositor is created
-through `Admin > Depositors > Add Depositor`, and must have a unique namespace when being registered.
+determine what Chronopolis Nodes incoming content will be distributed to.
++
+A Depositor is created through `Admin > Depositors > Add Depositor`, and must have a unique
+namespace when being registered. Select the previously created Node in order have data distributed.
++
+.Depositor Create Form Example
+----
+Organization Name: Development Depositor
+Organization Address: 123 Fake Street
+Namespace: dev-depositor
+Replicating Nodes: dev-node
+----
 
 Storage Region::
 The Storage Region is a storage system where either Bags or ACE Token Stores are staged for
-replication into Chronopolis. Two Storage Regions will need to be be created through `Admin >
-Storage Region Create`, one for ``BAG``s and one for ``TOKEN``s. The form for creating a Storage
-Region also includes information for the Replication Configuration, which requires the `Replication
-Server` to be the fqdn of the server, and the `Replication Path` to be the path on disk to the
-storage. For the examples above, the Token Storage Region would have a path of
-`/tmp/chronopolis-ingest/tokens` and the Bag Storage Region would have a path of
-`/tmp/chronopolis-ingest/bags`. The `Replication Username` is optional and will default to
-`chronopolis` if it is left null. Replication itself requires rsync over ssh, so you will need to
-ensure that you can use your ssh keys to connect to your `Replication Server`.
+replication into Chronopolis.
++
+Two Storage Regions will need to be be created through `Admin > Storage Region Create`: one for
+``BAG``s and one for ``TOKEN``s.
++
+The form for creating a Storage Region also includes information for the Replication Configuration,
+which requires the `Replication Server` to be the fqdn of the server, and the `Replication Path` to
+be the path on disk to the storage. The `Replication Username` is optional and will default to
+`chronopolis` if it is left null. For dev it is recommended you use your local username. Replication
+itself requires rsync over ssh, so you will need to ensure that you can use your ssh keys to
+connect to your `Replication Server`.
++
+.Bag StorageRegion Form Example
+----
+Owning Node: dev-node
+Data Type: BAG
+Storage Type: LOCAL
+Total Capacity: 1
+Storage Unit: GiB
+Storage Region Information: Bags bags bags; it always seems like you've got too many bags
+Replication Server: localhost
+Replication Path: /tmp/chronopolis-ingest/bags
+Replication Username: shake
+----
++
+.Token StorageRegion Form Example
+----
+Owning Node: dev-node
+Data Type: TOKEN
+Storage Type: LOCAL
+Total Capacity: 1
+Storage Unit: GiB
+Storage Region Information: TokenStores for bags
+Replication Server: localhost
+Replication Path: /tmp/chronopolis-ingest/tokens
+Replication Username: shake
+----

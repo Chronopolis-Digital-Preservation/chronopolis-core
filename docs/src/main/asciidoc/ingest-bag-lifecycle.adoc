@@ -1,0 +1,80 @@
+==== Deposited Bag Lifecycle
+[blockdiag,bag_ingest_workflow]
+....
+blockdiag {
+    node_width = 155;
+
+    // BagStatus == DEPOSITED tasks
+    bag_deposited[label = "Bag.status == deposited"];
+    scan.cron[label = "LocalIngest (LI)"];
+    // not really happy with having each of these show the condition in the
+    // table, need to rethink it
+    scan_condition[numbered = 1, label = "LI.conditional"];
+    register_files[numbered = 2, label="LI.scanForBag()"];
+    create_staging[numbered = 3, label="LI.registerStaging()"];
+
+    bag_deposited -> scan.cron -> scan_condition -> register_files;
+    scan_condition -> create_staging -> bag_initialized;
+    create_staging -> bag_initialized [folded];
+
+
+    // BagStatus == INITIALIZED tasks
+    bag_initialized[label = "Bag.status == initialized"];
+    token.cron[label = "LocalTokenization"]
+    token_condition[numbered = 4, label = "AceTokens needed?"]
+    create_tokens[label = "BagProcessor.run"]
+
+    write.cron[label = "TokenWriteTask"]
+    write_condition[numbered = 5, label = "AceTokens created?"]
+    write_tokens[label = "TokenStoreWriter.run()"]
+
+    bag_initialized -> token.cron -> token_condition -> create_tokens;
+    bag_initialized -> write.cron -> write_condition -> write_tokens -> bag_tokenized;
+    write_tokens -> bag_tokenized [folded];
+
+    // BagStatus == TOKENIZED tasks
+    bag_tokenized[label = "Bag.status == tokenized"]
+    bag_replicating[label = "Bag.status == replicating"]
+    replicate[label = "ReplicationTask"]
+    replicate_condition[numbered = 6, label = "create replications?"]
+    create_replications[label = "ReplicationDao.create()"]
+
+    bag_tokenized -> replicate -> replicate_condition -> create_replications -> bag_replicating;
+    create_replications -> bag_replicating [folded];
+
+
+    // BagStatus == REPLICATING
+    replication_update[label = "Complete Replication"]
+    bag_preserved_condition[label = "All successful?"]
+    bag_preserved[label = "Bag.status == preserved"]
+    replication_update -> bag_preserved_condition -> bag_preserved;
+}
+....
+|===
+|Number|Name|Description
+
+|1
+|conditional
+|count(file) against bag.totalFiles
+
+|2
+|LI.scanForBag
+|count(file) < bag.totalFiles
+
+|3
+|LI.registerStaging()
+|count(file) == bag.totalFiles
+
+|4
+|AceTokens needed?
+|bag.status == INITIALIZED && count(file) == bag.totalFiles && staging_storage(bag) exists
+
+|5
+|AceTokens created?
+|bag.status == INITIALIZED && count(ace_token) == bag.totalFiles
+
+|6
+|create replications?
+|bag.status == TOKENIZED
+
+|===

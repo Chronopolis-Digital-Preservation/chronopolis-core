@@ -1,0 +1,36 @@
+=== Replication Create
+
+When creating a Replication, there are 4 dependencies which must be satisfied in order
+for a successful action to be taken on the Ingest Server.
+
+These 4 dependencies are:
+
+* The Bag must exist
+* The Node must exist
+* The Bag must have staging_storage active for its `BAG` data
+* The Bag must have staging_storage active for its `TOKEN_STORE` data
+
+On the initial ingest of a Bag, both staging_storage entities will be created by default.
+The `BAG` staging_storage will be created by either the Intake Service or the Ingest Server.
+The `TOKEN_STORE` staging_storage will be created by the Ingest Server.
+
+If needed, staging_storage can be created using `*PUT* /api/bags/#:bag_id#/storage/#:type#`.
+
+[seqdiag]
+....
+seqdiag {
+  user; ingest; database;
+
+  user  -> ingest [label = "POST /api/replications"];
+  ingest -> database [label = "SELECT bag"];
+  ingest <-- database;
+  ingest -> database [label = "SELECT node"];
+  ingest <-- database;
+  ingest -> database [label = "SELECT staging_storage (dtype == BAG)"];
+  ingest <-- database;
+  ingest -> database [label = "SELECT staging_storage (dtype == TOKEN_STORE)"];
+  ingest <-- database;
+
+  user <-- ingest;
+}
+....

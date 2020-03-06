@@ -118,9 +118,7 @@ which allows us to piggy back off of a provided Spring configuration.
 
 https://github.com/FasterXML/jackson[Jackson] provides json serialization for Java objects.
 
-== Environment Setup
-
-=== Development and Building
+== Development and Building
 
 There are a few tools for java/kotlin development which are recommended if you are starting
 development:
@@ -132,6 +130,39 @@ development:
 
 If you prefer to develop using vim or emacs, you might find the eclim plugin to be nice. Likewise
 there are alternative IDEs available from Eclipse, NetBeans, and Microsoft.
+
+== Environment Setup
+
+=== System Configuration
+
+include::ssh-setup.adoc[]
+
+=== Storage
+
+As data moves throughout Chronopolis at various locations, there are different storage concepts
+within Chronopolis to be aware of.
+
+==== Layout
+
+Most of our services operate on the idea that data in Chronopolis is organized in a consistent
+manner. That is, there is a root path for a filesystem and namespaced directories in which we
+expect to find BagIt Bags.
+
+So for a directory `/srv/bags/`, a depositor `ucsd`, and a Bag `bag-0`, we would expect to find
+this Bag at: `/srv/bags/ucsd/bag-0`.
+
+==== Staging
+
+The Staging storage is a filesystem which is shared between Intake and Ingest. It is where
+any processing is done on collections coming into Chronopolis (bagging, validation, etc) and where
+Replication will pull from. Each resource being replicated will receive its own staging storage.
+
+Currently we replicate Bags and TokenStores, which each receive separate configuration.
+
+==== Preservation
+
+Preservation storage is the storage used at a Chronopolis Node which monitored by the ACE Audit
+Manager. Within the context of this document it should be accessible to only a Replication service.
 
 include::running-ingest.adoc[]
 

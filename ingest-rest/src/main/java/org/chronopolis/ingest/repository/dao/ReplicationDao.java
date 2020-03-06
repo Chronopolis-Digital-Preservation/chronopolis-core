@@ -10,6 +10,7 @@ import org.chronopolis.ingest.support.ReplicationCreateResult;
 import org.chronopolis.rest.entities.Bag;
 import org.chronopolis.rest.entities.BagDistribution;
 import org.chronopolis.rest.entities.BagDistributionStatus;
+import org.chronopolis.rest.entities.BagFile;
 import org.chronopolis.rest.entities.Node;
 import org.chronopolis.rest.entities.QBag;
 import org.chronopolis.rest.entities.QBagDistribution;
@@ -17,6 +18,7 @@ import org.chronopolis.rest.entities.QDataFile;
 import org.chronopolis.rest.entities.QNode;
 import org.chronopolis.rest.entities.QReplication;
 import org.chronopolis.rest.entities.Replication;
+import org.chronopolis.rest.entities.TokenStore;
 import org.chronopolis.rest.entities.depositor.QDepositor;
 import org.chronopolis.rest.entities.projections.ReplicationView;
 import org.chronopolis.rest.entities.storage.QStagingStorage;
@@ -50,7 +52,15 @@ public class ReplicationDao extends PagedDao {
     }
 
     /**
-     * Public method to create a replication based on a bag id and node id
+     * Create a {@link Replication} based on the {@code bagId} and {@code nodeId} in order to find
+     * the {@link Bag} and {@link Node} to distribute data to.
+     *
+     * If either the {@code bagId} or {@code nodeId} do not exist, throw a {@link NotFoundException}
+     *
+     * The {@link Bag} must have {@link StagingStorage} created for both the {@link BagFile} and
+     * {@link TokenStore} which are staged for distribution. If neither exist, a
+     * {@link ReplicationCreateResult} will be returned with {@link ReplicationCreateResult#errors}
+     * filled out for the appropriate error.
      *
      * @param bagId  the id of the bag to replicate
      * @param nodeId the id of the node to replicate to
@@ -64,6 +74,7 @@ public class ReplicationDao extends PagedDao {
         Bag bag = findOne(QBag.bag, QBag.bag.id.eq(bagId));
         Node node = findOne(QNode.node, QNode.node.id.eq(nodeId));
 
+        // todo: ReplicationCreateResult instead of NotFoundException?
         if (bag == null) {
             throw new NotFoundException("Bag " + bagId);
         } else if (node == null) {
