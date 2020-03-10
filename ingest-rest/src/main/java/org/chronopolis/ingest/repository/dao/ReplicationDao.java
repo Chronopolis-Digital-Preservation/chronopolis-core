@@ -35,6 +35,7 @@ import org.springframework.data.repository.support.PageableExecutionUtils;
 import javax.persistence.EntityManager;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -297,15 +298,28 @@ public class ReplicationDao extends PagedDao {
         QReplication replication = QReplication.replication;
         JPAQuery<?> query = createViewQuery()
                 .where(filter.getQuery())
-                .orderBy(filter.getOrderSpecifier())
-                .restrict(filter.getRestriction());
+                .orderBy(filter.getOrderSpecifier());
         JPAQuery<Replication> count = getJPAQueryFactory()
                 .selectFrom(replication)
                 .where(filter.getQuery());
-        return new PageImpl<ReplicationView>(
-                query.transform(GroupBy.groupBy(replication.id).list(replicationProjection())),
+
+        List<ReplicationView> replications = query.transform(GroupBy.groupBy(replication.id).list(replicationProjection()));
+
+        int page = filter.getPage();
+        long pageSize = filter.getPageSize();
+
+        List<ReplicationView> pagedResults = new ArrayList<>();
+        if (page*pageSize < replications.size()) {
+            long fromIndex = page*pageSize;
+            long toIndex = fromIndex + pageSize > replications.size() ? replications.size() : fromIndex + pageSize;
+
+            pagedResults.addAll(replications.subList((int)fromIndex, (int)toIndex));
+        }
+
+        return PageableExecutionUtils.getPage(
+                pagedResults,
                 filter.createPageRequest(),
-                count.fetchCount());
+                count::fetchCount);
     }
 
     private JPAQuery<?> createViewQuery() {
