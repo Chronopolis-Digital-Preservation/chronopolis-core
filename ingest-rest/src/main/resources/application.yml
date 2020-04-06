@@ -1,3 +1,6 @@
+# Spring Boot Actuator /info endpoint configuration
+info.app.name: Chronopolis Core
+
 # Ingest Configuration Properties
 
 # Ingest Cron job properties
