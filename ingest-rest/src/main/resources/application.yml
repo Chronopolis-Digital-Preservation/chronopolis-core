@@ -62,7 +62,7 @@ spring.datasource:
 # ../mvnw -Dflyway.user=DB_USER -Dflyway.password=DB_PWD -Dflyway.url=jdbc:postgresql://DB_HOST:5432/ingest flyway:migrate
 spring.flyway:
     enabled: false
-    locations: classpath:db/baseline,classpath:db/migration
+    locations: classpath:db/baseline,classpath:db/migration,filesystem:target/classes/db/schema
     # user: postgres
     # password: postgres
     # url: jdbc:postgresql://localhost:5432/ingest
