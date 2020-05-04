@@ -37,27 +37,13 @@
                 <version>${flyway-plugin.version}</version>
                 <configuration>
                     <!--
-                    only baseline version 1.0 so that our migrations can be applied in order;
-                    we initialize the database with the first version of the schema when doing this
+                    Migrate the database with flyway to initiate the schemas in order with the following command:
+                    ../mvnw -Dflyway.user=DB-USER -Dflyway.password=DB-PASSWORD -Dflyway.url=DB-URL flyway:migrate
                     -->
-                    <baselineVersion>1.0</baselineVersion>
-                    <locations>classpath:db/baseline</locations>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <!--
-                Flyway maven plugin: only for init of the db, not migrations (which is handled
-                when running).
-                -->
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>${flyway.version}</version>
-                <configuration>
                     <locations>
-                        <location>db/schema</location>
+                        <location>classpath:db/baseline</location>
+                        <location>classpath:db/migration</location>
                     </locations>
-                    <baselineVersion>3.2.0</baselineVersion>
                 </configuration>
             </plugin>
         </plugins>
