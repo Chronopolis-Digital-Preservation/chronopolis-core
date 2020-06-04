@@ -44,7 +44,9 @@ replication.cron: 0 0 * * * *
 
 # Various Configuration Properties
 # timeout: the timeout in Minutes for HTTP communication with the Audit Manager
+# ims.endpoint: ims service endpoint
 ace.timeout: 5
+ace.ims.endpoint: ims.tdl.org
 
 # SMTP Configuration
 smtp:

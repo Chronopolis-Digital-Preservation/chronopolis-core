@@ -74,6 +74,9 @@ spring.pid.file: /var/run/ingest-server.pid
 # debug: true
 server.port: 8080
 
+# ims service endpoint
+ace.ims.endpoint: ims.tdl.org
+
 # Default logging properties
 logging.level:
   org.springframework: ERROR
