@@ -153,6 +153,17 @@ public class StorageRegionUIController extends IngestController {
                                  @PathVariable("id") Long id,
                                  RegionUpdate regionEdit) {
         StorageRegion region = dao.findOne(QStorageRegion.storageRegion, QStorageRegion.storageRegion.id.eq(id));
+
+        BigDecimal bdCapacity = new BigDecimal(region.getCapacity());
+        FileSizeFormatter formatter = new FileSizeFormatter();
+        String[] capacityPair = formatter.format(bdCapacity).split(" ");
+
+        regionEdit.setCapacity(Math.round(Double.valueOf(capacityPair[0])));
+        regionEdit.setStorageUnit(StorageUnit.valueOf(capacityPair[1]));
+        regionEdit.setDataType(region.getDataType());
+        regionEdit.setNote(region.getNote());
+        regionEdit.setStorageType(region.getStorageType());
+
         model.addAttribute("region", region);
         model.addAttribute("dataTypes", DataType.values());
         model.addAttribute("storageTypes", StorageType.values());

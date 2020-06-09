@@ -23,7 +23,8 @@
                         <div class="col-sm">
                             <select class="form-control col-3" name="dataType" id="dataType">
                                 <option th:each="type: ${dataTypes}"
-                                        th:value="${type}" th:text="${type}"></option>
+                                        th:value="${type}" th:text="${type}"
+                                        th:selected="${regionEdit.dataType==type}"></option>
                             </select>
                         </div>
                     </div>
@@ -33,7 +34,8 @@
                         <div class="col-sm">
                             <select class="form-control col-3" name="storageType" id="storageType">
                                 <option th:each="type: ${storageTypes}"
-                                        th:value="${type}" th:text="${type}"></option>
+                                        th:value="${type}" th:text="${type}"
+                                        th:selected="${regionEdit.storageType==type}"></option>
                             </select>
                         </div>
                     </div>
@@ -45,7 +47,7 @@
                         <div class="col-sm">
                             <input th:field="*{capacity}"
                                    th:classappend="${capacityError}? 'is-invalid'"
-                                   class="form-control" id="capacity" name="capacity"/>
+                                   class="form-control" id="capacity" name="capacity" value="${regionEdit.capacity}"/>
                             <div class="invalid-feedback" th:if="${capacityError}"
                                  th:errors="*{capacity}"></div>
                         </div>
@@ -56,7 +58,8 @@
                         <div class="col-sm">
                             <select class="form-control col-3" name="storageUnit" id="storageUnit">
                                 <option th:each="unit: ${storageUnits}"
-                                        th:value="${unit}" th:text="${unit}"></option>
+                                        th:value="${unit}" th:text="${unit}"
+                                        th:selected="${regionEdit.storageUnit==unit}"></option>
                             </select>
                         </div>
                     </div>
@@ -65,8 +68,8 @@
                         <label for="note" class="col-3 col-form-label">Storage Region
                             Information</label>
                         <div class="col-sm">
-                            <textarea class="form-control" name="note" id="note"
-                                      rows="2"></textarea>
+                            <textarea class="form-control" name="note" id="note" rows="2"
+                                      th:text="${regionEdit.note}"></textarea>
                         </div>
                     </div>
                     <input type="submit" class="btn btn-primary" value="Submit"/>
