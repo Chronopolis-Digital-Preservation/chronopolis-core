@@ -1,5 +1,6 @@
 package org.chronopolis.ingest.features;
 
+import static java.util.Collections.emptySet;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import java.util.HashSet;
@@ -16,9 +17,15 @@ import org.chronopolis.ingest.repository.dao.PagedDao;
 import org.chronopolis.rest.entities.Node;
 import org.chronopolis.rest.entities.Replication;
 import org.chronopolis.rest.entities.depositor.Depositor;
+import org.chronopolis.rest.entities.storage.ReplicationConfig;
+import org.chronopolis.rest.entities.storage.StorageRegion;
+import org.chronopolis.rest.models.enums.DataType;
+import org.chronopolis.rest.models.enums.StorageType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,6 +50,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
 public abstract class TestBase extends IngestTest {
+    private static final Logger log = LoggerFactory.getLogger(TestBase.class);
 
     public static final String TEST_DEPOSITOR = "depositor-1";
     public static final String TEST_NODE = "test-node";
@@ -56,6 +64,8 @@ public abstract class TestBase extends IngestTest {
     protected WebClient webClient;
 
     protected PagedDao dao;
+
+    protected Node testNode;
 
     @LocalServerPort
     private int serverPort;
@@ -72,11 +82,19 @@ public abstract class TestBase extends IngestTest {
         webClient.getOptions().setThrowExceptionOnScriptError(false);
 
         dao = new PagedDao(entityManager);
+
+        testNode = createNode(TEST_NODE, TEST_NODE, emptySet());
     }
 
     @After
     public void cleanup() {
         this.webClient.close();
+
+        try {
+            dao.delete(testNode);
+        } catch (Exception ex) {
+            log.warn("Error deleting test node: " + TEST_NODE, ex);
+        }
     }
 
     protected String getUrl(String path) {
@@ -119,5 +137,27 @@ public abstract class TestBase extends IngestTest {
 
         dao.save(depositor);
         return depositor;
+    }
+
+    /*
+     * Create StorageRegion
+     * @return
+     */
+    protected StorageRegion createStorageRegion(DataType dataType, Node node) {
+        StorageRegion region = new StorageRegion();
+        region.setCapacity(1000000L);
+        region.setStorageType(StorageType.LOCAL);
+        region.setDataType(dataType);
+        region.setNode(node);
+        region.setNote("Storage Region Note");
+
+        ReplicationConfig config = new ReplicationConfig(region,
+                "/replication/path",
+                "localhost",
+                "user");
+        region.setReplicationConfig(config);
+
+        dao.save(region);
+        return region;
     }
 }

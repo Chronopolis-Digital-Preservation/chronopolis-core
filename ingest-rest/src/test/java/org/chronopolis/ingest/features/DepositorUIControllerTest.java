@@ -1,7 +1,6 @@
 package org.chronopolis.ingest.features;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static java.util.Collections.emptySet;
 
 import com.gargoylesoftware.htmlunit.html.*;
 
@@ -13,7 +12,6 @@ import org.chronopolis.rest.entities.Node;
 import org.chronopolis.rest.entities.depositor.Depositor;
 import org.chronopolis.rest.entities.depositor.QDepositor;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -21,13 +19,6 @@ import org.junit.Test;
  * @author lsitu
  */
 public class DepositorUIControllerTest extends TestBase {
-
-    private Node testNode;
-
-    @Before
-    public void initTest() {
-        testNode = createNode(TEST_NODE, TEST_NODE, emptySet());
-    }
 
     @After
     public void done() {
