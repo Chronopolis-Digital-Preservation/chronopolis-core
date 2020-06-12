@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import edu.umiacs.ace.ims.ws.TokenResponse;
+
+import org.chronopolis.common.ace.AceConfiguration;
 import org.chronopolis.ingest.IngestTest;
 import org.chronopolis.ingest.JpaContext;
 import org.chronopolis.ingest.repository.dao.PagedDao;
@@ -60,6 +62,8 @@ public class IngestTokenRegistrarTest extends IngestTest {
     @Autowired
     private EntityManager entityManager;
 
+    private AceConfiguration aceConfig;
+
     private PagedDao dao;
     private TokenWorkSupervisor tws;
     private IngestTokenRegistrar registrar;
@@ -69,6 +73,7 @@ public class IngestTokenRegistrarTest extends IngestTest {
     private final String DEPOSITOR = "test-depositor";
     private final String BAG_ONE_NAME = "bag-1";
     private final String BAG_THREE_NAME = "bag-3";
+    private final String IMS_ENDPOINT = "test-ims-endpoint";
     // From sql
     // private Bag bagOne = new Bag().setName(BAG_ONE_NAME).setDepositor(DEPOSITOR);
     // private Bag bagThree = new Bag().setName(BAG_THREE_NAME).setDepositor(DEPOSITOR);
@@ -78,7 +83,11 @@ public class IngestTokenRegistrarTest extends IngestTest {
     public void setup() throws DatatypeConfigurationException {
         tws = mock(TokenWorkSupervisor.class);
         dao = new PagedDao(entityManager);
-        registrar = new IngestTokenRegistrar(dao, tws);
+
+        aceConfig = new AceConfiguration();
+        aceConfig.getIms().setEndpoint(IMS_ENDPOINT);
+
+        registrar = new IngestTokenRegistrar(aceConfig, dao, tws);
 
         GregorianCalendar gc = GregorianCalendar.from(ZonedDateTime.now());
         xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gc);
@@ -108,6 +117,9 @@ public class IngestTokenRegistrarTest extends IngestTest {
 
         verify(tws, times(1)).complete(eq(entry));
         Assert.assertEquals(1, tokenCount(bag.getId()));
+
+        // check ims endpoint from configuration is persisted
+        Assert.assertEquals(IMS_ENDPOINT, token(bag.getId()).getImsHost());
     }
 
     @Test
@@ -173,5 +185,11 @@ public class IngestTokenRegistrarTest extends IngestTest {
                 .fetchCount();
     }
 
-
+    private AceToken token(Long bagId) {
+        QAceToken qAceToken = QAceToken.aceToken;
+        JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
+        return queryFactory.selectFrom(qAceToken)
+                .where(qAceToken.bag.id.eq(bagId).and(qAceToken.file.filename.eq(FILENAME)))
+                .fetchOne();
+    }
 }

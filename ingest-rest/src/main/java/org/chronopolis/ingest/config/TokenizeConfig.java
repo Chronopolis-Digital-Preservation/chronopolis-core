@@ -57,8 +57,9 @@ public class TokenizeConfig {
     }
 
     @Bean(destroyMethod = "close")
-    public IngestTokenRegistrar tokenRegistrar(PagedDao dao, TokenWorkSupervisor supervisor) {
-        return new IngestTokenRegistrar(dao, supervisor);
+    public IngestTokenRegistrar tokenRegistrar(AceConfiguration configuration,
+                                               PagedDao dao, TokenWorkSupervisor supervisor) {
+        return new IngestTokenRegistrar(configuration, dao, supervisor);
     }
 
     @Bean

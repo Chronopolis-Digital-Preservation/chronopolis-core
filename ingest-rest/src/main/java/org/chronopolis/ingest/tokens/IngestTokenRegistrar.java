@@ -2,6 +2,8 @@ package org.chronopolis.ingest.tokens;
 
 import edu.umiacs.ace.ims.api.IMSUtil;
 import edu.umiacs.ace.ims.ws.TokenResponse;
+
+import org.chronopolis.common.ace.AceConfiguration;
 import org.chronopolis.ingest.repository.dao.PagedDao;
 import org.chronopolis.rest.entities.AceToken;
 import org.chronopolis.rest.entities.Bag;
@@ -30,13 +32,14 @@ public class IngestTokenRegistrar implements TokenRegistrar, Runnable {
 
     private final Logger log = LoggerFactory.getLogger(IngestTokenRegistrar.class);
 
-    private static final String IMS_HOST = "ims.umiacs.umd.edu";
-
+    private final AceConfiguration aceConfig;
     private final PagedDao dao;
     private final TokenWorkSupervisor supervisor;
     private final AtomicBoolean running = new AtomicBoolean(true);
 
-    public IngestTokenRegistrar(PagedDao dao, TokenWorkSupervisor supervisor) {
+    public IngestTokenRegistrar(AceConfiguration aceConfig,
+                                PagedDao dao, TokenWorkSupervisor supervisor) {
+        this.aceConfig = aceConfig;
         this.dao = dao;
         this.supervisor = supervisor;
     }
@@ -86,7 +89,7 @@ public class IngestTokenRegistrar implements TokenRegistrar, Runnable {
                             response.getRoundId(),
                             response.getTokenClassName(),
                             response.getDigestService(),
-                            IMS_HOST,
+                            aceConfig.getIms().getEndpoint(),
                             create,
                             bag,
                             file);
