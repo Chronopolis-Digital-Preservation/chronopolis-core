@@ -1,0 +1,105 @@
+version: '3'
+services:
+
+  audit:
+    image: 'uazlibraries/ace-audit-manager:1.12'
+    restart: always
+    tty: true
+    links:
+      - dbstore
+      - integrity
+    ports:
+      - "8090:8080"
+    environment:
+      - DB_DATABASE=${ACE_AM_DATABASE:-aceamdb}
+      - DB_HOST=${ACE_AMDB_HOST:-dbstore}
+      - DB_PORT=${ACE_AMDB_PORT:-3306}
+      - DB_USER=${ACE_AMDBA_USER:-aceam}
+      - DB_PASSWORD=${ACE_AMDBA_PASSWORD:-ace}
+      - BOOTSTRAP_SLEEP=${ACE_AM_BOOTSTRAP_SLEEP:-60}
+    volumes:
+      - "../scratch1/chronopolis-preservation:/scratch1/chronopolis-preservation"
+      - ${ACE_AUDIT_SHARES:-/mnt}:/mnt
+      - run.mysql:/run/mysqld
+
+  integrity:
+    image: 'uazlibraries/ace-integrity-management:1.12'
+    restart: always
+    tty: true
+    links:
+      - dbstore
+    ports:
+      - "8080:8080"
+      - "8181:8181"
+      - "4848:4848"
+    environment:
+      - DB_DATABASE=${ACE_IMS_DATABASE:-imsdb}
+      - DB_HOST=${ACE_IMSDB_HOST:-dbstore}
+      - DB_PORT=${ACE_IMSDB_PORT:-3306}
+      - DB_USER=${ACE_IMSDBA_USER:-aceims}
+      - DB_PASSWORD=${ACE_IMSDBA_PASSWORD:-ace}
+      - SMTP_HOST=${ACE_IMS_SMTP_HOST:-smtp.gmail.com:587}
+      - SMTP_TLS=${ACE_IMS_SMTP_TLS:-true}
+      - SMTP_USER=${ACE_IMS_SMTP_USER:-dockertestfilesender}
+      - SMTP_PASSWORD=${ACE_IMS_SMTP_PASSWORD:-password=\"thisisalongpassword\"}
+      - BOOTSTRAP_SLEEP=${ACE_IMS_BOOTSTRAP_SLEEP:-45}
+    volumes:
+      - "../scratch1/chronopolis-preservation:/scratch1/chronopolis-preservation"
+      - run.mysql:/run/mysqld
+
+  dbstore:
+    image: 'uazlibraries/ace-dbstore-mysql:1.12'
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ADMIN_PSWD:-insecure}
+      - MYSQL_ALLOW_EMPTY_PASSWORD='false'
+      - ACE1_AM_DATABASE=${ACE1_AM_DATABASE:-aceamdb}
+      - ACE1_AMDBA_USER=${ACE1_AMDBA_USER:-aceam}
+      - ACE1_AMDBA_PASSWORD=${ACE1_AMDBA_PASSWORD:-ace}
+      - ACE_IMS_DATABASE=${ACE_IMS_DATABASE:-imsdb}
+      - ACE_IMSDBA_USER=${ACE_IMSDBA_USER:-aceims}
+      - ACE_IMSDBA_PASSWORD=${ACE_IMSDBA_PASSWORD:-ace}
+    volumes:
+      - ${ACE_DBSTORE:-dbstore}:/var/lib/mysql
+      - run.mysql:/run/mysqld
+
+  chron-build:
+    image: 'local/chron-build'
+    hostname: chron-build
+    links:
+      - postgresql
+    environment:
+      - JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
+    depends_on:
+      - postgresql
+    volumes:
+      - "../..:/chronopolis-core"
+      - "../chronopolishome:/home/chronopolis"
+
+  postgresql:
+    image: 'postgres:12.2'
+    hostname: postgresql
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - "../postgresql/data:/var/lib/postgresql/data"
+      - "../postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
+
+  pgadmin:
+    image: 'dpage/pgadmin4'
+    hostname: pgadmin
+    restart: always
+    ports:
+      - "8060:80"
+    environment: 
+      - PGADMIN_DEFAULT_EMAIL=chronopolis@localhost.localdomain
+      - PGADMIN_DEFAULT_PASSWORD=password
+
+volumes:
+  run.mysql:
+  dbstore:

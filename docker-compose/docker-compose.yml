@@ -1,0 +1,123 @@
+version: '3'
+services:
+  audit:
+    image: 'uazlibraries/ace-audit-manager:1.12'
+    restart: always
+    tty: true
+    links:
+      - dbstore
+      - integrity
+    ports:
+      - "8090:8080"
+    environment:
+      - DB_DATABASE=${ACE_AM_DATABASE:-aceamdb}
+      - DB_HOST=${ACE_AMDB_HOST:-dbstore}
+      - DB_PORT=${ACE_AMDB_PORT:-3306}
+      - DB_USER=${ACE_AMDBA_USER:-aceam}
+      - DB_PASSWORD=${ACE_AMDBA_PASSWORD:-ace}
+      - BOOTSTRAP_SLEEP=${ACE_AM_BOOTSTRAP_SLEEP:-60}
+      - TZ=America/Los_Angeles
+    volumes:
+      - "./scratch1/chronopolis-preservation:/scratch1/chronopolis-preservation"
+      - ${ACE_AUDIT_SHARES:-/mnt}:/mnt
+      - run.mysql:/run/mysqld
+
+  integrity:
+    image: 'uazlibraries/ace-integrity-management:1.12'
+    restart: always
+    tty: true
+    links:
+      - dbstore
+    ports:
+      - "8080:8080"
+      - "8181:8181"
+      - "4848:4848"
+    environment:
+      - DB_DATABASE=${ACE_IMS_DATABASE:-imsdb}
+      - DB_HOST=${ACE_IMSDB_HOST:-dbstore}
+      - DB_PORT=${ACE_IMSDB_PORT:-3306}
+      - DB_USER=${ACE_IMSDBA_USER:-aceims}
+      - DB_PASSWORD=${ACE_IMSDBA_PASSWORD:-ace}
+      - SMTP_HOST=${ACE_IMS_SMTP_HOST:-smtp.gmail.com:587}
+      - SMTP_TLS=${ACE_IMS_SMTP_TLS:-true}
+      - SMTP_USER=${ACE_IMS_SMTP_USER:-dockertestfilesender}
+      - SMTP_PASSWORD=${ACE_IMS_SMTP_PASSWORD:-password=\"thisisalongpassword\"}
+      - BOOTSTRAP_SLEEP=${ACE_IMS_BOOTSTRAP_SLEEP:-45}
+      - TZ=America/Los_Angeles
+    volumes:
+      - "./scratch1/chronopolis-preservation:/scratch1/chronopolis-preservation"
+      - run.mysql:/run/mysqld
+      
+  dbstore:
+    image: 'uazlibraries/ace-dbstore-mysql:1.12'
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ADMIN_PSWD:-insecure}
+      - MYSQL_ALLOW_EMPTY_PASSWORD='false'
+      - ACE1_AM_DATABASE=${ACE1_AM_DATABASE:-aceamdb}
+      - ACE1_AMDBA_USER=${ACE1_AMDBA_USER:-aceam}
+      - ACE1_AMDBA_PASSWORD=${ACE1_AMDBA_PASSWORD:-ace}
+      - ACE_IMS_DATABASE=${ACE_IMS_DATABASE:-imsdb}
+      - ACE_IMSDBA_USER=${ACE_IMSDBA_USER:-aceims}
+      - ACE_IMSDBA_PASSWORD=${ACE_IMSDBA_PASSWORD:-ace}
+      - TZ=America/Los_Angeles
+    volumes:
+      - ${ACE_DBSTORE:-dbstore}:/var/lib/mysql
+      - run.mysql:/run/mysqld
+  
+  # These are built and stored locally.
+  chron-replication:
+    image: 'local/chron-replication:latest'
+    hostname: chron
+    restart: always
+    environment:
+      - JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
+      - TZ=America/Los_Angeles
+    depends_on:
+      - chron-ingest
+    volumes:
+      - "./scratch1/chronopolis-preservation:/scratch1/chronopolis-preservation"
+      - "./export:/export"
+      - "../:/chronopolis-core"
+      - "./chron-replication/files/replication:/usr/local/chronopolis/replication"
+      - "./chronopolishome:/home/chronopolis"
+
+  chron-ingest:
+    image: 'local/chron-ingest:latest'
+    hostname: chron-ingest
+    restart: always
+    links:
+      - postgresql
+    ports:
+      - "8070:8080"
+      - "8009:8009"
+    environment:
+      - JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
+      - INITIALIZEDB="false"
+      - TZ=America/Los_Angeles
+    depends_on:
+      - postgresql
+    volumes:
+      - "./scratch1/chronopolis-preservation:/scratch1/chronopolis-preservation"
+      - "./export:/export"
+      - "../:/chronopolis-core"
+      - "./chron-ingest/files/ingest:/usr/local/chronopolis/ingest"
+      - "./chronopolishome:/home/chronopolis"
+
+  postgresql:
+    image: 'postgres:12.2'
+    hostname: postgresql
+    restart: always
+    ports:
+     - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - TZ=America/Los_Angeles
+    volumes:
+      - "./postgresql/data:/var/lib/postgresql/data"
+
+volumes:
+  run.mysql:
+  dbstore:

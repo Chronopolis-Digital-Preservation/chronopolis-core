@@ -1,0 +1,69 @@
+# Replication Configuration Properties
+ 
+# Replication Service Configuration
+# node: the name to use when sending notification messages
+# send-on-success: flag to enable sending notification on successful replications
+chron:
+  node: local
+  workDirectory: /tmp/chronopolis
+  maxFileTransfers: 2
+  smtp.send-on-success: true
+  rsync:
+    profile: "CHUNKED"
+    arguments:
+      - "-aL"
+      - "--stats"
+ 
+# ACE-AM Configuration
+# am: the endpoint of the Audit Manager application
+# username: the username to connect to the Audit Manager with
+# password: the password to connect to the Audit Manager with
+ace:
+  am: http://audit:8080/ace-am/
+  username: admin
+  password: admin
+ 
+# Ingest API Configuration
+# endpoint: the endpoint of the Ingest Server
+# username: the username to connect to the Ingest Server with
+# password: the password tot connect to the Ingest Server with
+ingest.api:
+  endpoint: http://chron-ingest:8080
+  username: developer
+  password: developer
+ 
+# Preservation Storage Configuration: Only posix supported at this time
+# posix: a list of Storage Filesystems available
+#   id: the id of the Storage Filesystem (optional for replication - Storage doesn't need to be registered with the Ingest Server)
+#   path: the path on disk to the Storage FS
+storage.preservation:
+  posix:
+    - id: 1
+      path: "/scratch1/chronopolis-preservation/"
+ 
+# Replication Cron Job Configuration
+# The rate at which to poll the ingest server for replications
+replication.cron: 0 */1 * * * *
+ 
+# Various Configuration Properties
+# timeout: the timeout in Minutes for HTTP communication with the Audit Manager
+ace.timeout: 5
+ace.ims.endpoint: integrity
+ 
+# SMTP Configuration
+smtp:
+  send: true
+  sendOnSuccess: true
+  to: thor@ucsd.edu
+  host: localhost.localdomain
+ 
+# Specify the active profile for loading various services, normally production
+spring.profiles.active: production
+spring.pid.file: /var/run/replicationd.pid
+ 
+# Logging properties
+logging.file: /var/log/chronopolis/replication.log
+logging.level:
+  org.springframework: INFO
+  org.hibernate: INFO
+  org.chronopolis: INFO

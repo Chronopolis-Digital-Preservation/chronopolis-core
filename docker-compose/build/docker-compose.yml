@@ -1,0 +1,39 @@
+version: '3'
+services:
+
+  chron-build:
+    image: 'local/chron-build'
+    hostname: chron-build
+    links:
+      - postgresql
+    environment:
+      - JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
+      - TZ=America/Los_Angeles
+    depends_on:
+      - postgresql
+    volumes:
+      - "../..:/chronopolis-core"
+      - "../chronopolishome:/home/chronopolis"
+
+  postgresql:
+    image: 'postgres:12.2'
+    hostname: postgresql
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - TZ=America/Los_Angeles
+    volumes:
+      - "../postgresql/data:/var/lib/postgresql/data"
+      - "../postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
+
+  pgadmin:
+    image: 'dpage/pgadmin4'
+    hostname: pgadmin
+    restart: always
+    ports:
+      - "8060:80"
+    environment: 
+      - PGADMIN_DEFAULT_EMAIL=chronopolis@localhost.localdomain
+      - PGADMIN_DEFAULT_PASSWORD=password

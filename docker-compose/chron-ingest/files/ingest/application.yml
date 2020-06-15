@@ -1,0 +1,91 @@
+# Spring Boot Actuator /info endpoint configuration
+info.app.name: Chronopolis Core
+
+# Ingest Configuration Properties
+ 
+# Ingest Cron job properties
+# tokens: the rate at which to check for bags which have all tokens and can have a Token Store written
+# request: the rate at which to check for bags which need their initial replications created
+# tokenize: the rate at which to check for local bags which need tokens created
+ingest.cron:
+  tokens: 0 */1 * * * *
+  request: 0 */1 * * * *
+ 
+# Ingest AJP Settings
+# enabled: flag to enable an AJP connector
+# port: the port for the connector to listen on
+ingest.ajp:
+  enabled: false
+  port: 8009
+
+# Ingest Local FS Scan
+## cron: the cron timer for running local fs scan
+## enabled: flag to enable local fs scan of bags
+## username: the 'creator' to check for when scanning bags
+## staging.path: the path to the filesystem on disk
+ingest.scan:
+  cron: 0 */1 * * * *
+  enabled: true
+  username: admin
+  staging.id: 1
+  staging.path: /export/outgoing/bags
+
+# Ingest Tokenizer Settings
+## cron: the cron timer for running local-tokenization
+## enabled: flag to enable Local tokenization of bags
+## username: the 'creator' to check for when depositing bags
+## staging.id: the ID of the StorageRegion to write tokens into
+## staging.path: the path to the filesystem on disk
+ingest.tokenizer:
+  cron: 0 */1 * * * *
+  enabled: true
+  username: admin
+  staging.id: 1
+  staging.path: /export/outgoing/bags
+ 
+# The staging area for writing Token Stores. Nonposix support not yet implemented.
+## id: The id of the StagingStorage in the Ingest server
+## path: The path to the filesystem on disk
+chron.stage.tokens.posix.id: 2
+chron.stage.tokens.posix.path: /export/outgoing/tokens
+
+## port: the port to connect to the ims with
+## waitTime: the time to wait between token requests
+## endpoint: the fqdn of the ims
+## queueLength: the maximum number of requests to send at once
+ace.ims:
+  port: 8080
+  waitTime: 5000
+  endpoint: integrity
+  queueLength: 1000
+
+server.port: 8080
+ 
+# Database connection
+# Initialize should be kept false so that the server does not attempt to run a drop/create on the tables
+spring.datasource:
+  url: jdbc:postgresql://postgresql:5432/ingestdb
+  username: postgres
+  password: password
+#  initialize: true
+#  test-on-borrow: true
+#  validation-query: SELECT 1;
+#  validation-interval: 30000
+
+spring.flyway:
+    enabled: true
+    locations: classpath:db/baseline,classpath:db/migration,filesystem:target/classes/db/schema
+
+# Specify the active profile for configuring services as a comma separated list
+# production - remove stdout/stderr from printing and run without accepting input
+# disable-tokenizer - disable local tokenization services from running
+spring.servlet.multipart.max-file-size: 25MB
+spring.profiles.active: production
+spring.pid.file: /var/run/ingest-server.pid
+ 
+# Logging properties
+logging.file: /var/log/chronopolis/ingest.log
+logging.level:
+  org.springframework: INFO
+  org.hibernate: INFO
+  org.chronopolis: INFO
