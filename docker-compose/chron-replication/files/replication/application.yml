@@ -34,7 +34,7 @@ ingest.api:
  
 # Preservation Storage Configuration: Only posix supported at this time
 # posix: a list of Storage Filesystems available
-#   id: the id of the Storage Filesystem (optional for replication - Storage doesn't need to be registered with the Ingest Server)
+#   id: the id of the StorageRegion  (optional for replication - Storage doesn't need to be registered with the Ingest Server)
 #   path: the path on disk to the Storage FS
 storage.preservation:
   posix:
@@ -52,9 +52,9 @@ ace.ims.endpoint: integrity
  
 # SMTP Configuration
 smtp:
-  send: true
-  sendOnSuccess: true
-  to: thor@ucsd.edu
+  send: false
+  sendOnSuccess: false
+  to: email@somewhere.com
   host: localhost.localdomain
  
 # Specify the active profile for loading various services, normally production

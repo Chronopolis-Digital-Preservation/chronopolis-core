@@ -6,7 +6,6 @@ info.app.name: Chronopolis Core
 # Ingest Cron job properties
 # tokens: the rate at which to check for bags which have all tokens and can have a Token Store written
 # request: the rate at which to check for bags which need their initial replications created
-# tokenize: the rate at which to check for local bags which need tokens created
 ingest.cron:
   tokens: 0 */1 * * * *
   request: 0 */1 * * * *
@@ -44,7 +43,7 @@ ingest.tokenizer:
   staging.path: /export/outgoing/bags
  
 # The staging area for writing Token Stores. Nonposix support not yet implemented.
-## id: The id of the StagingStorage in the Ingest server
+## id: The id of the StorageRegion for tokens in the Ingest server
 ## path: The path to the filesystem on disk
 chron.stage.tokens.posix.id: 2
 chron.stage.tokens.posix.path: /export/outgoing/tokens
@@ -67,13 +66,14 @@ spring.datasource:
   url: jdbc:postgresql://postgresql:5432/ingestdb
   username: postgres
   password: password
-#  initialize: true
-#  test-on-borrow: true
-#  validation-query: SELECT 1;
-#  validation-interval: 30000
+  initialize: false
 
+# Fryway database migration: disable with spring.flyway.enabled=false by default.
+# For dev environment, change spring.flyway.enabled=true to automate database migration.
+# For production deployment, we can manually migrate the database with the following command:
+# ../mvnw -Dflyway.user=DB_USER -Dflyway.password=DB_PWD -Dflyway.url=jdbc:postgresql://DB_HOST:5432/ingest flyway:migrate
 spring.flyway:
-    enabled: true
+    enabled: false
     locations: classpath:db/baseline,classpath:db/migration,filesystem:target/classes/db/schema
 
 # Specify the active profile for configuring services as a comma separated list
