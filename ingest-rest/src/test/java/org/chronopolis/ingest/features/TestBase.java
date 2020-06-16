@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import org.chronopolis.ingest.IngestTest;
 import org.chronopolis.ingest.JpaContext;
 import org.chronopolis.ingest.repository.dao.PagedDao;
+import org.chronopolis.ingest.support.FileSizeFormatter;
 import org.chronopolis.rest.entities.Node;
 import org.chronopolis.rest.entities.Replication;
 import org.chronopolis.rest.entities.depositor.Depositor;
@@ -159,5 +160,15 @@ public abstract class TestBase extends IngestTest {
 
         dao.save(region);
         return region;
+    }
+
+    /*
+     * Format capacity
+     * @param capacity
+     * @return
+     */
+    protected String formatCapacity(long capacity) {
+        FileSizeFormatter formatter = new FileSizeFormatter();
+        return formatter.format(capacity);
     }
 }
