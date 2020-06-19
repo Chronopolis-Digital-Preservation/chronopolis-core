@@ -201,6 +201,7 @@ public class BagUIController extends IngestController {
     public String addBag(Model model, Principal principal) {
         model.addAttribute("nodes", dao.findAll(QNode.node));
         model.addAttribute("regions", replicationDao.findAll(QStorageRegion.storageRegion));
+        model.addAttribute("bagCreate", new BagCreate());
         return "collections/add";
     }
 
@@ -211,11 +212,19 @@ public class BagUIController extends IngestController {
      * @return redirect to the bags page
      */
     @RequestMapping(value = "/bags/add", method = RequestMethod.POST)
-    public String addBag(Principal principal, @Valid BagCreate request) {
+    public String addBag(Model model, Principal principal, @Valid BagCreate request) {
         BagCreateResult result = dao.processRequest(principal.getName(), request);
-        return result.getBag()
-                .map(bag -> "redirect:/bags/" + bag.getId())
-                .orElse("redirect:/bags/add");
+        if (result.getBag().isPresent()) {
+            return "redirect:/bags/" + result.getBag().get().getId();
+        } else {
+            List<String> errors = (List<String>)result.getResponseEntity().getBody();
+
+            model.addAttribute("nodes", dao.findAll(QNode.node));
+            model.addAttribute("regions", replicationDao.findAll(QStorageRegion.storageRegion));
+            model.addAttribute("message", String.join("; ", errors));
+            model.addAttribute("bagCreate", request);
+            return "collections/add";
+        }
     }
 
     @GetMapping(value = "/bags/{id}/download/files", produces = "text/plain")

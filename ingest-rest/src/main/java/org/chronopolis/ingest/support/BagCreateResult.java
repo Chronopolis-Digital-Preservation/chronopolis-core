@@ -37,9 +37,9 @@ public class BagCreateResult {
         return Optional.ofNullable(bag);
     }
 
-    public ResponseEntity<Bag> getResponseEntity() {
+    public ResponseEntity<?> getResponseEntity() {
         if (bag == null) {
-            return status.builder.build();
+            return status.builder.body(errors);
         } else {
             return status.builder.body(bag);
         }

@@ -87,7 +87,7 @@ public class BagController extends IngestController {
      *         HTTP 403 if the user is not authorized to create
      */
     @PostMapping
-    public ResponseEntity<Bag> stageBag(Principal principal, @RequestBody BagCreate request) {
+    public ResponseEntity<?> stageBag(Principal principal, @RequestBody BagCreate request) {
         BagCreateResult result = dao.processRequest(principal.getName(), request);
         return result.getResponseEntity();
     }

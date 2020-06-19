@@ -11,12 +11,16 @@
         <div class="card-body p-2">
             <h6>Deposit a Collection into Chronopolis</h6>
             <div style="border: 0.2rem solid #f7f7f9; padding: 1.5rem">
+                <div align="center" class="error" th:text="${message}"></div>
+
+                <!--/*@thymesVar id="bagCreate" type="org.chronopolis.rest.models.create.BagCreate"*/-->
                 <form method="post" name="ingest">
                     <div class="form-group row">
                         <label for="bag-name" class="col-4 col-form-label">Collection Name</label>
                         <div class="col-8">
                             <input class="form-control" type="text" name="name"
-                                   placeholder="bag-name" id="bag-name"/>
+                                   placeholder="bag-name" id="bag-name"
+                                   th:value="${bagCreate.name}"/>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -24,7 +28,8 @@
                         <div class="col-8">
                             <input class="form-control" type="text" name="depositor"
                                    placeholder="depositor"
-                                   id="depositor-name"/>
+                                   id="depositor-name"
+                                   th:value="${bagCreate.depositor}"/>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -32,7 +37,8 @@
                         <div class="col-8">
                             <input class="form-control" type="text" name="location"
                                    placeholder="depositor-name/bag-name"
-                                   id="location"/>
+                                   id="location"
+                                   th:value="${bagCreate.location}"/>
                         </div>
                     </div>
 
@@ -44,14 +50,16 @@
                                 <!--/*@thymesVar id="regions" type="List<org.chronopolis.rest.entities.storage.StorageRegion>" */-->
                                 <!--/*@thymesVar id="region" type="org.chronopolis.rest.entities.storage.StorageRegion" */-->
                                 <option th:each="region : ${regions}" th:value="${region.id}"
-                                        th:text="|(${region.id}) ${region.node.username}: ${region.dataType} ${region.storageType}|"></option>
+                                        th:text="|(${region.id}) ${region.node.username}: ${region.dataType} ${region.storageType}|"
+                                        th:selected="${bagCreate.storageRegion==region.id}"></option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label for="size" class="col-4 col-form-label">Size (In Bytes)</label>
                         <div class="col-8">
-                            <input class="form-control" type="text" name="size" id="size"/>
+                            <input class="form-control" type="text" name="size" id="size"
+                                   th:value="${bagCreate.size==0 ? '' : bagCreate.size}"/>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -59,7 +67,8 @@
                             Files</label>
                         <div class="col-8">
                             <input class="form-control" type="text" name="totalFiles"
-                                   id="totalFiles"/>
+                                   id="totalFiles"
+                                   th:value="${bagCreate.totalFiles==0 ? '' : bagCreate.totalFiles}"/>
                         </div>
                     </div>
 
