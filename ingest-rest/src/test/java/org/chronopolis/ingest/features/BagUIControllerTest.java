@@ -5,8 +5,16 @@ import static org.fest.assertions.Assertions.assertThat;
 import com.gargoylesoftware.htmlunit.html.*;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
 
+import org.chronopolis.rest.entities.Bag;
+import org.chronopolis.rest.entities.BagDistributionStatus;
+import org.chronopolis.rest.entities.Node;
+import org.chronopolis.rest.entities.depositor.Depositor;
 import org.chronopolis.rest.entities.storage.StorageRegion;
+import org.chronopolis.rest.models.enums.BagStatus;
 import org.chronopolis.rest.models.enums.DataType;
 import org.junit.After;
 import org.junit.Before;
@@ -19,12 +27,21 @@ import org.junit.Test;
 public class BagUIControllerTest extends TestBase {
 
     private static final String NOT_A_DEPOSITOR = "NOT A DEPOSITOR";
+    private static final String STUCK_COLLECTION = "STUCK COLLECTION";
 
+    private Depositor depositor;
     private StorageRegion  regionBag;
     private StorageRegion  regionToken;
 
+    private Bag testBag = null;
+    private Bag stuckBag = null;
+
     @Before
     public void initTest() {
+        List<Node> nodes = Arrays.asList(testNode);
+        depositor = createDepositor(TEST_DEPOSITOR, "Organization Name",
+                "Organization Address", nodes);
+
         regionBag = createStorageRegion(DataType.BAG, testNode);
 
         regionToken = createStorageRegion(DataType.TOKEN, testNode);
@@ -33,6 +50,14 @@ public class BagUIControllerTest extends TestBase {
 
     @After
     public void done() {
+        if (testBag != null) {
+            dao.delete(testBag);
+        }
+
+        if (stuckBag != null) {
+            dao.delete(stuckBag);
+        }
+
         dao.delete(regionBag);
         dao.delete(regionToken);
     }
@@ -124,5 +149,88 @@ public class BagUIControllerTest extends TestBase {
         // Total Number of Files
         elInput = newPage.getHtmlElementById("totalFiles");
         assertThat(elInput.getValueAttribute()).isEqualTo("3");
+    }
+
+    @Test
+    public void stuckCollectionsPageSizeTest() throws IOException {
+        // create a stuck collection
+        stuckBag = createStuckCollection();
+
+        // create a test collection
+        testBag = createTestCollection();
+
+        // load the stuck collections page
+        HtmlPage colsPage = webClient.getPage(getUrl("/bags/stuck"));
+
+        // page size: items per page
+        String xpath = "(//ol[@class='breadcrumb']/li)[4]/label";
+        HtmlElement el = (HtmlElement) colsPage.getFirstByXPath(xpath);
+        assertThat(el.getTextContent()).isEqualTo("per page");
+
+        HtmlSelect elSelect = (HtmlSelect)colsPage.getElementById("pageSize");
+        assertThat(elSelect.getOptionByValue("25").isSelected()).isEqualTo(true);
+
+        // verify only one row /collection
+        xpath = "//table[@class='table table-hover']/tbody/tr";
+        assertThat(colsPage.getByXPath(xpath).size()).isEqualTo(1);
+
+        //// verify collection properties
+        xpath = "//table[@class='table table-hover']/tbody/tr[1]/td";
+        List<HtmlElement> tds = colsPage.getByXPath(xpath);
+        // ID
+        assertThat(tds.get(0).getTextContent()).isEqualTo("" + stuckBag.getId());
+        // Depositor
+        assertThat(tds.get(1).getTextContent()).isEqualTo(TEST_DEPOSITOR);
+        // Collection Name
+        assertThat(tds.get(2).getTextContent()).isEqualTo(STUCK_COLLECTION);
+        // Collection Status
+        assertThat(tds.get(3).getTextContent()).isEqualTo("" + BagStatus.DEPOSITED);
+
+        //// now change the page size and validate it's selected in the new page loaded
+        HtmlPage newPage = (HtmlPage) elSelect.getOptionByValue("20").setSelected(true);
+
+        elSelect = (HtmlSelect)newPage.getElementById("pageSize");
+        assertThat(elSelect.getOptionByValue("20").isSelected()).isEqualTo(true);
+
+        // verify there is only one row in the new page
+        xpath = "//table[@class='table table-hover']/tbody/tr";
+        assertThat(newPage.getByXPath(xpath).size()).isEqualTo(1);
+
+        // verify it's the stuck collection in the new page
+        xpath = "//table[@class='table table-hover']/tbody/tr[1]/td";
+        tds = newPage.getByXPath(xpath);
+        assertThat(tds.get(0).getTextContent()).isEqualTo("" + stuckBag.getId());
+        assertThat(tds.get(2).getTextContent()).isEqualTo(STUCK_COLLECTION);
+    }
+
+    /*
+     * Create test collection.
+     * @return
+     */
+    private Bag createTestCollection() {
+        Bag bag = new Bag("test-bag", "test-creator", depositor, 1L, 1L, BagStatus.DEPOSITED);
+        bag.addDistribution(testNode, BagDistributionStatus.DISTRIBUTE);
+
+        dao.save(bag);
+
+        return bag;
+    }
+
+    /*
+     * Create stuck collection.
+     * @return
+     */
+    private Bag createStuckCollection() {
+        Bag bag = new Bag(STUCK_COLLECTION, "test-creator", depositor, 1L, 1L, BagStatus.DEPOSITED);
+        bag.addDistribution(testNode, BagDistributionStatus.DISTRIBUTE);
+
+        ZonedDateTime dateTime = ZonedDateTime.now();
+        dateTime = dateTime.minusDays(15);
+        bag.setCreatedAt(dateTime);
+        bag.setUpdatedAt(dateTime);
+
+        dao.save(bag);
+
+        return bag;
     }
 }

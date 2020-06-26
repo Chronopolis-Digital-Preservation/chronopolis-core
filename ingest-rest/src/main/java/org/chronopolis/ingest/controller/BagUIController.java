@@ -279,6 +279,7 @@ public class BagUIController extends IngestController {
         model.addAttribute("stuck", true);
         model.addAttribute("bags", stuckBags);
         model.addAttribute("pages", pages);
+        model.addAttribute("pageSize", String.valueOf(filter.getPageSize()));
         model.addAttribute("statuses", BagStatus.Companion.statusByGroup());
 
         return "collections/collections";

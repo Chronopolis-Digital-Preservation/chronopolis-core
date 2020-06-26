@@ -86,7 +86,7 @@
     </ol>
 
     <div id="filter-body" class="collapse p-2">
-        <form th:action="@{/bags}" method="GET">
+        <form th:action="${stuck != null && stuck ? '/bags/stuck' : '/bags'}" method="GET">
             <div class="form-group row">
                 <label for="depositor-table-filter" class="col-form-label col-2">Depositor</label>
                 <input class="form-control col-9" id="depositor-table-filter" name="depositor" th:value="${param.depositor}"
