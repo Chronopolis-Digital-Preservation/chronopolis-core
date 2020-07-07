@@ -1,6 +1,8 @@
 package org.chronopolis.ingest.features;
 
+import static java.time.ZonedDateTime.now;
 import static java.util.Collections.emptySet;
+import static org.chronopolis.rest.models.enums.FixityAlgorithm.SHA_256;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import java.util.HashSet;
@@ -14,11 +16,18 @@ import javax.transaction.Transactional;
 import org.chronopolis.ingest.IngestTest;
 import org.chronopolis.ingest.JpaContext;
 import org.chronopolis.ingest.repository.dao.PagedDao;
+import org.chronopolis.ingest.repository.dao.StagingDao;
 import org.chronopolis.ingest.support.FileSizeFormatter;
+import org.chronopolis.rest.entities.Bag;
+import org.chronopolis.rest.entities.BagFile;
+import org.chronopolis.rest.entities.DataFile;
 import org.chronopolis.rest.entities.Node;
 import org.chronopolis.rest.entities.Replication;
+import org.chronopolis.rest.entities.TokenStore;
 import org.chronopolis.rest.entities.depositor.Depositor;
+import org.chronopolis.rest.entities.storage.Fixity;
 import org.chronopolis.rest.entities.storage.ReplicationConfig;
+import org.chronopolis.rest.entities.storage.StagingStorage;
 import org.chronopolis.rest.entities.storage.StorageRegion;
 import org.chronopolis.rest.models.enums.DataType;
 import org.chronopolis.rest.models.enums.StorageType;
@@ -55,6 +64,9 @@ public abstract class TestBase extends IngestTest {
 
     public static final String TEST_DEPOSITOR = "depositor-1";
     public static final String TEST_NODE = "test-node";
+
+    private static final String TAG_FIXITY = "tag-fixity";
+    private static final String TOKEN_FIXITY = "token-fixity";
 
     @Autowired
     private WebApplicationContext context;
@@ -160,6 +172,61 @@ public abstract class TestBase extends IngestTest {
 
         dao.save(region);
         return region;
+    }
+
+    /*
+     * Create BagFile
+     * @param bag
+     * @return
+     */
+    protected BagFile bagFile(Bag bag) {
+        BagFile bagFile = new BagFile();
+        bagFile.setBag(bag);
+        bagFile.setFilename("bag_file");
+        bagFile.setDtype(StagingDao.DISCRIMINATOR_BAG);
+        bagFile.addFixity(new Fixity(now(), bagFile, TAG_FIXITY, SHA_256.getCanonical()));
+
+        dao.save(bagFile);
+        return bagFile;
+    }
+
+    /*
+     * Create TokenStore
+     * @param bag
+     * @return
+     */
+    protected TokenStore tokenStore(Bag bag) {
+        TokenStore store = new TokenStore();
+        store.setBag(bag);
+        store.setFilename("token_file");
+        store.setDtype(StagingDao.DISCRIMINATOR_TOKEN);
+        store.addFixity(new Fixity(now(), store, TOKEN_FIXITY, SHA_256.getCanonical()));
+
+        dao.save(store);
+        return store;
+    }
+
+    /*
+     * Create StagingStorage
+     * @param bag
+     * @param region
+     * @param file
+     * @return
+     */
+    protected StagingStorage stagingStorage(Bag bag, StorageRegion region, DataFile file) {
+        StagingStorage storage = new StagingStorage();
+        storage.setFile(file);
+        storage.setBag(bag);
+        storage.setRegion(region);
+        storage.setSize(1L);
+        storage.setTotalFiles(1L);
+        storage.setPath(bag.getDepositor().getNamespace() + "/" + bag.getName());
+        storage.setActive(true);
+        region.getStorage().add(storage);
+        bag.getStorage().add(storage);
+
+        dao.save(bag);
+        return storage;
     }
 
     /*

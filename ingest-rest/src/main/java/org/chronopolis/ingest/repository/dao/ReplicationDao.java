@@ -232,7 +232,7 @@ public class ReplicationDao extends PagedDao {
      * @param storage The storage to replication from
      * @return The string for the replication
      */
-    private String createReplicationString(StagingStorage storage, Boolean trailingSlash) {
+    public static String createReplicationString(StagingStorage storage, Boolean trailingSlash) {
         ReplicationConfig config;
 
         storage.getRegion();
@@ -265,7 +265,7 @@ public class ReplicationDao extends PagedDao {
         }
     }
 
-    private String buildLink(String user, String server, Path file, Boolean trailingSlash) {
+    private static String buildLink(String user, String server, Path file, Boolean trailingSlash) {
         return user +
                 "@" + server +
                 ":" + file.toString() + (trailingSlash ? "/" : "");

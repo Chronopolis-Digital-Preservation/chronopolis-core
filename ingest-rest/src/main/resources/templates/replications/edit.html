@@ -22,7 +22,7 @@
                         </dt>
                         <dt>
                             <div class="form-group row">
-                                <label for="nodes" class="col-form-label">Replicating Nodes</label>
+                                <label for="node" class="col-form-label">Replicating Node</label>
                                 <!--/*@thymesVar id="nodes" type="List<org.chronopolis.rest.entities.Node>"*/-->
                                 <select class="form-control" name="node" id="node" disabled>
                                     <option th:each="node: ${nodes}"
@@ -35,7 +35,7 @@
 
                         <dt>
                             <div class="form-group row">
-                                <label for="nodes" class="col-form-label">Replicating Status</label>
+                                <label for="status" class="col-form-label">Replicating Status</label>
                                 <!--/*@thymesVar id="statuses" type="List<org.chronopolis.rest.models.enums.ReplicationStatus>"*/-->
                                 <select class="form-control" name="status" id="status">
                                     <option th:each="status: ${statuses}"
