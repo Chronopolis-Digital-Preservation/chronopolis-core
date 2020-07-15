@@ -4,6 +4,10 @@ spring.main.allow-bean-definition-overriding: true
 # Spring Boot Actuator /info endpoint configuration
 info.app.name: Chronopolis Core
 
+# Spring Boot Actuator /health endpoint with authorized access
+management.endpoint.health.show-components: when_authorized
+management.endpoint.health.show-details: when_authorized
+
 # Ingest Tokenizer Settings
 ## staging.path: the path to the filesystem on disk
 ingest.tokenizer.staging.path: .
