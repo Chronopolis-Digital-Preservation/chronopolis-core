@@ -19,14 +19,17 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import retrofit2.Call;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static java.time.ZonedDateTime.now;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.anyMap;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.eq;
 
 
 /**
@@ -79,13 +82,13 @@ public class ReplicationQueryTaskTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testCheckForReplications() {
-        when(replicationService.get(anyMap())).thenReturn(replications);
+    public void testCheckForReplications() throws IOException {
+        when(replicationService.get(eq(0), eq(20), anyString(), anyList())).thenReturn(replications);
         task.checkForReplications();
 
-        // We have 6 ongoing types of replication states, so query for them
-        verify(submitter, times(NUM_REPLICATIONS * 6)).submit(any(Replication.class));
-        verify(replicationService, times(6)).get(anyMap());
+        // We have 6 types of replication states for querying at once
+        verify(replicationService, times(1)).get(eq(0), eq(20), anyString(), anyList());
+        verify(submitter, times(NUM_REPLICATIONS)).submit(any(Replication.class));
     }
 
 }

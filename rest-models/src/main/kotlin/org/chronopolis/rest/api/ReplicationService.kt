@@ -2,6 +2,7 @@ package org.chronopolis.rest.api
 
 import org.chronopolis.rest.api.Paths.REPLICATION_ROOT
 import org.chronopolis.rest.models.Replication
+import org.chronopolis.rest.models.enums.ReplicationStatus;
 import org.chronopolis.rest.models.create.ReplicationCreate
 import org.chronopolis.rest.models.page.SpringPage
 import org.chronopolis.rest.models.update.FixityUpdate
@@ -13,6 +14,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.QueryMap
+import retrofit2.http.Query
 
 /**
  * Service to interact with the Replication API in the ingest server
@@ -46,6 +48,21 @@ interface ReplicationService {
      */
     @GET(REPLICATION_ROOT)
     fun get(@QueryMap params: Map<String, String>): Call<SpringPage<Replication>>
+
+    /**
+     * Get all replications, filtered by the query parameters provided
+     *
+     * @param page The page to retrieve
+     * @param page_size Page size
+     * @param node User name
+     * @param status List of ReplicationStatus
+     * @return all replications which match the query
+     */
+    @GET(REPLICATION_ROOT)
+    fun get(@Query("page") page: Int,
+            @Query("page_size") page_size: Int,
+            @Query("node") node: String,
+            @Query("status") status: List<String>): Call<SpringPage<Replication>>
 
     /**
      * Create a Replication request

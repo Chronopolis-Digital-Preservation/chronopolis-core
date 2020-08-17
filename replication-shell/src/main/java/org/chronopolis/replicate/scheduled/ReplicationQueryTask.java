@@ -13,13 +13,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import com.sun.xml.ws.policy.privateutil.PolicyUtils.Collections;
+
 import retrofit2.Call;
 import retrofit2.Response;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.chronopolis.rest.models.enums.ReplicationStatus.*;
@@ -37,6 +46,9 @@ import static org.chronopolis.rest.models.enums.ReplicationStatus.*;
 @EnableScheduling
 public class ReplicationQueryTask {
     private final Logger log = LoggerFactory.getLogger(ReplicationQueryTask.class);
+
+    private static final List<ReplicationStatus> ACTIVE_STATUS =
+            Arrays.asList(ACE_AUDITING, ACE_TOKEN_LOADED, ACE_REGISTERED, TRANSFERRED, STARTED, PENDING);
 
     private final IngestApiProperties properties;
     private final ReplicationService replications;
@@ -59,19 +71,10 @@ public class ReplicationQueryTask {
     public void checkForReplications() {
         log.info("Querying for replications");
 
-        // force ordering on the order which we query so that we don't end up updating a replication
-        // and submitting it again shortly after
-        //noinspection ResultOfMethodCallIgnored
-        Stream.of(ACE_AUDITING, ACE_TOKEN_LOADED, ACE_REGISTERED, TRANSFERRED, STARTED, PENDING)
-                .map(this::query)                     // run the query method
-                .anyMatch(q -> {                      // short circuit in case we have an exception
-                    if (!q.success) {
-                        log.error("Error checking for replications", q.t);
-                        return true;
-                    }
-
-                    return false;
-                });
+        Query q = query(ACTIVE_STATUS);
+        if (!q.success) {
+            log.error("Error checking for replications", q.t);
+        }
     }
 
     /**
@@ -80,22 +83,19 @@ public class ReplicationQueryTask {
      *
      * @param status the status of the request to get
      */
-    private Query query(ReplicationStatus status) {
+    private Query query(List<ReplicationStatus> status) {
         int page = 0;
         int pageSize = 20;
 
         Query q = new Query(true);
-        Map<String, String> params = new HashMap<>();
-        params.put("page", String.valueOf(page));
-        params.put("status", status.toString());
-        params.put("page_size", String.valueOf(pageSize));
-        params.put("node", properties.getUsername());
 
         // TODO: As replications get updated, the state can change and alter the
         // amount of pages. For now we'll handle at most 1 page at a time, and maybe
         // introduce new query methods to the api later (e.g. /api/nodes/my-nodes/replications)
         try {
-            Call<SpringPage<Replication>> call = replications.get(params);
+            List<String> actuveStatus = status.stream().map(s -> s.toString()).collect(Collectors.toList());
+            Call<SpringPage<Replication>> call = replications.get(page, pageSize,
+                    properties.getUsername(), actuveStatus);
             Response<SpringPage<Replication>> response = call.execute();
             SpringPage<Replication> replications = response.body();
             log.trace("[{}] On page {} with {} replications. {} total.", status,
@@ -104,7 +104,7 @@ public class ReplicationQueryTask {
                     replications.getTotalElements());
 
             ++page;
-            params.put("page", String.valueOf(page));
+
             startReplications(replications);
         } catch (IOException e) {
             q = new Query(false, e);
