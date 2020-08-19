@@ -37,8 +37,8 @@ public class ReplicationUIControllerTest extends TestBase {
 
     private static final String REPLICATION_STATUS_PENDING = "PENDING";
     private static final String REPLICATION_STATUS_SUCCESS = "SUCCESS";
-    private static final String TEST_BAG = "test-bag";
-    private static final String TEST_CREATOR = "test-creator";
+    protected static final String TEST_BAG = "test-bag";
+    protected static final String TEST_CREATOR = "test-creator";
 
     private Depositor depositor;
     private StorageRegion  regionBag;
@@ -56,7 +56,8 @@ public class ReplicationUIControllerTest extends TestBase {
 
         regionToken = createStorageRegion(DataType.TOKEN, testNode);
 
-        testBag = createBagWithFiles(depositor, regionBag, regionToken, Arrays.asList(testNode));
+        testBag = createBagWithFiles(TEST_BAG, TEST_CREATOR, depositor, regionBag, regionToken,
+                Arrays.asList(testNode), BagStatus.REPLICATING);
     }
 
     @After
@@ -299,7 +300,8 @@ public class ReplicationUIControllerTest extends TestBase {
     @Test
     public void updateReplicationStatusTest() throws IOException {
         // create test replication
-        testRepl = createTestReplication(ReplicationStatus.PENDING, testNode, testBag);
+        testRepl = createTestReplication(ReplicationStatus.PENDING, testNode, testBag,
+                regionBag, regionToken);
 
         // load the edit form
         HtmlPage formPage = webClient.getPage(getUrl("/replications/" + testRepl.getId() + "/edit"));
@@ -372,7 +374,8 @@ public class ReplicationUIControllerTest extends TestBase {
     @Test
     public void deleteReplicationTest() throws IOException {
         // create test replication
-        testRepl = createTestReplication(ReplicationStatus.PENDING, testNode, testBag);
+        testRepl = createTestReplication(ReplicationStatus.PENDING, testNode, testBag,
+                regionBag, regionToken);
 
         // load the edit form
         HtmlPage formPage = webClient.getPage(getUrl("/replications/" + testRepl.getId() + "/edit"));
@@ -426,17 +429,19 @@ public class ReplicationUIControllerTest extends TestBase {
     }
 
     /*
-     * Create collection with files.
+     * Create collection with files
+     * @param collectionName
+     * @param creator
      * @param depositor
      * @param regionBag
      * @param regionToken
      * @param nodes
-     * @param dao
+     * @param status - BagStatus
      * @return
      */
-    private Bag createBagWithFiles(Depositor depositor, StorageRegion regionBag,
-            StorageRegion regionToken, List<Node> nodes) {
-        Bag bag = new Bag(TEST_BAG, TEST_CREATOR, depositor, 1L, 1L, BagStatus.REPLICATING);
+    protected Bag createBagWithFiles(String collectionName, String creator, Depositor depositor,
+            StorageRegion regionBag, StorageRegion regionToken, List<Node> nodes, BagStatus status) {
+        Bag bag = new Bag(collectionName, creator, depositor, 1L, 1L, status);
         for (Node n : nodes) {
             bag.addDistribution(n, BagDistributionStatus.DISTRIBUTE);
         }
@@ -457,9 +462,12 @@ public class ReplicationUIControllerTest extends TestBase {
      * @param status
      * @param node
      * @param bag
+     * @param  regionBag - StorageRegion for collection
+     * @param regionToken - StorageRegion for Token
      * @return
      */
-    private Replication createTestReplication(ReplicationStatus status, Node node, Bag bag) {
+    protected Replication createTestReplication(ReplicationStatus status, Node node, Bag bag,
+        StorageRegion regionBag, StorageRegion regionToken) {
         StagingStorage storageBag = regionBag.getStorage().iterator().next();
         StagingStorage storageToken = regionToken.getStorage().iterator().next();
         String bagDlLink = ReplicationDao.createReplicationString(storageBag, true);

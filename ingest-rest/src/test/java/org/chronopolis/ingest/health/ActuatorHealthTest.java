@@ -4,17 +4,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.chronopolis.ingest.IngestTest;
-import org.chronopolis.ingest.JpaContext;
+import org.chronopolis.ingest.IntegrationTestBase;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
@@ -23,12 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
  *
  * @author lsitu
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest
 @AutoConfigureMockMvc
-@ContextConfiguration(classes = JpaContext.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class ActuatorHealthTest extends IngestTest {
+public class ActuatorHealthTest extends IntegrationTestBase {
 
     @Autowired
     private MockMvc mockMvc;
