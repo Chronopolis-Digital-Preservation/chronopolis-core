@@ -16,5 +16,16 @@ ingest.tokenizer.staging.path: .
 ## path: The path to the filesystem on disk
 chron.stage.tokens.posix.path: .
 
+# Ingest AJP Settings
+# enabled: flag to enable an AJP connector
+ingest.ajp.enabled: false
+
+# Database connection
+# Initialize should be kept false so that the server does not attempt to run a drop/create on the tables
+spring.datasource.initialize: false
+
+# Fryway database migration: disable with spring.flyway.enabled=false by default.
+spring.flyway.enabled: false
+
 # Specify the active profile for loading various services
 spring.profiles.active: test
