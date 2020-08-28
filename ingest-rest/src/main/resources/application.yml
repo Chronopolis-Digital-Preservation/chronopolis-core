@@ -80,22 +80,3 @@ server.port: 8080
 
 # ims service endpoint
 ace.ims.endpoint: ims.tdl.org
-
-# Default logging properties
-logging.level:
-  org.springframework: ERROR
-  org.hibernate: ERROR
-  org.chronopolis: DEBUG
-
----
-# settings for test profile
-spring:
-  profiles: development
-logging.file: chronopolis-ingest.log
-
----
-# settings for production profile
-spring:
-  profiles: production
-logging.file: /var/log/chronopolis/ingest.log
-

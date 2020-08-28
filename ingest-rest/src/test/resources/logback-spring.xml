@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+
+    <springProfile name="test">
+        <property name="LOG_FILE" value="${logging.file:-./ingest-test.log}"/>
+
+        <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+
+        <root level="INFO">
+            <appender-ref ref="FILE" />
+        </root>
+
+        <logger name="org.springframework" level="ERROR" />
+        <logger name="org.hibernate" level="ERROR" />
+        <logger name="org.chronopolis" level="DEBUG" />
+    </springProfile>
+</configuration>

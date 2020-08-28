@@ -15,3 +15,6 @@ ingest.tokenizer.staging.path: .
 # The staging area for writing Token Stores. Non-posix support not yet implemented.
 ## path: The path to the filesystem on disk
 chron.stage.tokens.posix.path: .
+
+# Specify the active profile for loading various services
+spring.profiles.active: test
