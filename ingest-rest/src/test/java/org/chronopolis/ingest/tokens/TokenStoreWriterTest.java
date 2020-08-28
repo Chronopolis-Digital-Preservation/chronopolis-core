@@ -32,6 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.persistence.EntityManager;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
@@ -63,8 +64,10 @@ public class TokenStoreWriterTest extends IngestTest {
     @Before
     public void setup() {
         dao = new TokenDao(entityManager);
+
+        URL bags = ClassLoader.getSystemClassLoader().getResource("bags");
         properties = new TokenStagingProperties()
-                .setPosix(new Posix().setId(1L).setPath(System.getProperty("chron.stage.tokens")));
+                .setPosix(new Posix().setId(1L).setPath(bags.getFile()));
     }
 
     private Bag findBag(String depositor, String name) {
