@@ -41,5 +41,32 @@
         <logger name="rsync-log" level="DEBUG">
             <appender-ref ref="RSYNC_LOG"/>
         </logger>
+
+        <!-- replication log -->
+        <property name="LOG_FILE" value="${logging.file:-/var/log/chronopolis/replication.log}"/>
+        <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+
+        <root level="INFO">
+            <appender-ref ref="FILE" />
+        </root>
+
+        <logger name="org.springframework" level="INFO" />
+        <logger name="org.hibernate" level="INFO" />
+        <logger name="org.chronopolis" level="INFO" />
     </springProfile>
+
+    <springProfile name="development">
+        <property name="LOG_FILE" value="${logging.file:-./chronopolis-replication.log}"/>
+
+        <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+
+        <root level="INFO">
+            <appender-ref ref="FILE" />
+        </root>
+
+        <logger name="org.springframework" level="ERROR" />
+        <logger name="org.hibernate" level="ERROR" />
+        <logger name="org.chronopolis" level="DEBUG" />
+    </springProfile>
+
 </configuration>

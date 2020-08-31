@@ -58,21 +58,3 @@ smtp:
 # Specify the active profile for loading various services, normally production
 spring.profiles.active: development
 spring.pid.file: /var/run/replicationd.pid
-
-# Logging properties
-logging.level:
-  org.springframework: ERROR
-  org.hibernate: ERROR
-  org.chronopolis: DEBUG
-
----
-# settings for test profile
-spring:
-  profiles: development
-logging.file: chronopolis-replication.log
-
----
-# settings for production profile
-spring:
-  profiles: production
-logging.file: /var/log/chronopolis/replication.log
