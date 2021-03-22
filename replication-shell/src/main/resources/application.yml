@@ -35,8 +35,10 @@ storage.preservation:
   posix:
     - id: 1
       path: /export/bags/
+      warn: 0.01
     - id: 2
       path: /export/more-bags/
+      warn: 0.01
 
 # Replication Cron Job Configuration
 # The rate at which to poll the ingest server for replications

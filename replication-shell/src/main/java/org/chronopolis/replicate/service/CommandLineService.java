@@ -85,6 +85,7 @@ public class CommandLineService implements ReplicationService {
         preservationProperties.getPosix().forEach(posix -> {
             log.info("   id : {}", posix.getId());
             log.info("   preservation-dir : {}", posix.getPath());
+            log.info("   warn : {}", posix.getWarn());
         });
         log.info("  Rsync:");
         log.info("    profile: {}", replicationProperties.getRsync().getProfile());
