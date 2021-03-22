@@ -26,9 +26,7 @@
         </li>
 
         <li sec:authorize="${hasRole('ROLE_ADMIN')}" class="ml-auto">
-            <a th:href="@{|/depositors/list/${depositor.namespace}/edit|}">
-                <i class="fa fa-pencil"></i>
-            </a>
+            <a th:href="@{|/depositors/list/${depositor.namespace}/edit|}">Edit</a>
         </li>
     </ol>
 </nav>
@@ -59,7 +57,7 @@
         <li class="ml-auto">
             <a data-toggle="collapse" data-target="#filter-body" id="dropdown" class="ml-auto"
                style="padding: 0 !important" aria-expanded="false" aria-controls="filter-body">
-                <i class="fa fa-search"></i> Search
+                <img class="search" src="/images/icon_search.png" alt="Search"/>
             </a>
         </li>
     </ol>

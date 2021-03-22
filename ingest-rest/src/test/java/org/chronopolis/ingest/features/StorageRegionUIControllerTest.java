@@ -52,7 +52,13 @@ public class StorageRegionUIControllerTest extends TestBase {
         xpath = "(//ol[@class='breadcrumb']/li)[2]/a";
         HtmlAnchor regionsLink = (HtmlAnchor)regionsPage.getFirstByXPath(xpath);
         assertThat(regionsLink.getAttribute("data-target").toString()).isEqualTo("#filter-body");
-        assertThat(regionsLink.getTextContent()).contains("Search");
+        
+        // Search icon
+        xpath = "(//ol[@class='breadcrumb']/li)[2]/a/img";
+        el = (HtmlElement) regionsPage.getFirstByXPath(xpath);
+        HtmlImage img = regionsPage.getFirstByXPath(xpath);
+        assertThat(img.getAltAttribute()).isEqualTo("Search");
+        assertThat(img.getAttribute("src")).isEqualTo("/images/icon_search.png");
 
         xpath = "//div[@class='card w-75 filterable']/table/tbody/tr";
         el = (HtmlElement) regionsPage.getFirstByXPath(xpath);
@@ -236,6 +242,8 @@ public class StorageRegionUIControllerTest extends TestBase {
 
         String editUrl = "/regions/" + regionId + "/edit";
         HtmlAnchor editLink = (HtmlAnchor)regionPage.getAnchorByHref(editUrl);
+        assertThat(editLink.getTextContent()).isEqualTo("Edit");
+
         HtmlPage editPage = editLink.click();
 
         String xpath = "//div[@class='card-body p-2']/h4";

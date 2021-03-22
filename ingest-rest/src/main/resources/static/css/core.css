@@ -119,3 +119,8 @@ ul.pagination li {
 .error {
     color: red;
 }
+
+img.search {
+    width: 30px;
+    cursor: pointer;
+}

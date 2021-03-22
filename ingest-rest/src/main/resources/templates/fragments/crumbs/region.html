@@ -16,7 +16,7 @@
         <li class="breadcrumb-item active" aria-current="page" th:text="${region.id}">Region Id</li>
 
         <li class="ml-auto">
-            <a th:href="@{|/regions/${region.id}/edit|}"><i class="fa fa-pencil"></i></a>
+            <a th:href="@{|/regions/${region.id}/edit|}">Edit</a>
         </li>
     </ol>
 </nav>
@@ -47,7 +47,7 @@
         <li class="ml-auto">
             <a data-toggle="collapse" data-target="#filter-body" id="dropdown"
                style="padding: 0 !important" aria-expanded="false" aria-controls="filter-body">
-                <i class="fa fa-search"></i> Search
+                <img class="search" src="/images/icon_search.png" alt="Search"/>
             </a>
         </li>
     </ol>
