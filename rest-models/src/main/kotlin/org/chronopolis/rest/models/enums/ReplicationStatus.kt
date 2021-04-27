@@ -11,6 +11,7 @@ enum class ReplicationStatus {
     ACE_REGISTERED,
     ACE_TOKEN_LOADED,
     ACE_AUDITING,
+	REMOVED,
 
     FAILURE_ACE_AUDIT,
     FAILURE_TOKEN_STORE,
@@ -28,6 +29,7 @@ enum class ReplicationStatus {
             || this == ACE_AUDITING
             || this == ACE_TOKEN_LOADED
             || this == ACE_REGISTERED
+	        || this == REMOVED
 
     fun isOngoing(): Boolean = !(this.isFailure() || this == SUCCESS)
 
@@ -44,6 +46,7 @@ enum class ReplicationStatus {
                         .put("Failed", FAILURE_ACE_AUDIT)
                         .put("Failed", FAILURE_TAG_MANIFEST)
                         .put("Failed", FAILURE_TOKEN_STORE)
+						.put("Removed", REMOVED)
                         .build()
     }
 
