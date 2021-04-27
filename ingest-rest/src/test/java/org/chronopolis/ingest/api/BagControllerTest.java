@@ -3,7 +3,7 @@ package org.chronopolis.ingest.api;
 import com.google.common.collect.ImmutableList;
 import com.querydsl.core.types.Predicate;
 
-import org.chronopolis.ingest.models.BagUpdate;
+import org.chronopolis.rest.models.update.BagUpdate;
 import org.chronopolis.ingest.repository.dao.BagDao;
 import org.chronopolis.ingest.support.BagCreateResult;
 import org.chronopolis.rest.entities.Bag;

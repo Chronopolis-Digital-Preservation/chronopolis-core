@@ -9,6 +9,8 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.QueryMap
+import retrofit2.http.PUT
+import org.chronopolis.rest.models.update.BagUpdate
 
 interface BagService {
 
@@ -48,4 +50,12 @@ interface BagService {
     @POST(Paths.BAG_ROOT)
     fun deposit(@Body body: BagCreate): Call<Bag>
 
+    /**
+     * Get a bag by its id
+     *
+     * @param bag the id of the bag
+     * @return the bag
+     */
+    @PUT("${Paths.BAG_ROOT}/{id}")
+    fun update(@Path("id") bag: Long, @Body body: BagUpdate): Call<Bag>
 }

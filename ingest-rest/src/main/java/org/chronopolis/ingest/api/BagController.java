@@ -3,7 +3,7 @@ package org.chronopolis.ingest.api;
 import org.chronopolis.ingest.IngestController;
 import org.chronopolis.ingest.exception.NotFoundException;
 import org.chronopolis.ingest.models.Paged;
-import org.chronopolis.ingest.models.BagUpdate;
+import org.chronopolis.rest.models.update.BagUpdate;
 import org.chronopolis.ingest.models.filter.BagFilter;
 import org.chronopolis.ingest.repository.dao.BagDao;
 import org.chronopolis.ingest.support.BagCreateResult;
