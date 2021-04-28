@@ -1,12 +1,22 @@
 package org.chronopolis.replicate.scheduled;
 
+import org.chronopolis.common.ace.AceCollections;
+import org.chronopolis.common.ace.AceService;
+import org.chronopolis.common.ace.GsonCollection;
 import org.chronopolis.replicate.batch.Submitter;
+import org.chronopolis.replicate.batch.callback.UpdateCallback;
+import org.chronopolis.replicate.batch.callback.BagUpdateCallback;
+import org.chronopolis.rest.api.BagService;
 import org.chronopolis.rest.api.IngestApiProperties;
 import org.chronopolis.rest.api.ReplicationService;
 import org.chronopolis.rest.api.ServiceGenerator;
+import org.chronopolis.rest.models.Bag;
 import org.chronopolis.rest.models.Replication;
+import org.chronopolis.rest.models.enums.BagStatus;
 import org.chronopolis.rest.models.enums.ReplicationStatus;
 import org.chronopolis.rest.models.page.SpringPage;
+import org.chronopolis.rest.models.update.BagUpdate;
+import org.chronopolis.rest.models.update.ReplicationStatusUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +31,14 @@ import retrofit2.Response;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.chronopolis.rest.models.enums.ReplicationStatus.*;
 
@@ -53,14 +62,75 @@ public class ReplicationQueryTask {
     private final IngestApiProperties properties;
     private final ReplicationService replications;
     private final Submitter submitter;
+    private final BagService bagService;
+    private final AceCollections aceCollections;
 
     @Autowired
     public ReplicationQueryTask(IngestApiProperties properties,
                                 ServiceGenerator generator,
-                                Submitter submitter) {
+                                Submitter submitter,
+                                AceCollections aceCollections) {
         this.properties = properties;
         this.submitter = submitter;
         this.replications = generator.replications();
+        this.bagService = generator.bags();
+        this.aceCollections = aceCollections;
+    }
+
+
+    /**
+     * Check the ace-am server for removed collections
+     * <p>
+     */
+    @Scheduled(cron = "${replication.removed.cron:0 0 * * * *}")
+    public void checkForRemovedCollections() {
+        log.info("Querying for removed collections on ace ...");
+
+        try {
+	        Call<List<GsonCollection>> gsonCall = aceCollections.getCollections(null, false, false, true);
+	        Response<List<GsonCollection>> gsonResponse = gsonCall.execute();
+	        List<GsonCollection> colls = gsonResponse.body();
+  
+            log.info("Retrieved {} collection(s) with REMOVED state from ace-am.", colls.size());     
+
+            for (GsonCollection coll : colls) {
+	        	Map<String,String> params = new HashMap<>();
+	        	params.put("name", coll.getName());
+		        Call<SpringPage<Replication>> replsCall = replications.get(params);
+		        Response<SpringPage<Replication>> response = replsCall.execute();
+		        SpringPage<Replication> repls = response.body();
+
+		        log.debug("Found {} replication(s) in collection {}.", repls.getTotalElements(), coll.getName()); 
+
+		        int removedCount = 0;
+		        for (Replication repl : repls) {
+		        	if (coll.getState().equals("R") && repl.getStatus() != ReplicationStatus.REMOVED) {
+		        		if (repl.getNode().equals(properties.getUsername())) {
+			        		// check for existence of the replication files
+			        		Path collPath = Paths.get(coll.getDirectory());
+			        		if (!Files.exists(collPath) || Files.list(collPath).map(Path::toFile).collect(Collectors.toList()).size() == 0) {
+					        	Call<Replication> replCall = replications.updateStatus(repl.getId(),
+					                    new ReplicationStatusUpdate(ReplicationStatus.REMOVED));
+					            replCall.enqueue(new UpdateCallback());
+			        		}
+			        	}
+		        	} else {
+		        		removedCount++;
+		        	}
+
+		        	// If all replications are removed (with REMOVED status), update Bag status to be DELETED
+		        	if (removedCount == repls.getNumberOfElements() && repl.getBag().getStatus() != BagStatus.DELETED) {
+			            Call<Bag> bagCall = bagService.update(repl.getBag().getId(),
+			                    new BagUpdate(null, BagStatus.DELETED));
+			            bagCall.enqueue(new BagUpdateCallback());
+
+			            log.info("Update status of collection {} to be DELETED!", repl.getBag().getName());
+		        	}
+		        }
+	        }
+        } catch (IOException e) {
+        	log.error("Error checking for removed replications", e);
+        }
     }
 
     /**

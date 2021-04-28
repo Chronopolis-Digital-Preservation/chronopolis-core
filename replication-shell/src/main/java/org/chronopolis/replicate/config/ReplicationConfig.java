@@ -1,6 +1,8 @@
 package org.chronopolis.replicate.config;
 
 import okhttp3.OkHttpClient;
+
+import org.chronopolis.common.ace.AceCollections;
 import org.chronopolis.common.ace.AceConfiguration;
 import org.chronopolis.common.ace.AceService;
 import org.chronopolis.common.storage.BucketBroker;
@@ -170,4 +172,28 @@ public class ReplicationConfig {
         return new PreservationPropertiesValidator();
     }
 
+    /**
+     * Retrofit adapter for interacting with the ACE REST API to retrieve collections
+     *
+     * @param configuration the ACE AM configuration properties
+     * @return the AceCollections for connecting to ACE
+     */
+    @Bean
+    public AceCollections aceCollectionsService(AceConfiguration configuration) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new OkBasicInterceptor(
+                        configuration.getUsername(),
+                        configuration.getPassword()))
+                .readTimeout(timeout, TimeUnit.MINUTES)
+                .writeTimeout(timeout, TimeUnit.MINUTES)
+                .build();
+
+        Retrofit restAdapter = new Retrofit.Builder()
+                .baseUrl(configuration.getAm())
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        return restAdapter.create(AceCollections.class);
+    }
 }

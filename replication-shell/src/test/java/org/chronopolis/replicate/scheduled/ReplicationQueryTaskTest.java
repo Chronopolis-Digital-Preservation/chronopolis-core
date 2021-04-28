@@ -1,6 +1,8 @@
 package org.chronopolis.replicate.scheduled;
 
 import com.google.common.collect.ImmutableSet;
+
+import org.chronopolis.common.ace.AceCollections;
 import org.chronopolis.replicate.batch.Submitter;
 import org.chronopolis.replicate.support.ReplGenerator;
 import org.chronopolis.rest.api.IngestApiProperties;
@@ -53,6 +55,7 @@ public class ReplicationQueryTaskTest {
 
     @Mock private Submitter submitter;
     @Mock private ReplicationService replicationService;
+    @Mock private AceCollections aceCollections;
 
     private ReplicationQueryTask task;
     private Call<SpringPage<Replication>> replications;
@@ -64,7 +67,7 @@ public class ReplicationQueryTaskTest {
         ServiceGenerator generator = new ReplGenerator(replicationService);
 
         // Init our RQT
-        task = new ReplicationQueryTask(properties, generator, submitter);
+        task = new ReplicationQueryTask(properties, generator, submitter, aceCollections);
 
         // Init our returned objects
         ArrayList<Replication> replicationList = new ArrayList<>();
