@@ -44,6 +44,10 @@ storage.preservation:
 # The rate at which to poll the ingest server for replications
 replication.cron: 0 0 * * * *
 
+# Removed state replications cron job configuration
+# The rate at which to poll the ace-am server to retrieve removed state replications
+replication.removed.cron: 0 0 * * * *
+
 # Various Configuration Properties
 # timeout: the timeout in Minutes for HTTP communication with the Audit Manager
 # ims.endpoint: ims service endpoint
