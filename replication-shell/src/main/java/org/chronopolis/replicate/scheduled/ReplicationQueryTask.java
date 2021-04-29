@@ -95,12 +95,12 @@ public class ReplicationQueryTask {
 
             for (GsonCollection coll : colls) {
 	        	Map<String,String> params = new HashMap<>();
-	        	params.put("name", coll.getName());
+	        	params.put("bag", coll.getName());
 		        Call<SpringPage<Replication>> replsCall = replications.get(params);
 		        Response<SpringPage<Replication>> response = replsCall.execute();
 		        SpringPage<Replication> repls = response.body();
 
-		        log.debug("Found {} replication(s) in collection {}.", repls.getTotalElements(), coll.getName()); 
+		        log.debug("Found {} replication(s) in removed collection {}.", repls.getTotalElements(), coll.getName()); 
 
 		        int removedCount = 0;
 		        for (Replication repl : repls) {
@@ -108,7 +108,13 @@ public class ReplicationQueryTask {
 		        		if (repl.getNode().equals(properties.getUsername())) {
 			        		// check for existence of the replication files
 			        		Path collPath = Paths.get(coll.getDirectory());
-			        		if (!Files.exists(collPath) || Files.list(collPath).map(Path::toFile).collect(Collectors.toList()).size() == 0) {
+			        		boolean collPathExist = Files.exists(collPath);
+			        		int collFiles = collPathExist ? Files.list(collPath).map(Path::toFile).collect(Collectors.toList()).size() : -1;
+
+			        		log.info("Remove replication {} [node {}, username {}, status {}] for collection {} [state {}, directory {}, files {}].",
+			        				repl.getId(), repl.getNode(), properties.getUsername(), repl.getStatus(), coll.getName(), coll.getState(), coll.getDirectory(), collFiles); 
+			        		
+			        		if (!collPathExist || collFiles <= 0) {
 					        	Call<Replication> replCall = replications.updateStatus(repl.getId(),
 					                    new ReplicationStatusUpdate(ReplicationStatus.REMOVED));
 					            replCall.enqueue(new UpdateCallback());
