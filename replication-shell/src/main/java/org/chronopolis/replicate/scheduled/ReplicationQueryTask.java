@@ -87,7 +87,7 @@ public class ReplicationQueryTask {
         log.info("Querying for removed collections on ace ...");
 
         try {
-	        Call<List<GsonCollection>> gsonCall = aceCollections.getCollections(null, false, false, true);
+	        Call<List<GsonCollection>> gsonCall = aceCollections.getRemovedCollections();
 	        Response<List<GsonCollection>> gsonResponse = gsonCall.execute();
 	        List<GsonCollection> colls = gsonResponse.body();
   

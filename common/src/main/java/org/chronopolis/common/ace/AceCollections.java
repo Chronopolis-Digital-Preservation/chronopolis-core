@@ -17,10 +17,11 @@ public interface AceCollections {
     @GET("rest/collections")
     Call<List<GsonCollection>> getCollections(@Query("group") String group,
                                               @Query("corrupt") Boolean corrupt,
-                                              @Query("active") Boolean active,
-                                              @Query("removed") Boolean removed);
+                                              @Query("active") Boolean active);
 
     @GET("rest/collections/{id}/items")
     Call<List<MonitoredItem>> getItems(@Path("id") Long id, @Query("state") String state);
 
+    @GET("rest/collections/removed")
+    Call<List<GsonCollection>> getRemovedCollections();
 }
