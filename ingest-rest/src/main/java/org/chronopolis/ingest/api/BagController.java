@@ -4,6 +4,8 @@ import org.chronopolis.ingest.IngestController;
 import org.chronopolis.ingest.exception.NotFoundException;
 import org.chronopolis.ingest.models.Paged;
 import org.chronopolis.rest.models.update.BagUpdate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.chronopolis.ingest.models.filter.BagFilter;
 import org.chronopolis.ingest.repository.dao.BagDao;
 import org.chronopolis.ingest.support.BagCreateResult;
@@ -35,6 +37,7 @@ import java.security.Principal;
 @RestController
 @RequestMapping("/api/bags")
 public class BagController extends IngestController {
+    private final Logger log = LoggerFactory.getLogger(BagController.class);
 
     private final BagDao dao;
 
@@ -113,6 +116,9 @@ public class BagController extends IngestController {
 
         bag.setStatus(update.getStatus());
         dao.save(bag);
+
+        log.info("Updated bag {} ({}) status: {} to {}.", bag.getName(), bag.getId(), bag.getStatus(), update.getStatus());
+
         return ResponseEntity.ok(bag);
     }
 }
