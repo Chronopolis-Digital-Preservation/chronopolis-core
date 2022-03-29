@@ -100,9 +100,9 @@ class Bag(
     @PreUpdate
     fun onUpdateBag() {
         val replicated = distributions.stream()
-                .allMatch { it.status == BagDistributionStatus.REPLICATE && status != BagStatus.DELETED }
+                .allMatch { it.status == BagDistributionStatus.REPLICATE }
 
-        if (replicated && !distributions.isEmpty()) {
+        if (replicated && status != BagStatus.DELETED && !distributions.isEmpty()) {
             status = BagStatus.PRESERVED
         }
     }
