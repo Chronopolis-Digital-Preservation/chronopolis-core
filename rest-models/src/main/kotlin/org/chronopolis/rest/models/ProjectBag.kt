@@ -12,4 +12,5 @@ data class ProjectBag(val id: Long,
         val status: BagStatus,
         val createdAt: ZonedDateTime,
         val updatedAt: ZonedDateTime,
-        val depositor: String)
+        val depositor: String,
+        val replicatingNodes: Set<String>? = emptySet())

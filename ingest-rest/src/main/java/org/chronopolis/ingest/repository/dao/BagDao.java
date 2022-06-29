@@ -2,6 +2,7 @@ package org.chronopolis.ingest.repository.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.EntityPath;
 import com.querydsl.jpa.impl.JPAQuery;
 
@@ -146,8 +147,10 @@ public class BagDao extends PagedDao {
      */
     public List<PartialBag> partialViews(BagFilter filter) {
         QBag bag = QBag.bag;
+ 
+        ConstructorExpression<PartialBag> constructorExpr = filter.getRegion() > 0 ? partialBridgeProjection() : partialProjection();
         return partialQuery(filter)
-                .transform(GroupBy.groupBy(bag.id).list(partialProjection()));
+                .transform(GroupBy.groupBy(bag.id).list(constructorExpr));
     }
 
     /**
@@ -169,11 +172,20 @@ public class BagDao extends PagedDao {
         QNode node = new QNode(DISTRIBUTION_IDENTIFIER);
         QDepositor depositor = QDepositor.depositor;
         QBagDistribution distribution = QBagDistribution.bagDistribution;
-        return getJPAQueryFactory().from(bag)
-                .innerJoin(bag.depositor, depositor)
-                .where(filter.getQuery())
-                .orderBy(filter.getOrderSpecifier())
-                .restrict(filter.getRestriction());
+
+        JPAQuery<?> query = getJPAQueryFactory().from(bag)
+                    .innerJoin(bag.depositor, depositor);
+
+        // Handle request from duracloud bridge with bags that need to REPLICATE.
+        if (filter.getRegion() > 0) {
+            query = query.leftJoin(bag.distributions, distribution)
+                    .on(distribution.status.eq(BagDistributionStatus.REPLICATE))
+                    .leftJoin(distribution.node, node);
+        }
+
+        return  query = query.where(filter.getQuery())
+                    .orderBy(filter.getOrderSpecifier())
+                    .restrict(filter.getRestriction());
     }
 
     /**
