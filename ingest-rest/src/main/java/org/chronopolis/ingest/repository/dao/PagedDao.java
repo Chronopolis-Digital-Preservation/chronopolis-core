@@ -297,6 +297,29 @@ public class PagedDao {
     }
 
     /**
+     * Constructor for a {@link PartialBag} for use in Query Projections with replications nodes for duracloud bridge
+     *
+     * @return the {@link ConstructorExpression} mapping to a {@link PartialBag}
+     */
+    @SuppressWarnings("WeakerAccess")
+    public ConstructorExpression<PartialBag> partialBridgeProjection() {
+        QBag bag = QBag.bag;
+        QNode node = new QNode(DISTRIBUTION_IDENTIFIER);
+        QDepositor depositor = QDepositor.depositor;
+        return Projections.constructor(PartialBag.class,
+                bag.id,
+                bag.name,
+                bag.creator,
+                bag.size,
+                bag.totalFiles,
+                bag.status,
+                bag.createdAt,
+                bag.updatedAt,
+                depositor.namespace,
+                GroupBy.set(node.username));
+    }
+
+    /**
      * Constructor for a {@link StagingView} for use in Query Projections
      *
      * @return the {@link ConstructorExpression} mapping to a {@link StagingView}

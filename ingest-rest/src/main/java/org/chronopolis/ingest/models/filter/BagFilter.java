@@ -27,6 +27,7 @@ public class BagFilter extends Paged {
     private String name;
     private String creator;
     private String depositor;
+    private long region = -1L;
     private List<BagStatus> status;
     private ZonedDateTime updatedBefore;
 
@@ -67,6 +68,17 @@ public class BagFilter extends Paged {
             this.depositor = depositor;
             parameters.put("depositor", depositor);
             builder.and(bag.depositor.namespace.eq(depositor));
+        }
+        return this;
+    }
+
+    public long getRegion() {
+        return region;
+    }
+
+    public BagFilter setRegion(long region) {
+        if (region > 0) {
+            this.region = region;
         }
         return this;
     }

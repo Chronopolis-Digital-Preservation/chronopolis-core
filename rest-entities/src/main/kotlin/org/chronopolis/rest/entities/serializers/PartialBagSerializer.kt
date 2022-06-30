@@ -22,6 +22,7 @@ private fun PartialBag.toModel(): ProjectBag {
             status,
             createdAt,
             updatedAt,
-            depositor
+            depositor,
+            replicatingNodes
     )
 }
